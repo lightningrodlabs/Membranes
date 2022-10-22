@@ -115,10 +115,16 @@ export class TaskerController extends ScopedElementsMixin(LitElement) {
 
 
   /** */
-  async refresh() {
+  async refresh(_e: any) {
     console.log("refresh(): Pulling data from DHT")
     await this._store.pullAllFromDht()
     this.requestUpdate();
+  }
+
+
+  async onCreateList(e: any) {
+    console.log("onCreateList() CALLED", e)
+    //this._store.createTaskList();
   }
 
 
@@ -126,10 +132,25 @@ export class TaskerController extends ScopedElementsMixin(LitElement) {
   render() {
     console.log("controller render() START");
 
+    const listList = Object.entries(this._lists.value).map(
+        ([key, taskList]) => {
+          return html `<li>${taskList.title}</li>`
+        }
+    )
 
     /** render all */
     return html`
-        
+      <div>
+        <button type="button" @click=${this.refresh}>Refresh</button>
+        <h3>New list:</h3>
+        <form>
+          <label for="title">Title:</label><br>
+          <input type="text" id="title" name="title">
+          <input type="submit" value="create" @click=${this.onCreateList}>
+        </form>
+        <h1>Lists</h1>
+        <ul>${listList}</ul>
+      </div>
     `;
   }
 
