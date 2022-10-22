@@ -6,7 +6,7 @@ use tasker_model::*;
 /// Setup initial capabilities
 #[hdk_extern]
 fn init_caps(_: ()) -> ExternResult<()> {
-   let mut functions: GrantedFunctions = BTreeSet::new();
+   let /*mut*/ functions: GrantedFunctions = BTreeSet::new();
    //functions.insert((zome_info()?.name, REMOTE_ENDPOINT.into()));
    create_cap_grant(
       CapGrantEntry {
@@ -53,7 +53,7 @@ fn post_commit(_signedActionList: Vec<SignedActionHashed>) {
 
 /// Zome Callback
 #[hdk_extern]
-fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
+fn validate(_op: Op) -> ExternResult<ValidateCallbackResult> {
    // fixme
    Ok(ValidateCallbackResult::Valid)
 }

@@ -4,8 +4,12 @@
 #![allow(non_snake_case)]
 #![allow(unused_attributes)]
 
+mod callbacks;
+mod ui;
+
 use hdk::prelude::*;
 use tasker_model::*;
+
 
 #[hdk_extern]
 fn create_task_list(title: String) -> ExternResult<ActionHash> {
@@ -24,6 +28,7 @@ fn create_task_list(title: String) -> ExternResult<ActionHash> {
 
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct CreateTaskItemInput {
    pub title: String,
    pub assignee: AgentPubKey,
@@ -45,6 +50,7 @@ fn create_task_item(input: CreateTaskItemInput) -> ExternResult<ActionHash> {
 
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct ReassignTaskInput {
    pub task_ah: ActionHash,
    pub assignee: AgentPubKey,

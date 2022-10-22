@@ -1,0 +1,152 @@
+import {css, html, LitElement} from "lit";
+import {property} from "lit/decorators.js";
+
+
+//import {contextProvided} from "@holochain-open-dev/context";
+import { contextProvided } from '@lit-labs/context';
+
+import {taskerContext, TaskListEntry} from "../types";
+import {HolochainStore} from "../holochain.store";
+import {SlBadge, SlTooltip} from '@scoped-elements/shoelace';
+import {ScopedElementsMixin} from "@open-wc/scoped-elements";
+//import {IMAGE_SCALE} from "../constants";
+
+
+export const delay = (ms:number) => new Promise(r => setTimeout(r, ms))
+
+const toHHMMSS = function (str: string) {
+  var sec_num = parseInt(str, 10); // don't forget the second param
+  var hours:any   = Math.floor(sec_num / 3600);
+  var minutes:any = Math.floor((sec_num - (hours * 3600)) / 60);
+  var seconds:any = sec_num - (hours * 3600) - (minutes * 60);
+
+  if (hours   < 10) {hours   = "0"+hours;}
+  if (minutes < 10) {minutes = "0"+minutes;}
+  if (seconds < 10) {seconds = "0"+seconds;}
+  return hours+':'+minutes+':'+seconds;
+}
+
+
+
+
+/**
+ * @element place-controller
+ */
+export class TaskerController extends ScopedElementsMixin(LitElement) {
+  constructor() {
+    super();
+  }
+
+  /** Public attributes */
+  @property({ type: Boolean, attribute: 'debug' })
+  debugMode: boolean = false;
+
+  /** Dependencies */
+  @contextProvided({ context: taskerContext })
+  _store!: HolochainStore;
+
+
+  /** Private properties */
+  _canAutoRefresh = true;
+
+
+  /** Getters */
+
+
+  // get datePickerElem(): any {
+  //   return this.shadowRoot!.getElementById("my-date-picker");
+  // }
+  //
+  // get loadingOverlayElem(): HTMLDivElement {
+  //   return this.shadowRoot!.getElementById("loading-overlay") as HTMLDivElement;
+  // }
+
+
+  /** After first render only */
+  async firstUpdated() {
+    console.log("place-controller first update done!")
+    await this.init();
+  }
+
+
+  /** After each render */
+  async updated(changedProperties: any) {
+    console.log("*** updated() called !")
+  }
+
+
+  /**
+   * Called after first update
+   * Get local snapshots and latest from DHT
+   */
+  private async init() {
+    console.log("place-controller.init() - START!");
+
+    /** Wait a second for startup? */
+    await delay(1 * 1000);
+
+    /** Get latest from DHT and store it */
+    await this._store.pullAllFromDht();
+
+    /** Done */
+    console.log("place-controller.init() - DONE");
+  }
+
+
+
+  /** Called once after init is done and canvas has been rendered */
+  private async postInit() {
+    console.log("place-controller.postInit() - START!");
+    // FIXME
+    console.log("place-controller.postInit() - DONE");
+  }
+
+
+
+  /** Callback for this.publishToNow() */
+  private onPublish(snapshot: SnapshotEntry, cbData?: Controller): void {
+    console.log("onPublish() called: " + snapshot.timeBucketIndex)
+    if (cbData) {
+      cbData.viewSnapshot(snapshot, cbData._store.getMaybeProperties()!.canvasSize)
+      cbData.requestUpdate();
+    }
+  }
+
+
+
+  /** */
+  async refresh() {
+    console.log("refresh(): Pulling data from DHT")
+    await this._store.pullAllFromDht()
+    this.requestUpdate();
+  }
+
+
+  /** Render for real-time editing of frame */
+  render() {
+    console.log("controller render() START");
+
+
+    /** render all */
+    return html`
+        
+    `;
+  }
+
+
+  /** */
+  static get scopedElements() {
+    return {
+      //"place-snapshot": PlaceSnapshot,
+      'sl-tooltip': SlTooltip,
+      'sl-badge': SlBadge,
+    };
+  }
+
+
+  static get styles() {
+    return [
+      css``,
+    ];
+  }
+}

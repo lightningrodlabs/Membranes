@@ -29,6 +29,7 @@ pub struct TaskList {
 ///
 #[hdk_entry_helper]
 #[derive(Clone, PartialEq)]
+#[serde(rename_all = "camelCase")]
 pub struct TaskItem {
    pub title: String,
    pub assignee: AgentPubKey,
