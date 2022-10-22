@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Compile the WASM
-cargo build --release --target wasm32-unknown-unknown
+#cargo build --release --target wasm32-unknown-unknown
 # test zome
 hc dna pack --output=tasker.dna examples/workdir
 hc app pack --output=tasker.happ examples/workdir

@@ -1,0 +1,16 @@
+---
+manifest_version: "1"
+
+name: tasker-happ
+description: Task manager app
+
+roles:
+  - id: tasker
+    provisioning:
+      strategy: create
+      deferred: false
+    dna:
+      bundled: ../../tasker.dna
+      uuid: ~
+      properties: ~
+      clone_limit: 0
