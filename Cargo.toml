@@ -1,0 +1,22 @@
+[workspace]
+resolver = "2"
+members = [
+  #"crates/types",
+  #"crates/membranes_model",
+  #"crates/membranes",
+  "examples/zomes/tasker",
+  "examples/zomes/tasker_model",
+  #"sweettest",
+]
+
+[profile.dev]
+lto = false
+opt-level = 0
+overflow-checks = false
+
+[profile.release]
+opt-level = "z"
+lto = true # link time optimization
+
+[profile.release.build-override]
+opt-level = "z"
