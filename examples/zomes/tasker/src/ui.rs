@@ -1,6 +1,7 @@
 use hdk::prelude::*;
 #[allow(unused_imports)]
 use tasker_model::*;
+use crate::holo_hash::ActionHashB64;
 
 #[derive(Serialize, Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
@@ -73,7 +74,7 @@ pub fn get_task_list(list_ah: ActionHash) -> ExternResult<Option<FullTaskList>> 
 
 ///
 #[hdk_extern]
-pub fn get_all_lists(_: ()) -> ExternResult<Vec<ActionHash>> {
+pub fn get_all_lists(_: ()) -> ExternResult<Vec<ActionHashB64>> {
    /// Get all TaskLists links
    let path_hash = Path::from("lists").path_entry_hash()?;
    let list_links = get_links(path_hash, TaskerLink::TaskLists, None)?;
@@ -82,7 +83,7 @@ pub fn get_all_lists(_: ()) -> ExternResult<Vec<ActionHash>> {
    let mut full_lists = Vec::new();
    for list_link in list_links {
       let list_ah: ActionHash = list_link.target.into();
-      full_lists.push(list_ah);
+      full_lists.push(list_ah.into());
       // let maybe_list = get_task_list(list_ah)?;
       // if let Some(lsit) = maybe_list {
       //    full_lists.push(lsit);

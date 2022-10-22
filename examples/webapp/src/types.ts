@@ -1,7 +1,7 @@
 import {AgentPubKeyB64, EntryHashB64, ActionHashB64, HoloHashB64} from "@holochain-open-dev/core-types";
 //import { createContext, Context } from "@holochain-open-dev/context";
 import { createContext } from '@lit-labs/context';
-import { HolochainStore } from "./place.store";
+import { HolochainStore } from "./holochain.store";
 
 export const taskerContext = createContext<HolochainStore>('tasker/service');
 

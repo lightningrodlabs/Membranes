@@ -8,14 +8,11 @@ import {serializeHash} from '@holochain-open-dev/utils';
 
 import {AppWebsocket} from "@holochain/client";
 
-import {
-  TaskerController,
-  HolochainStore,
-  taskerContext,
-} from "./elements/controller";
+import {TaskerController} from "./elements/controller";
+import {HolochainStore} from "./holochain.store";
+import {taskerContext} from "./types";
 
-
-let APP_ID = 'place'
+let APP_ID = 'tasker'
 let HC_PORT:any = process.env.HC_PORT;
 let NETWORK_ID: any = null
 

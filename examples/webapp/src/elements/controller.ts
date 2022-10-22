@@ -7,7 +7,7 @@ import { contextProvided } from '@lit-labs/context';
 
 import {taskerContext, TaskListEntry} from "../types";
 import {HolochainStore} from "../holochain.store";
-import {SlBadge, SlTooltip} from '@scoped-elements/shoelace';
+//import {SlBadge, SlTooltip} from '@scoped-elements/shoelace';
 import {ScopedElementsMixin} from "@open-wc/scoped-elements";
 //import {IMAGE_SCALE} from "../constants";
 
@@ -102,29 +102,19 @@ export class TaskerController extends ScopedElementsMixin(LitElement) {
   }
 
 
-
-  /** Callback for this.publishToNow() */
-  private onPublish(snapshot: SnapshotEntry, cbData?: Controller): void {
-    console.log("onPublish() called: " + snapshot.timeBucketIndex)
-    if (cbData) {
-      cbData.viewSnapshot(snapshot, cbData._store.getMaybeProperties()!.canvasSize)
-      cbData.requestUpdate();
-    }
-  }
-
-
-
   /** */
   async refresh(_e: any) {
     console.log("refresh(): Pulling data from DHT")
     await this._store.pullAllFromDht()
-    this.requestUpdate();
+    //this.requestUpdate();
   }
 
 
   async onCreateList(e: any) {
     console.log("onCreateList() CALLED", e)
-    //this._store.createTaskList();
+    const input = this.shadowRoot!.getElementById("titleInput") as HTMLInputElement;
+    console.log(input)
+    this._store.createTaskList(input.value);
   }
 
 
@@ -132,7 +122,7 @@ export class TaskerController extends ScopedElementsMixin(LitElement) {
   render() {
     console.log("controller render() START");
 
-    const listList = Object.entries(this._lists.value).map(
+    const listList = Object.entries(this._store.taskListStore).map(
         ([key, taskList]) => {
           return html `<li>${taskList.title}</li>`
         }
@@ -144,12 +134,17 @@ export class TaskerController extends ScopedElementsMixin(LitElement) {
         <button type="button" @click=${this.refresh}>Refresh</button>
         <h3>New list:</h3>
         <form>
-          <label for="title">Title:</label><br>
-          <input type="text" id="title" name="title">
-          <input type="submit" value="create" @click=${this.onCreateList}>
+          <label for="titleInput">Title:</label><br>
+          <input type="text" id="titleInput" name="title">
+          <input type="button" value="create" @click=${this.onCreateList}>
         </form>
         <h1>Lists</h1>
         <ul>${listList}</ul>
+        <h1>List:</h1>
+        <label for="selectedList">Choose a TaskList:</label>
+        <select name="selectedList" id="selectedList">
+            ${listList}
+        </select>
       </div>
     `;
   }
@@ -159,8 +154,8 @@ export class TaskerController extends ScopedElementsMixin(LitElement) {
   static get scopedElements() {
     return {
       //"place-snapshot": PlaceSnapshot,
-      'sl-tooltip': SlTooltip,
-      'sl-badge': SlBadge,
+      //'sl-tooltip': SlTooltip,
+      //'sl-badge': SlBadge,
     };
   }
 
