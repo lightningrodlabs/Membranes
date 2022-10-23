@@ -106,7 +106,7 @@ export class TaskerController extends ScopedElementsMixin(LitElement) {
   async refresh(_e: any) {
     console.log("refresh(): Pulling data from DHT")
     await this._store.pullAllFromDht()
-    //this.requestUpdate();
+    this.requestUpdate();
   }
 
 
@@ -114,19 +114,31 @@ export class TaskerController extends ScopedElementsMixin(LitElement) {
     console.log("onCreateList() CALLED", e)
     const input = this.shadowRoot!.getElementById("titleInput") as HTMLInputElement;
     console.log(input)
-    this._store.createTaskList(input.value);
+    let res = this._store.createTaskList(input.value);
+    console.log("onCreateList res:", res)
+    input.value = "";
+    await this.refresh(null);
   }
 
 
   /** Render for real-time editing of frame */
   render() {
-    console.log("controller render() START");
+    console.log("controller render() START", this._store.taskListStore);
 
-    const listList = Object.entries(this._store.taskListStore).map(
-        ([key, taskList]) => {
+    const listListLi = Object.entries(this._store.taskListStore).map(
+        ([ahB64, taskList]) => {
+          //console.log("taskList:", ahB64)
           return html `<li>${taskList.title}</li>`
         }
     )
+
+    const listListOption = Object.entries(this._store.taskListStore).map(
+      ([ahB64, taskList]) => {
+        //console.log("taskList:", ahB64)
+        return html `<option value="${ahB64}">${taskList.title}</option>`
+      }
+  )
+
 
     /** render all */
     return html`
@@ -139,11 +151,11 @@ export class TaskerController extends ScopedElementsMixin(LitElement) {
           <input type="button" value="create" @click=${this.onCreateList}>
         </form>
         <h1>Lists</h1>
-        <ul>${listList}</ul>
+        <ul>${listListLi}</ul>
         <h1>List:</h1>
         <label for="selectedList">Choose a TaskList:</label>
         <select name="selectedList" id="selectedList">
-            ${listList}
+            ${listListOption}
         </select>
       </div>
     `;

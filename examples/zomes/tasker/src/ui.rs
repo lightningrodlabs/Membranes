@@ -2,6 +2,7 @@ use hdk::prelude::*;
 #[allow(unused_imports)]
 use tasker_model::*;
 use crate::holo_hash::ActionHashB64;
+use crate::holo_hash::AgentPubKeyB64;
 
 #[derive(Serialize, Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
@@ -13,9 +14,9 @@ pub struct FullTaskItem {
 /// Zome Function
 /// get an agent's latest handle
 #[hdk_extern]
-pub fn get_task_item(task_ah: ActionHash) -> ExternResult<Option<FullTaskItem>> {
+pub fn get_task_item(task_ah: ActionHashB64) -> ExternResult<Option<FullTaskItem>> {
    /// Get TaskItem
-   let maybe_pair = zome_utils::get_typed_from_ah::<TaskItem>(task_ah.clone()); // FIXME should get latest and not content
+   let maybe_pair = zome_utils::get_typed_from_ah::<TaskItem>(task_ah.clone().into()); // FIXME should get latest and not content
    if maybe_pair.is_err() {
       return Ok(None);
    }
@@ -43,8 +44,10 @@ pub struct FullTaskList {
 /// Zome Function
 /// get an agent's latest handle
 #[hdk_extern]
-pub fn get_task_list(list_ah: ActionHash) -> ExternResult<Option<FullTaskList>> {
-   let maybe_pair = zome_utils::get_typed_from_ah::<TaskItem>(list_ah.clone()); // FIXME should get latest and not content
+pub fn get_task_list(list_ah: ActionHashB64) -> ExternResult<Option<FullTaskList>> {
+   debug!("get_task_list(): '{}'", list_ah);
+   let maybe_pair = zome_utils::get_typed_from_ah::<TaskList>(list_ah.clone().into()); // FIXME should get latest and not content
+   debug!("get_task_list() result = '{:?}'", maybe_pair);
    if maybe_pair.is_err() {
       return Ok(None);
    }
@@ -57,7 +60,7 @@ pub fn get_task_list(list_ah: ActionHash) -> ExternResult<Option<FullTaskList>> 
    let mut items = Vec::new();
    for item_link in item_links {
       let item_ah: ActionHash = item_link.target.into();
-      let maybe_item = get_task_item(item_ah)?;
+      let maybe_item = get_task_item(item_ah.into())?;
       if let Some(item) = maybe_item {
          items.push(item);
       }
