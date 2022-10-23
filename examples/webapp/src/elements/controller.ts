@@ -5,7 +5,7 @@ import {property} from "lit/decorators.js";
 //import {contextProvided} from "@holochain-open-dev/context";
 import { contextProvided } from '@lit-labs/context';
 
-import {taskerContext, TaskListEntry} from "../types";
+import {taskerContext, TaskList, TaskListEntry} from "../types";
 import {HolochainStore} from "../holochain.store";
 //import {SlBadge, SlTooltip} from '@scoped-elements/shoelace';
 import {ScopedElementsMixin} from "@open-wc/scoped-elements";
@@ -48,6 +48,8 @@ export class TaskerController extends ScopedElementsMixin(LitElement) {
 
   /** Private properties */
   _canAutoRefresh = true;
+
+  _selectedList?: TaskList;
 
 
   /** Getters */
@@ -120,6 +122,15 @@ export class TaskerController extends ScopedElementsMixin(LitElement) {
     await this.refresh(null);
   }
 
+  async onListSelect(e: any) {
+    console.log("onListSelect() CALLED", e)
+  
+    //let list = this._store.createTaskList(e.detail.value);
+    //console.log("onListSelect() list:", list)
+    //this._selectedList = list
+    this.requestUpdate();
+  }
+
 
   /** Render for real-time editing of frame */
   render() {
@@ -152,11 +163,13 @@ export class TaskerController extends ScopedElementsMixin(LitElement) {
         </form>
         <h1>Lists</h1>
         <ul>${listListLi}</ul>
-        <h1>List:</h1>
+        <h1>Lists:</h1>
         <label for="selectedList">Choose a TaskList:</label>
-        <select name="selectedList" id="selectedList">
+        <select name="selectedList" id="selectedList" @click=${this.onListSelect}>
             ${listListOption}
         </select>
+        <h1>Selected List</h1>
+        <h3>${this._selectedList? this._selectedList.title : "<none>"}</h3>
       </div>
     `;
   }
