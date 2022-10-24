@@ -88,16 +88,16 @@ export class HolochainStore {
 
   async pullAllFromDht() {
     const lists = await this.service.getAllLists();
-    console.log("pullAllFromDht:", lists)
+    //console.log("pullAllFromDht:", lists)
     for (const listAh of lists) {
       const maybeList = await this.service.getTaskList(listAh);
-      console.log({maybeList})
+      //console.log({maybeList})
       if (maybeList) {
         this.taskListStore[listAh] = maybeList
         // FIXME store each taskItem
       }
     }
-    console.log(this.taskListStore)
+    //console.log(this.taskListStore)
   }
 
 

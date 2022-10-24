@@ -5,7 +5,7 @@ import {property} from "lit/decorators.js";
 //import {contextProvided} from "@holochain-open-dev/context";
 import { contextProvided } from '@lit-labs/context';
 
-import {taskerContext, TaskList, TaskListEntry} from "../types";
+import {Dictionary, taskerContext, TaskList, TaskListEntry} from "../types";
 import {HolochainStore} from "../holochain.store";
 //import {SlBadge, SlTooltip} from '@scoped-elements/shoelace';
 import {ScopedElementsMixin} from "@open-wc/scoped-elements";
@@ -53,6 +53,7 @@ export class TaskerController extends ScopedElementsMixin(LitElement) {
   _selectedList: TaskList | null = null;
   _selectedListAh?: ActionHashB64;
 
+  _pullCount: number = 0
 
   /** Getters */
 
@@ -75,7 +76,7 @@ export class TaskerController extends ScopedElementsMixin(LitElement) {
 
   /** After each render */
   async updated(changedProperties: any) {
-    console.log("*** updated() called !")
+    //console.log("*** updated() called !")
   }
 
 
@@ -110,6 +111,10 @@ export class TaskerController extends ScopedElementsMixin(LitElement) {
   async refresh(_e: any) {
     console.log("refresh(): Pulling data from DHT")
     await this._store.pullAllFromDht()
+    this._pullCount += 1;
+    if (this._selectedListAh) {
+      this._selectedList = await this._store.getTaskList(this._selectedListAh!)
+    }
     this.requestUpdate();
   }
 
@@ -218,7 +223,7 @@ export class TaskerController extends ScopedElementsMixin(LitElement) {
           <input type="button" value="submit" @click=${this.onSubmitCompletion} .disabled=${this._selectedList.isLocked}>
           </form>
       `
-    }c
+    }
 
     /** render all */
     return html`
