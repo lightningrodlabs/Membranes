@@ -47,8 +47,8 @@ export class HolochainService {
     return this.callZome('create_task_list', title);
   }
 
-  async createTaskItem(title: string, assignee: ActionHashB64, listAh: ActionHashB64): Promise<ActionHashB64> {
-    return this.callZome('create_task_item', title);
+  async createTaskItem(title: string, assignee: AgentPubKeyB64, listAh: ActionHashB64): Promise<ActionHashB64> {
+    return this.callZome('create_task_item', {title, assignee, listAh});
   }
 
   async reassignTask(taskAh: ActionHashB64, assignee: ActionHashB64): Promise<ActionHashB64> {

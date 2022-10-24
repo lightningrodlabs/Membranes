@@ -9,6 +9,7 @@ import {taskerContext, TaskList, TaskListEntry} from "../types";
 import {HolochainStore} from "../holochain.store";
 //import {SlBadge, SlTooltip} from '@scoped-elements/shoelace';
 import {ScopedElementsMixin} from "@open-wc/scoped-elements";
+import {ActionHashB64} from "@holochain-open-dev/core-types";
 //import {IMAGE_SCALE} from "../constants";
 
 
@@ -49,7 +50,8 @@ export class TaskerController extends ScopedElementsMixin(LitElement) {
   /** Private properties */
   _canAutoRefresh = true;
 
-  _selectedList?: TaskList;
+  _selectedList: TaskList | null = null;
+  _selectedListAh?: ActionHashB64;
 
 
   /** Getters */
@@ -112,23 +114,64 @@ export class TaskerController extends ScopedElementsMixin(LitElement) {
   }
 
 
+  /** */
   async onCreateList(e: any) {
-    console.log("onCreateList() CALLED", e)
-    const input = this.shadowRoot!.getElementById("titleInput") as HTMLInputElement;
-    console.log(input)
+    //console.log("onCreateList() CALLED", e)
+    const input = this.shadowRoot!.getElementById("listTitleInput") as HTMLInputElement;
+    //console.log(input)
     let res = this._store.createTaskList(input.value);
-    console.log("onCreateList res:", res)
+    //console.log("onCreateList res:", res)
     input.value = "";
     await this.refresh(null);
   }
 
+
+  /** */
+  async onCreateTask(e: any) {
+    //console.log("onCreateTask() CALLED", e)
+    const input = this.shadowRoot!.getElementById("itemTitleInput") as HTMLInputElement;
+    //console.log(input)
+    let res = this._store.createTaskItem(input.value, this._store.myAgentPubKey, this._selectedListAh!);
+    //console.log("onCreateList res:", res)
+    input.value = "";
+    await this.refresh(null);
+  }
+
+
+  /** */
+  async onLockList(e: any) {
+    //console.log("onLockList() CALLED", e)
+    const input = this.shadowRoot!.getElementById("itemTitleInput") as HTMLInputElement;
+    //console.log(input)
+    let res = this._store.lockTaskList(this._selectedListAh!);
+    //console.log("onLockList res:", res)
+    await this.refresh(null);
+  }
+
+
+  /** */
   async onListSelect(e: any) {
-    console.log("onListSelect() CALLED", e)
-  
-    //let list = this._store.createTaskList(e.detail.value);
-    //console.log("onListSelect() list:", list)
-    //this._selectedList = list
+    //console.log("onListSelect() CALLED", e)
+    //console.log("onListSelect() list:", e.originalTarget.value)
+    this._selectedListAh = e.originalTarget.value
+    this._selectedList = await this._store.getTaskList(e.originalTarget.value)
     this.requestUpdate();
+  }
+
+
+  /** */
+  async onSubmitCompletion(e: any) {
+    //console.log("onSubmitCompletion() CALLED", e)
+    Object.values(this._selectedList?.items!).map(
+        ([ahB64, taskItem]) => {
+          const checkbox = this.shadowRoot!.getElementById(ahB64) as HTMLInputElement;
+          //console.log("" + checkbox.checked + ". checkbox " + ahB64)
+          if (checkbox.checked) {
+            this._store.completeTask(ahB64)
+          }
+        }
+    )
+    await this.refresh(null);
   }
 
 
@@ -148,28 +191,54 @@ export class TaskerController extends ScopedElementsMixin(LitElement) {
         //console.log("taskList:", ahB64)
         return html `<option value="${ahB64}">${taskList.title}</option>`
       }
-  )
+    )
 
+    /** Display selected list */
+    let selectedListHtml = html `<h3>\<none\></h3>`
+    if (this._selectedList) {
+      const listItems = Object.entries(this._selectedList.items).map(
+          ([index, [ahB64, taskItem]]) => {
+            //console.log("taskList:", ahB64)
+            return html`
+              <input type="checkbox" id="${ahB64}" value="${ahB64}" .checked=${taskItem.isCompleted} .disabled=${this._selectedList!.isLocked || taskItem.isCompleted}>              
+              <label for="${ahB64}">${taskItem.entry.title}</label><br>
+              `
+          }
+      )
+      selectedListHtml = html `
+        <h2>${this._selectedList.title}</h2>
+            <!-- <span>Locked: ${this._selectedList.isLocked}</span> -->
+          <input type="button" value="Lock" @click=${this.onLockList} .disabled=${this._selectedList.isLocked}>
+          <br/>
+          <label for="itemTitleInput">Add task:</label>
+          <input type="text" id="itemTitleInput" name="title" .disabled=${this._selectedList.isLocked}>
+          <input type="button" value="Add" @click=${this.onCreateTask} .disabled=${this._selectedList.isLocked}>
+          <form id="listForm">
+              ${listItems}
+          <input type="button" value="submit" @click=${this.onSubmitCompletion} .disabled=${this._selectedList.isLocked}>
+          </form>
+      `
+    }c
 
     /** render all */
     return html`
       <div>
-        <button type="button" @click=${this.refresh}>Refresh</button>
-        <h3>New list:</h3>
-        <form>
-          <label for="titleInput">Title:</label><br>
-          <input type="text" id="titleInput" name="title">
-          <input type="button" value="create" @click=${this.onCreateList}>
-        </form>
+        <button type="button" @click=${this.refresh}>Refresh</button>        
+        <span>${this._store.myAgentPubKey}</span>
         <h1>Lists</h1>
         <ul>${listListLi}</ul>
-        <h1>Lists:</h1>
-        <label for="selectedList">Choose a TaskList:</label>
-        <select name="selectedList" id="selectedList" @click=${this.onListSelect}>
+        <form>
+          <label for="listTitleInput">New list:</label>
+          <input type="text" id="listTitleInput" name="title">
+          <input type="button" value="create" @click=${this.onCreateList}>
+        </form>
+        <h1>
+          Selected List:
+          <select name="selectedList" id="selectedList" @click=${this.onListSelect}>
             ${listListOption}
-        </select>
-        <h1>Selected List</h1>
-        <h3>${this._selectedList? this._selectedList.title : "<none>"}</h3>
+          </select>
+        </h1>
+        ${selectedListHtml}
       </div>
     `;
   }

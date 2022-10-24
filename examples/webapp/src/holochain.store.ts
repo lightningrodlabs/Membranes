@@ -102,21 +102,28 @@ export class HolochainStore {
 
 
   /** */
+  async createTaskItem(title: string, assignee: ActionHashB64, listAh: ActionHashB64): Promise<ActionHashB64> {
+    return this.service.createTaskItem(title, assignee, listAh);
+  }
+
+  /** */
   async createTaskList(title: string): Promise<ActionHashB64> {
     return this.service.createTaskList(title);
   }
 
+  async lockTaskList(listAh: ActionHashB64): Promise<ActionHashB64> {
+    return this.service.lockTaskList(listAh);
+  }
 
 
-  // /** */
-  // getMyRankAt(bucketIndex: number): number {
-  //   return this.myRankStore[bucketIndex]
-  // }
-  //
-  // /** */
-  // getPublishersAt(bucketIndex: number): AgentPubKeyB64[] {
-  //   return this.publisherStore[bucketIndex]
-  // }
+  async completeTask(taskAh: ActionHashB64): Promise<ActionHashB64> {
+    return this.service.completeTask(taskAh);
+  }
 
+
+  /** */
+  async getTaskList(listAh: ActionHashB64): Promise<TaskList | null> {
+    return this.service.getTaskList(listAh);
+  }
 
 }

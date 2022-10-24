@@ -2,7 +2,7 @@ use hdk::prelude::*;
 #[allow(unused_imports)]
 use tasker_model::*;
 use crate::holo_hash::ActionHashB64;
-use crate::holo_hash::AgentPubKeyB64;
+//use crate::holo_hash::AgentPubKeyB64;
 
 #[derive(Serialize, Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
@@ -37,7 +37,7 @@ pub fn get_task_item(task_ah: ActionHashB64) -> ExternResult<Option<FullTaskItem
 pub struct FullTaskList {
    pub title: String,
    pub is_locked: bool,
-   pub items: Vec<FullTaskItem>,
+   pub items: Vec<(ActionHashB64, FullTaskItem)>,
 }
 
 
@@ -60,9 +60,10 @@ pub fn get_task_list(list_ah: ActionHashB64) -> ExternResult<Option<FullTaskList
    let mut items = Vec::new();
    for item_link in item_links {
       let item_ah: ActionHash = item_link.target.into();
-      let maybe_item = get_task_item(item_ah.into())?;
+      let item_ahB64: ActionHashB64 = item_ah.into();
+      let maybe_item = get_task_item(item_ahB64.clone())?;
       if let Some(item) = maybe_item {
-         items.push(item);
+         items.push((item_ahB64, item));
       }
    }
    /// Done

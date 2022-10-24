@@ -37,7 +37,7 @@ export interface TaskItem {
 export interface TaskList {
   title: string,
   isLocked: boolean,
-  items: [TaskItem],
+  items: [ActionHashB64, TaskItem][],
 }
 
 
