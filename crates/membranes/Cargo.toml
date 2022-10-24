@@ -1,0 +1,18 @@
+[package]
+name = "membranes"
+version = "0.1.0-hdk.154"
+edition = "2021"
+
+[lib]
+name = "membranes"
+crate-type = [ "cdylib", "rlib" ]
+
+[dependencies]
+serde = { version = "1.0", default-features = false }
+#chrono = "=0.4.6"
+
+hdk = { version = "0.0.154", default-features = false }
+
+zome_utils = { git = "https://github.com/ddd-mtl/zome-utils", branch = "154" }
+
+membranes_model = { path = "../membranes_model" }

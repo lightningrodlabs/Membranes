@@ -6,25 +6,30 @@
 
 use hdi::prelude::*;
 
+pub mod constants;
 pub mod privilege;
 pub mod threshold;
+pub mod links;
 
 pub use privilege::*;
 pub use threshold::*;
+pub use links::*;
 
 #[hdk_entry_defs]
 #[unit_enum(UnitEntryTypes)]
 pub enum MembranesEntry {
    #[entry_def(required_validations = 3, visibility = "public")]
-   MembraneCorssingProof(MembraneCrossingProof),
+   MembraneCrossingProof(MembraneCrossingProof),
    #[entry_def(required_validations = 3, visibility = "public")]
    Role(Role),
    #[entry_def(required_validations = 3, visibility = "public")]
    Membrane(Membrane),
    #[entry_def(required_validations = 3, visibility = "public")]
-   CreateEntryCountThreshold(CreateEntryCountThreshold),
-   #[entry_def(required_validations = 3, visibility = "public")]
-   VouchThreshold(VouchThreshold),
+   MembraneThreshold(MembraneThreshold),
+   // #[entry_def(required_validations = 3, visibility = "public")]
+   // VouchThreshold(VouchThreshold),
+   // #[entry_def(required_validations = 3, visibility = "public")]
+   // CreateEntryCountThreshold(CreateEntryCountThreshold),
    #[entry_def(required_validations = 3, visibility = "public")]
    Vouch(Vouch),
 }
@@ -39,6 +44,7 @@ pub struct MembraneCrossingProof {
    pub threshold_index: u32,
    pub role_eh: EntryHash, // to a Role entry
    pub membrane_eh: EntryHash, // to a Membrane entry
+   pub subject: AgentPubKey,
 }
 
 
@@ -49,7 +55,7 @@ pub struct MembraneCrossingProof {
 pub struct Role {
    pub name: String,
    pub privileges: Vec<Privilege>,
-   pub entering_membranes: Vec<EntryHash> // to a Membrane entry
+   pub entering_membrane_ehs: Vec<EntryHash> // to a Membrane entry
 }
 
 
@@ -58,6 +64,6 @@ pub struct Role {
 #[derive(Clone, PartialEq)]
 #[serde(rename_all = "camelCase")]
 pub struct Membrane {
-   pub thresholds: Vec<EntryHash>, // To a Threshold entry
+   pub threshold_ehs: Vec<EntryHash>, // To a Threshold entry
 }
 
