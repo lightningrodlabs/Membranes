@@ -2,7 +2,7 @@
 resolver = "2"
 members = [
   #"crates/types",
-  #"crates/membranes_model",
+  "crates/membranes_model",
   #"crates/membranes",
   "examples/zomes/tasker",
   "examples/zomes/tasker_model",
