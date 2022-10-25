@@ -9,7 +9,7 @@ mod callbacks;
 
 mod publish;
 mod role;
-mod claim;
+mod membrane;
 //mod utils;
 mod path_kind;
 

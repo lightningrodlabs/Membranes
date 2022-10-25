@@ -1,7 +1,7 @@
 use hdk::prelude::*;
 #[allow(unused_imports)]
 use tasker_model::*;
-use crate::holo_hash::ActionHashB64;
+use hdk::prelude::holo_hash::ActionHashB64;
 //use crate::holo_hash::AgentPubKeyB64;
 
 #[derive(Serialize, Deserialize, Debug)]

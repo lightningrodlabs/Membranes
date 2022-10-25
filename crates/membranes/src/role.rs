@@ -5,7 +5,7 @@ use membranes_model::*;
 
 
 use crate::{
-   constants::*, claim::*, publish::*,
+   constants::*, membrane::*, publish::*,
 };
 
 
