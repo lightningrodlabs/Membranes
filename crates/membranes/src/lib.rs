@@ -11,9 +11,8 @@ mod publish;
 mod role;
 mod claim;
 //mod utils;
-//mod path_kind;
+mod path_kind;
 
 
 //pub use utils::*;
 pub use constants::*;
-//pub use path_kind::*;

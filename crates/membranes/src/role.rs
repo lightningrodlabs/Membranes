@@ -9,6 +9,8 @@ use crate::{
 };
 
 
+
+
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct HasRoleInput {
    pub subject: AgentPubKeyB64,

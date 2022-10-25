@@ -6,4 +6,7 @@ pub enum LinkKind {
    Vouch,
    MembranePassport,
    RolePassport,
+   Role,
+   Membrane,
+   Threshold,
 }

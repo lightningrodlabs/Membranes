@@ -4,17 +4,20 @@ use hdk::prelude::holo_hash::AgentPubKeyB64;
 use membranes_model::*;
 
 
-use crate::{
-   constants::*,
-};
+use crate::{constants::*, path_kind};
 
 
 ///
 #[hdk_extern]
 pub fn publish_vouch(vouch: Vouch) -> ExternResult<ActionHash> {
-   let role: MembraneRole = zome_utils::get_typed_from_eh(vouch.for_role_eh.clone())?;
+   let maybe_role = path_kind::get_role(vouch.for_role.clone())?;
+   if maybe_role.is_none() {
+      let msg = format!("Could not get Role declared in Vouch: {}", vouch.for_role);
+      return Err(wasm_error!(WasmErrorInner::Guest(msg)));
+   }
+   let role_name = maybe_role.unwrap().name.into_bytes();
    let ah = create_entry(MembranesEntry::Vouch(vouch.clone()))?;
-   let _lah = create_link(vouch.subject, ah.clone(), LinkKind::Vouch, LinkTag::from(role.name.into_bytes()))?;
+   let _lah = create_link(vouch.subject, ah.clone(), LinkKind::Vouch, LinkTag::from(role_name))?;
    /// Done
    Ok(ah)
 }
@@ -30,6 +33,8 @@ pub fn publish_threshold(threshold: MembraneThreshold) -> ExternResult<ActionHas
          publish_vouchThreshold(th)?
       },
    };
+   let root_path = Path::from(path_kind::Thresholds).path_entry_hash()?;
+   let _lah = create_link(root_path, ah.clone(), LinkKind::Threshold, LinkTag::from(()))?;
    /// Done
    Ok(ah)
 }
@@ -37,8 +42,17 @@ pub fn publish_threshold(threshold: MembraneThreshold) -> ExternResult<ActionHas
 
 ///
 pub fn publish_vouchThreshold(vouch_threshold: VouchThreshold) -> ExternResult<ActionHash> {
-   /// Make sure role exists
-   let _role: MembraneRole = zome_utils::get_typed_from_eh(vouch_threshold.from_role_eh.clone())?;
+   // /// Make sure role exists
+   // let maybe_for_role = path_kind::get_role(vouch_threshold.for_role.clone())?;
+   // if maybe_for_role.is_none() {
+   //    let msg = format!("Could not get Role declared in Vouch: {}", vouch.for_role);
+   //    return Err(wasm_error!(WasmErrorInner::Guest(msg)));
+   // }
+   // let maybe_from_role = path_kind::get_role(vouch_threshold.from_role.clone())?;
+   // if maybe_from_role.is_none() {
+   //    let msg = format!("Could not get Role declared in Vouch: {}", vouch.for_role);
+   //    return Err(wasm_error!(WasmErrorInner::Guest(msg)));
+   // }
    /// Create Entry
    let threshold = MembraneThreshold::Vouch(vouch_threshold);
    let ah = create_entry(MembranesEntry::Threshold(threshold))?;
@@ -68,6 +82,9 @@ pub fn publish_membrane(membrane: Membrane) -> ExternResult<ActionHash> {
    }
    /// Create Entry
    let ah = create_entry(MembranesEntry::Membrane(membrane))?;
+   /// Link entry to index
+   let root_path = Path::from(path_kind::Membranes).path_entry_hash()?;
+   let _lah = create_link(root_path, ah.clone(), LinkKind::Membrane, LinkTag::from(()))?;
    /// Done
    Ok(ah)
 }
@@ -82,6 +99,9 @@ pub fn publish_role(role: MembraneRole) -> ExternResult<ActionHash> {
    }
    /// Create Entry
    let ah = create_entry(MembranesEntry::Role(role))?;
+   /// Link entry to index
+   let root_path = Path::from(path_kind::Roles).path_entry_hash()?;
+   let _lah = create_link(root_path, ah.clone(), LinkKind::Role, LinkTag::from(()))?;
    /// Done
    Ok(ah)
 }

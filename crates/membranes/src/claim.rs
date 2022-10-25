@@ -7,6 +7,7 @@ use membranes_model::*;
 use crate::{
    constants::*,
 };
+use crate::path_kind::get_role;
 use crate::publish::{publish_MembraneCrossedClaim};
 use crate::role::{has_role, HasRoleInput};
 
@@ -91,10 +92,16 @@ fn claim_vouchThreshold(subject: AgentPubKey, th: VouchThreshold) -> ExternResul
       if vouch.subject != subject { continue }
       /// Vouch author must have required Role
       let author = zome_utils::get_author(&link.target)?;
-      let maybe_role_claim = has_role(HasRoleInput{subject: author.into(), role_eh: th.from_role_eh.clone().into()})?;
+      let maybe_role = get_role(th.from_role.clone())?;
+      if maybe_role.is_none() {
+         let msg = format!("Could not get Role declared in vouch_threshold: {}", vouch.for_role);
+         return Err(wasm_error!(WasmErrorInner::Guest(msg)));
+      }
+      let role_eh = hash_entry(maybe_role.unwrap())?.into();
+      let maybe_role_claim = has_role(HasRoleInput{subject: author.into(), role_eh})?;
       if maybe_role_claim.is_none() { continue }
       /// Vouch must be for the right role
-      if vouch.for_role_eh != th.for_role_eh { continue }
+      if vouch.for_role != th.for_role { continue }
       /// Get Vouch's SignedActionHashed
       let maybe_sah = get(link.target.clone(), GetOptions::content())?;
       if maybe_sah.is_none() {

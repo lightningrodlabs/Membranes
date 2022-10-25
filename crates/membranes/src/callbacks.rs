@@ -12,10 +12,28 @@ fn init(_: ()) -> ExternResult<InitCallbackResult> {
    init_properties()?;
    /// Setup initial capabilities
    init_capabilities()?;
+   /// Setup paths
+   init_paths()?;
    /// Done
    debug!("*** init() callback DONE");
    Ok(InitCallbackResult::Pass)
 }
+
+
+/// Initialize paths
+fn init_paths() -> ExternResult<InitCallbackResult> {
+   let root_path = Path::from(path_kind::Roles);
+   let roles_path = root_path.clone().typed(LinkKind::Role)?;
+   roles_path.ensure()?;
+   let root_path = Path::from(path_kind::Membranes);
+   let membranes_path = root_path.clone().typed(LinkKind::Membrane)?;
+   membranes_path.ensure()?;
+   let root_path = Path::from(path_kind::Thresholds);
+   let thresholds_path = root_path.clone().typed(LinkKind::Threshold)?;
+   thresholds_path.ensure()?;
+   Ok(InitCallbackResult::Pass)
+}
+
 
 
 /// Validate DNA properties

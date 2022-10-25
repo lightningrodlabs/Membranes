@@ -22,8 +22,8 @@ pub struct CreateEntryCountThreshold {
 #[serde(rename_all = "camelCase")]
 pub struct VouchThreshold {
    pub required_count: usize,
-   pub from_role_eh: EntryHash, // Role entry
-   pub for_role_eh: EntryHash, // Role entry
+   pub from_role: String,
+   pub for_role: String,
 }
 
 #[hdk_entry_helper]
@@ -31,5 +31,5 @@ pub struct VouchThreshold {
 #[serde(rename_all = "camelCase")]
 pub struct Vouch {
    pub subject: AgentPubKey,
-   pub for_role_eh: EntryHash, // Role entry
+   pub for_role: String,
 }
