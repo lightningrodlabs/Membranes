@@ -8,6 +8,8 @@ mod constants;
 mod callbacks;
 
 mod publish;
+mod role;
+mod claim;
 //mod utils;
 //mod path_kind;
 
