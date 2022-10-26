@@ -6,6 +6,8 @@ members = [
   "crates/membranes",
   "examples/zomes/tasker",
   "examples/zomes/tasker_model",
+  "examples/zomes/agent_directory",
+  "examples/zomes/agent_directory_integrity",
   #"sweettest",
 ]
 
