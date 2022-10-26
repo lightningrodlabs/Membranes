@@ -8,30 +8,10 @@ use crate::{
 };
 
 
-macro_rules! my_zome_error {
-   ($($arg:tt)*) => {
-      {
-         let msg = format!($($arg)*);
-         Err(wasm_error!(WasmErrorInner::Guest(msg)))
-      }
-   }
-}
-
-
-
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-pub struct HasRoleInput {
-   pub subject: AgentPubKeyB64,
-   pub role_eh: EntryHashB64,
-}
-
-
 /// Returns Signed RoleClaim Create Action for that Role, if exists
 /// Return None if subject does not have any Claim for that Role
 #[hdk_extern]
 pub fn has_role(input: HasRoleInput) -> ExternResult<Option<SignedActionHashed>> {
-   let test: ExternResult<Option<SignedActionHashed>> = my_zome_error!("macro test {}", 42);
-   debug!("test variables = {:?}", test);
    std::panic::set_hook(Box::new(zome_utils::zome_panic_hook));
    let agent_id: AgentPubKey = input.subject.into();
    let role_eh: EntryHash = input.role_eh.into();
@@ -78,7 +58,7 @@ pub fn claim_role(input: ClaimRoleInput) -> ExternResult<Option<EntryHashB64>> {
    if input.membrane_index >= role.entering_membrane_ehs.len() {
       // let msg = format!("Invalid membrane index for role {:?}: {}", input.role_eh, input.membrane_index);
       // return Err(wasm_error!(WasmErrorInner::Guest(msg)));
-      return my_zome_error!("Invalid membrane index for role {:?}: {}", input.role_eh, input.membrane_index);
+      return zome_error!("Invalid membrane index for role {:?}: {}", input.role_eh, input.membrane_index);
    }
    /// Check membrane claim
    let maybe_membrane_claim_eh = has_crossed_membrane(HasCrossedMembraneInput {

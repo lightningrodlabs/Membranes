@@ -8,9 +8,15 @@ integrity:
   zomes:
     - name: tasker_model
       bundled: ../../target/wasm32-unknown-unknown/release/tasker_model.wasm
+    - name: membranes_integrity
+      bundled: ../../target/wasm32-unknown-unknown/release/membranes_integrity.wasm
 coordinator:
   zomes:
     - name: tasker
       bundled: ../../target/wasm32-unknown-unknown/release/tasker.wasm
       dependencies:
         - name: tasker_model
+    - name: membranes
+      bundled: ../../target/wasm32-unknown-unknown/release/membranes.wasm
+      dependencies:
+        - name: membranes_integrity

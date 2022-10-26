@@ -9,7 +9,7 @@ use crate::{
 };
 use crate::path_kind::get_role;
 use crate::publish::{publish_MembraneCrossedClaim};
-use crate::role::{has_role, HasRoleInput};
+use crate::role::{has_role};
 
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]

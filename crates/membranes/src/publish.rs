@@ -1,4 +1,5 @@
 use hdk::prelude::*;
+use hdk::prelude::holo_hash::EntryHashB64;
 //use hdk::prelude::holo_hash::AgentPubKeyB64;
 #[allow(unused_imports)]
 use membranes_types::*;
@@ -8,7 +9,7 @@ use crate::{constants::*, path_kind};
 
 
 ///
-//#[hdk_extern]
+#[hdk_extern]
 pub fn publish_vouch(vouch: Vouch) -> ExternResult<EntryHash> {
    let maybe_role = path_kind::get_role(vouch.for_role.clone())?;
    if maybe_role.is_none() {
@@ -41,7 +42,7 @@ pub fn publish_vouch(vouch: Vouch) -> ExternResult<EntryHash> {
 // }
 
 
-///
+#[hdk_extern]
 pub fn publish_vouchThreshold(vouch_threshold: VouchThreshold) -> ExternResult<EntryHash> {
    // /// Make sure role exists
    // let maybe_for_role = path_kind::get_role(vouch_threshold.for_role.clone())?;
@@ -66,7 +67,7 @@ pub fn publish_vouchThreshold(vouch_threshold: VouchThreshold) -> ExternResult<E
 }
 
 
-///
+#[hdk_extern]
 pub fn publish_createEntryCountThreshold(create_threshold: CreateEntryCountThreshold) -> ExternResult<EntryHash> {
    /// Make sure AppEntryType exists
    /// FIXME
@@ -83,7 +84,7 @@ pub fn publish_createEntryCountThreshold(create_threshold: CreateEntryCountThres
 
 
 ///
-//#[hdk_extern]
+#[hdk_extern]
 pub fn publish_membrane(membrane: Membrane) -> ExternResult<EntryHash> {
    /* Check all thresholds exists */
    for threshold_eh in membrane.threshold_ehs.clone() {
@@ -101,7 +102,7 @@ pub fn publish_membrane(membrane: Membrane) -> ExternResult<EntryHash> {
 
 
 ///
-//#[hdk_extern]
+#[hdk_extern]
 pub fn publish_role(role: MembraneRole) -> ExternResult<EntryHash> {
    /* Check all thresholds exists */
    for membrane_eh in role.entering_membrane_ehs.clone() {
@@ -119,7 +120,7 @@ pub fn publish_role(role: MembraneRole) -> ExternResult<EntryHash> {
 
 
 ///
-//#[hdk_extern]
+#[hdk_extern]
 pub fn publish_RoleClaim(claim: RoleClaim) -> ExternResult<EntryHash> {
    /* Input Checks */
    let _role: MembraneRole = zome_utils::get_typed_from_eh(claim.role_eh.clone())?;
@@ -136,7 +137,7 @@ pub fn publish_RoleClaim(claim: RoleClaim) -> ExternResult<EntryHash> {
 
 
 ///
-//#[hdk_extern]
+#[hdk_extern]
 pub fn publish_MembraneCrossedClaim(claim: MembraneCrossedClaim) -> ExternResult<EntryHash> {
    /* Checks */
    let _membrane: Membrane = zome_utils::get_typed_from_eh(claim.membrane_eh.clone())?;

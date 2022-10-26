@@ -6,18 +6,19 @@
 
 mod ui;
 mod basic_callbacks;
-//mod basic_functions;
+mod basic_functions;
 
 mod membraned_callbacks;
-mod membraned_functions;
+//mod membraned_functions;
 
 
 use hdk::prelude::*;
 
 ///
-pub fn call_membranes_zome<I>(fn_name: &str, payload: I) -> ExternResult<()>
+pub fn call_membranes_zome<I, O>(fn_name: &str, payload: I) -> ExternResult<O>
 where
-   I: serde::Serialize + std::fmt::Debug
+   I: serde::Serialize + std::fmt::Debug,
+   O: serde::de::DeserializeOwned + std::fmt::Debug
 {
    // TODO check fn_name exists
    let res = call(
@@ -27,6 +28,7 @@ where
       None,
       payload,
    )?;
-   let _: () = zome_utils::decode_response(res)?;
-   Ok(())
+   debug!("call response: {:?}", res);
+   let output: O = zome_utils::decode_response(res)?;
+   Ok(output)
 }

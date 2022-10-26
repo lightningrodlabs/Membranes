@@ -16,7 +16,7 @@ overflow-checks = false
 
 [profile.release]
 opt-level = "z"
-lto = true # link time optimization
+lto = true
 
 [profile.release.build-override]
 opt-level = "z"

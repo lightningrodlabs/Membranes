@@ -24,11 +24,22 @@ fn init_caps(_: ()) -> ExternResult<()> {
 #[hdk_extern]
 fn init(_: ()) -> ExternResult<InitCallbackResult> {
    debug!("*** Tasker.init() callback - START");
+   let res = init_inner();
+   if let Err(e) = res.clone() {
+      error!("Tracker.init() FAILED: {:?}", e);
+      return res;
+   }
+   /// Done
+   debug!("*** Tasker.init() callback - DONE");
+   Ok(InitCallbackResult::Pass)
+}
+
+
+///
+fn init_inner() -> ExternResult<InitCallbackResult> {
    init_caps(())?;
    init_anchors(())?;
    init_membranes(())?;
-   /// Done
-   debug!("*** Tasker.init() callback - DONE");
    Ok(InitCallbackResult::Pass)
 }
 
