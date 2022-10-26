@@ -1,8 +1,8 @@
 use hdk::prelude::*;
 use hdk::prelude::holo_hash::{ActionHashB64, AgentPubKeyB64, EntryHashB64};
 #[allow(unused_imports)]
-use membranes_model::*;
-
+use membranes_integrity::*;
+use membranes_types::*;
 
 use crate::{
    constants::*,
@@ -22,9 +22,10 @@ pub struct HasCrossedMembraneInput {
 /// Return None if subject does not have a claim
 #[hdk_extern]
 pub fn has_crossed_membrane(input: HasCrossedMembraneInput) -> ExternResult<Option<EntryHashB64>> {
+   std::panic::set_hook(Box::new(zome_utils::zome_panic_hook));
    let agent_id: AgentPubKey = input.subject.into();
    let membrane_eh: EntryHash = input.membrane_eh.into();
-   let link_pairs  = zome_utils::get_typed_from_links::<MembraneCrossedClaim>(agent_id, LinkKind::MembranePassport, None)?;
+   let link_pairs  = zome_utils::get_typed_from_links::<MembraneCrossedClaim>(agent_id, MembranesLinkType::MembranePassport, None)?;
    for (claim, _link) in link_pairs {
       if &claim.membrane_eh == &membrane_eh {
          let eh = hash_entry(claim)?;
@@ -44,7 +45,8 @@ pub struct ClaimMembraneInput {
 
 ///
 #[hdk_extern]
-pub fn claim_membrane(input: ClaimMembraneInput) -> ExternResult<Option<ActionHashB64>> {
+pub fn claim_membrane(input: ClaimMembraneInput) -> ExternResult<Option<EntryHashB64>> {
+   std::panic::set_hook(Box::new(zome_utils::zome_panic_hook));
    let agent_id: AgentPubKey = input.subject.clone().into();
    /* Check input */
    let membrane: Membrane = zome_utils::get_typed_from_eh(input.membrane_eh.clone().into())?;
@@ -63,9 +65,9 @@ pub fn claim_membrane(input: ClaimMembraneInput) -> ExternResult<Option<ActionHa
       membrane_eh: input.membrane_eh.into(),
       subject: agent_id.clone(),
    };
-   let ah = publish_MembraneCrossedClaim(claim)?;
+   let eh = publish_MembraneCrossedClaim(claim)?;
    /// Done
-   Ok(Some(ah.into()))
+   Ok(Some(eh.into()))
 }
 
 
@@ -85,14 +87,14 @@ fn claim_threshold(subject: AgentPubKey, threshold_eh: EntryHash) -> ExternResul
 
 ///
 fn claim_vouchThreshold(subject: AgentPubKey, th: VouchThreshold) -> ExternResult<Option<Vec<SignedActionHashed>>> {
-   let link_pairs  = zome_utils::get_typed_from_links::<Vouch>(subject.clone(), LinkKind::Vouch, None)?;
+   let link_pairs  = zome_utils::get_typed_from_links::<Vouch>(subject.clone(), MembranesLinkType::Vouch, None)?;
    let mut signed_vouches = Vec::new();
    for (vouch, link) in link_pairs {
       /// Vouch must be for this subject
       if vouch.subject != subject { continue }
       /// Vouch author must have required Role
       let author = zome_utils::get_author(&link.target)?;
-      let maybe_role = get_role(th.from_role.clone())?;
+      let maybe_role = get_role(th.by_role.clone())?;
       if maybe_role.is_none() {
          let msg = format!("Could not get Role declared in vouch_threshold: {}", vouch.for_role);
          return Err(wasm_error!(WasmErrorInner::Guest(msg)));

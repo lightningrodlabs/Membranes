@@ -14,4 +14,6 @@ hdk = { version = "0.0.154", default-features = false }
 
 zome_utils = { git = "https://github.com/ddd-mtl/zome-utils", branch = "154" }
 
+membranes_types = {path = "../../../crates/membranes_types" }
+
 tasker_model = {path = "../tasker_model" }

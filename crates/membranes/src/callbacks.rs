@@ -1,35 +1,35 @@
 use hdk::prelude::*;
 //use hdk::hash_path::path::Component;
 #[allow(unused_imports)]
-use membranes_model::*;
+use membranes_integrity::*;
 use crate::*;
 
 /// Zome Callback
 #[hdk_extern]
 fn init(_: ()) -> ExternResult<InitCallbackResult> {
-   debug!("*** init() callback START");
+   debug!("*** Membranes.init() callback - START");
    /// Properties
    init_properties()?;
    /// Setup initial capabilities
    init_capabilities()?;
    /// Setup paths
-   init_paths()?;
+   init_anchors()?;
    /// Done
-   debug!("*** init() callback DONE");
+   debug!("*** Membranes.init() callback - DONE");
    Ok(InitCallbackResult::Pass)
 }
 
 
 /// Initialize paths
-fn init_paths() -> ExternResult<InitCallbackResult> {
+fn init_anchors() -> ExternResult<InitCallbackResult> {
    let root_path = Path::from(path_kind::Roles);
-   let roles_path = root_path.clone().typed(LinkKind::Role)?;
+   let roles_path = root_path.clone().typed(MembranesLinkType::Role)?;
    roles_path.ensure()?;
    let root_path = Path::from(path_kind::Membranes);
-   let membranes_path = root_path.clone().typed(LinkKind::Membrane)?;
+   let membranes_path = root_path.clone().typed(MembranesLinkType::Membrane)?;
    membranes_path.ensure()?;
    let root_path = Path::from(path_kind::Thresholds);
-   let thresholds_path = root_path.clone().typed(LinkKind::Threshold)?;
+   let thresholds_path = root_path.clone().typed(MembranesLinkType::Threshold)?;
    thresholds_path.ensure()?;
    Ok(InitCallbackResult::Pass)
 }

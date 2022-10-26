@@ -1,5 +1,5 @@
 [package]
-name = "membranes_model"
+name = "membranes_types"
 version = "0.1.0"
 edition = "2021"
 

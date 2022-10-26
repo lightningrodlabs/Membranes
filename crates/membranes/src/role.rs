@@ -1,13 +1,21 @@
 use hdk::prelude::*;
 use hdk::prelude::holo_hash::{ActionHashB64, AgentPubKeyB64, EntryHashB64};
-#[allow(unused_imports)]
-use membranes_model::*;
-
+use membranes_integrity::MembranesLinkType;
+use membranes_types::*;
 
 use crate::{
    constants::*, membrane::*, publish::*,
 };
 
+
+macro_rules! my_zome_error {
+   ($($arg:tt)*) => {
+      {
+         let msg = format!($($arg)*);
+         Err(wasm_error!(WasmErrorInner::Guest(msg)))
+      }
+   }
+}
 
 
 
@@ -22,9 +30,12 @@ pub struct HasRoleInput {
 /// Return None if subject does not have any Claim for that Role
 #[hdk_extern]
 pub fn has_role(input: HasRoleInput) -> ExternResult<Option<SignedActionHashed>> {
+   let test: ExternResult<Option<SignedActionHashed>> = my_zome_error!("macro test {}", 42);
+   debug!("test variables = {:?}", test);
+   std::panic::set_hook(Box::new(zome_utils::zome_panic_hook));
    let agent_id: AgentPubKey = input.subject.into();
    let role_eh: EntryHash = input.role_eh.into();
-   let link_pairs  = zome_utils::get_typed_from_links::<RoleClaim>(agent_id, LinkKind::RolePassport, None)?;
+   let link_pairs  = zome_utils::get_typed_from_links::<RoleClaim>(agent_id, MembranesLinkType::RolePassport, None)?;
    for (claim, link) in link_pairs {
       if &claim.role_eh == &role_eh {
          // let eh = hash_entry(claim)?;
@@ -42,6 +53,7 @@ pub fn has_role(input: HasRoleInput) -> ExternResult<Option<SignedActionHashed>>
 /// Return None if subject does not have that role
 #[hdk_extern]
 pub fn do_i_have_role(_role_eh: EntryHashB64) -> ExternResult<Option<EntryHashB64>> {
+   std::panic::set_hook(Box::new(zome_utils::zome_panic_hook));
    // FIXME: Check my local source-chain for a PrivateRoleClaim for that Role
    Ok(None)
 }
@@ -57,14 +69,16 @@ pub struct ClaimRoleInput {
 
 ///
 #[hdk_extern]
-pub fn claim_role(input: ClaimRoleInput) -> ExternResult<Option<ActionHashB64>> {
+pub fn claim_role(input: ClaimRoleInput) -> ExternResult<Option<EntryHashB64>> {
+   std::panic::set_hook(Box::new(zome_utils::zome_panic_hook));
    let agent_id: AgentPubKey = input.subject.clone().into();
    let role_eh: EntryHash = input.role_eh.clone().into();
    /* Check input */
    let role: MembraneRole = zome_utils::get_typed_from_eh(role_eh.clone())?;
    if input.membrane_index >= role.entering_membrane_ehs.len() {
-      let msg = format!("Invalid membrane index for role {:?}: {}", input.role_eh, input.membrane_index);
-      return Err(wasm_error!(WasmErrorInner::Guest(msg)));
+      // let msg = format!("Invalid membrane index for role {:?}: {}", input.role_eh, input.membrane_index);
+      // return Err(wasm_error!(WasmErrorInner::Guest(msg)));
+      return my_zome_error!("Invalid membrane index for role {:?}: {}", input.role_eh, input.membrane_index);
    }
    /// Check membrane claim
    let maybe_membrane_claim_eh = has_crossed_membrane(HasCrossedMembraneInput {
@@ -81,7 +95,7 @@ pub fn claim_role(input: ClaimRoleInput) -> ExternResult<Option<ActionHashB64>> 
       role_eh,
       membrane_claim_eh: maybe_membrane_claim_eh.unwrap().into(),
    };
-   let ah = publish_RoleClaim(claim)?;
+   let eh = publish_RoleClaim(claim)?;
    /// Done
-    Ok(Some(ah.into()))
+    Ok(Some(eh.into()))
 }

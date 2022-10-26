@@ -1,8 +1,8 @@
 [workspace]
 resolver = "2"
 members = [
-  #"crates/types",
-  "crates/membranes_model",
+  "crates/membranes_types",
+  "crates/membranes_integrity",
   "crates/membranes",
   "examples/zomes/tasker",
   "examples/zomes/tasker_model",

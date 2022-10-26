@@ -13,6 +13,13 @@ mod membrane;
 //mod utils;
 mod path_kind;
 
+#[macro_use]
+extern crate zome_utils;
 
 //pub use utils::*;
 pub use constants::*;
+pub use publish::*;
+pub use membrane::*;
+pub use role::*;
+
+

@@ -6,18 +6,7 @@
 
 use hdi::prelude::*;
 
-pub mod constants;
-pub mod privilege;
-pub mod entries_threshold;
-pub mod links;
-pub mod entries;
-
-
-pub use privilege::*;
-pub use entries::*;
-pub use entries_threshold::*;
-pub use links::*;
-
+use membranes_types::*;
 
 #[hdk_entry_defs]
 #[unit_enum(UnitEntryTypes)]
@@ -40,3 +29,13 @@ pub enum MembranesEntry {
    Vouch(Vouch),
 }
 
+/// List of all Link kinds handled by this Zome
+#[hdk_link_types]
+pub enum MembranesLinkType {
+   Vouch,
+   MembranePassport,
+   RolePassport,
+   Role,
+   Membrane,
+   Threshold,
+}

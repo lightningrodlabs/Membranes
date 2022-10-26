@@ -22,7 +22,7 @@ pub struct CreateEntryCountThreshold {
 #[serde(rename_all = "camelCase")]
 pub struct VouchThreshold {
    pub required_count: usize,
-   pub from_role: String,
+   pub by_role: String,
    pub for_role: String,
 }
 

@@ -15,4 +15,5 @@ hdk = { version = "0.0.154", default-features = false }
 
 zome_utils = { git = "https://github.com/ddd-mtl/zome-utils", branch = "dev" }
 
-membranes_model = { path = "../membranes_model" }
+membranes_integrity = { path = "../membranes_integrity" }
+membranes_types = { path = "../membranes_types" }

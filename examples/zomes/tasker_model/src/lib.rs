@@ -6,8 +6,6 @@
 
 
 use hdi::prelude::*;
-use crate::holo_hash::ActionHashB64;
-use crate::holo_hash::AgentPubKeyB64;
 
 /// List of all Entry types handled by this Zome
 #[hdk_entry_defs]
@@ -34,8 +32,8 @@ pub struct TaskList {
 #[serde(rename_all = "camelCase")]
 pub struct TaskItem {
    pub title: String,
-   pub assignee: AgentPubKeyB64,
-   pub list_ah: ActionHashB64, // to TaskList
+   pub assignee: AgentPubKey,
+   pub list_ah: ActionHash, // to TaskList
 }
 
 

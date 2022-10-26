@@ -2,6 +2,7 @@ use hdk::prelude::*;
 #[allow(unused_imports)]
 use tasker_model::*;
 
+use crate::membraned_callbacks::*;
 
 /// Setup initial capabilities
 #[hdk_extern]
@@ -22,11 +23,12 @@ fn init_caps(_: ()) -> ExternResult<()> {
 /// Setup
 #[hdk_extern]
 fn init(_: ()) -> ExternResult<InitCallbackResult> {
-   debug!("*** init() callback START");
+   debug!("*** Tasker.init() callback - START");
    init_caps(())?;
    init_anchors(())?;
+   init_membranes(())?;
    /// Done
-   debug!("*** init() callback DONE");
+   debug!("*** Tasker.init() callback - DONE");
    Ok(InitCallbackResult::Pass)
 }
 
