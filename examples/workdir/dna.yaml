@@ -10,6 +10,8 @@ integrity:
       bundled: ../../target/wasm32-unknown-unknown/release/tasker_model.wasm
     - name: membranes_integrity
       bundled: ../../target/wasm32-unknown-unknown/release/membranes_integrity.wasm
+    - name: agent_directory_integrity
+      bundled: ../../target/wasm32-unknown-unknown/release/agent_directory_integrity.wasm
 coordinator:
   zomes:
     - name: tasker
@@ -20,3 +22,7 @@ coordinator:
       bundled: ../../target/wasm32-unknown-unknown/release/membranes.wasm
       dependencies:
         - name: membranes_integrity
+    - name: agent_directory
+      bundled: ../../target/wasm32-unknown-unknown/release/agent_directory.wasm
+      dependencies:
+        - name: agent_directory_integrity

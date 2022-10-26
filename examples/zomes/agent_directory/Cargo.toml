@@ -4,7 +4,6 @@ version = "0.1.0-hdk.154"
 edition = "2021"
 
 [lib]
-name = "tasker"
 crate-type = [ "cdylib", "rlib" ]
 
 [dependencies]

@@ -3,6 +3,7 @@ use hdk::hash_path::path::Component;
 
 use agent_directory_integrity::*;
 
+
 pub const AGENT_DIRECTORY_PATH: &str = "registered_agents";
 
 /// Zome Callback
@@ -21,7 +22,7 @@ fn init(_: ()) -> ExternResult<InitCallbackResult> {
 
 
 /// Must be called at zome init time.
-pub fn register_self() -> ExternResult<()>  {
+pub fn register_self() -> ExternResult<()> {
    let agent_address = agent_info()?.agent_initial_pubkey;
    /// Avoid duplicate linking if already registered
    if Ok(true) == is_agent_registered(&agent_address) {
