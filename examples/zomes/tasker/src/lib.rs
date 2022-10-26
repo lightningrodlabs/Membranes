@@ -9,7 +9,7 @@ mod basic_callbacks;
 mod basic_functions;
 
 mod membraned_callbacks;
-//mod membraned_functions;
+mod membraned_functions;
 
 
 use hdk::prelude::*;
@@ -28,7 +28,7 @@ where
       None,
       payload,
    )?;
-   debug!("call response: {:?}", res);
+   debug!("call response for {}(): {:?}", fn_name, res);
    let output: O = zome_utils::decode_response(res)?;
    Ok(output)
 }

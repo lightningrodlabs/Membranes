@@ -11,7 +11,7 @@ mod publish;
 mod role;
 mod membrane;
 //mod utils;
-mod path_kind;
+mod anchors;
 
 #[macro_use]
 extern crate zome_utils;

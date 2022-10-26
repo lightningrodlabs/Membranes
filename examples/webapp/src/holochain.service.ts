@@ -44,48 +44,66 @@ export class HolochainService {
 
 
   async createTaskList(title: string): Promise<ActionHashB64> {
-    return this.callZome('create_task_list', title);
+    return this.callZome("tasker",'create_task_list', title);
   }
 
   async createTaskItem(title: string, assignee: AgentPubKeyB64, listAh: ActionHashB64): Promise<ActionHashB64> {
-    return this.callZome('create_task_item', {title, assignee, listAh});
+    return this.callZome("tasker",'create_task_item', {title, assignee, listAh});
   }
 
   async reassignTask(taskAh: ActionHashB64, assignee: ActionHashB64): Promise<ActionHashB64> {
-    return this.callZome('reassign_task', {taskAh, assignee});
+    return this.callZome("tasker",'reassign_task', {taskAh, assignee});
   }
 
   async completeTask(taskAh: ActionHashB64): Promise<ActionHashB64> {
-    return this.callZome('complete_task', taskAh);
+    return this.callZome("tasker",'complete_task', taskAh);
   }
 
   async lockTaskList(listAh: ActionHashB64): Promise<ActionHashB64> {
-    return this.callZome('lock_task_list', listAh);
+    return this.callZome("tasker",'lock_task_list', listAh);
   }
 
 
   async getTaskList(listAh: ActionHashB64): Promise<TaskList | null> {
-    return this.callZome('get_task_list', listAh);
+    return this.callZome("tasker",'get_task_list', listAh);
   }
 
   async getTaskItem(ah: ActionHashB64): Promise<TaskItem | null> {
-    return this.callZome('get_task_item', ah);
+    return this.callZome("tasker",'get_task_item', ah);
   }
 
 
   async getAllLists(): Promise<[ActionHashB64]> {
-    return this.callZome('get_all_lists', null);
+    return this.callZome("tasker",'get_all_lists', null);
   }
 
+
+  /** Membranes */
+
+  async claimAllMembranes(): Promise<number> {
+    return this.callZome("tasker",'claim_all_membranes', null);
+  }
+
+  async amIEditor(): Promise<boolean> {
+    return this.callZome("tasker", 'am_i_editor', null);
+  }
+
+  async claimedMembranes(): Promise<number> {
+    return this.callZome("membranes", 'get_my_membrane_claims', null);
+  }
+
+  async claimedRoles(): Promise<number> {
+    return this.callZome("membranes", 'get_my_role_claims', null);
+  }
 
   /** Private */
 
   /** */
-  private callZome(fn_name: string, payload: any): Promise<any> {
+  private callZome(zome_name: string, fn_name: string, payload: any): Promise<any> {
     //console.log("callZome: " + fn_name + "() ", payload)
     //console.info({payload})
     try {
-      const result = this.agnosticClient.callZome(this.cellId, "tasker", fn_name, payload, 10 * 1000);
+      const result = this.agnosticClient.callZome(this.cellId, zome_name, fn_name, payload, 10 * 1000);
       //console.log("callZome: " + fn_name + "() result")
       //console.info({result})
       return result;

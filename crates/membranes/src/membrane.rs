@@ -4,19 +4,39 @@ use hdk::prelude::holo_hash::{ActionHashB64, AgentPubKeyB64, EntryHashB64};
 use membranes_integrity::*;
 use membranes_types::*;
 
-use crate::{
-   constants::*,
-};
-use crate::path_kind::get_role;
+use crate::{anchors, constants::*};
+use crate::anchors::get_role;
 use crate::publish::{publish_MembraneCrossedClaim};
 use crate::role::{has_role};
 
 
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-pub struct HasCrossedMembraneInput {
-   pub subject: AgentPubKeyB64,
-   pub membrane_eh: EntryHashB64,
+///
+#[hdk_extern]
+pub fn get_my_membrane_claims(_:()) -> ExternResult<Vec<MembraneCrossedClaim>> {
+   let result_pairs = zome_utils::get_typed_from_links(agent_info()?.agent_initial_pubkey, MembranesLinkType::MembranePassport, None)?;
+   debug!("Membrane claims found: {}", result_pairs.len());
+   let mut result = Vec::new();
+   for (claim, _link) in result_pairs {
+      //let eh = hash_entry(role.clone())?;
+      result.push(claim);
+   }
+   Ok(result)
 }
+
+
+///
+#[hdk_extern]
+pub fn get_my_role_claims(_:()) -> ExternResult<Vec<RoleClaim>> {
+   let result_pairs = zome_utils::get_typed_from_links(agent_info()?.agent_initial_pubkey, MembranesLinkType::RolePassport, None)?;
+   debug!("Role claims found: {}", result_pairs.len());
+   let mut result = Vec::new();
+   for (claim, _link) in result_pairs {
+      //let eh = hash_entry(role.clone())?;
+      result.push(claim);
+   }
+   Ok(result)
+}
+
 
 /// Returns entry hash of MembraneCrossedClaim for that Membrane, if exists
 /// Return None if subject does not have a claim
@@ -35,13 +55,6 @@ pub fn has_crossed_membrane(input: HasCrossedMembraneInput) -> ExternResult<Opti
    Ok(None)
 }
 
-
-
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-pub struct ClaimMembraneInput {
-   subject: AgentPubKeyB64,
-   membrane_eh: EntryHashB64,
-}
 
 ///
 #[hdk_extern]

@@ -5,13 +5,13 @@ use hdk::prelude::holo_hash::EntryHashB64;
 use membranes_types::*;
 use membranes_integrity::*;
 
-use crate::{constants::*, path_kind};
+use crate::{constants::*, anchors};
 
 
 ///
 #[hdk_extern]
 pub fn publish_vouch(vouch: Vouch) -> ExternResult<EntryHash> {
-   let maybe_role = path_kind::get_role(vouch.for_role.clone())?;
+   let maybe_role = anchors::get_role(vouch.for_role.clone())?;
    if maybe_role.is_none() {
       let msg = format!("Could not get Role declared in Vouch: {}", vouch.for_role);
       return Err(wasm_error!(WasmErrorInner::Guest(msg)));
@@ -60,7 +60,7 @@ pub fn publish_vouchThreshold(vouch_threshold: VouchThreshold) -> ExternResult<E
    let _ah = create_entry(MembranesEntry::Threshold(threshold.clone()))?;
    let eh = hash_entry(threshold.clone())?;
    /// Add to Index
-   let root_path = Path::from(path_kind::Thresholds).path_entry_hash()?;
+   let root_path = Path::from(anchors::Thresholds).path_entry_hash()?;
    let _lah = create_link(root_path, eh.clone(), MembranesLinkType::Threshold, LinkTag::from("VouchThreshold".to_string().into_bytes()))?;
    /// Done
    Ok(eh)
@@ -76,7 +76,7 @@ pub fn publish_createEntryCountThreshold(create_threshold: CreateEntryCountThres
    let _ah = create_entry(MembranesEntry::Threshold(threshold.clone()))?;
    let eh = hash_entry(threshold.clone())?;
    /// Add to Index
-   let root_path = Path::from(path_kind::Thresholds).path_entry_hash()?;
+   let root_path = Path::from(anchors::Thresholds).path_entry_hash()?;
    let _lah = create_link(root_path, eh.clone(), MembranesLinkType::Threshold, LinkTag::from("CreateEntryCountThreshold".to_string().into_bytes()))?;
    /// Done
    Ok(eh)
@@ -94,7 +94,7 @@ pub fn publish_membrane(membrane: Membrane) -> ExternResult<EntryHash> {
    let _ah = create_entry(MembranesEntry::Membrane(membrane.clone()))?;
    let eh = hash_entry(membrane.clone())?;
    /// Link entry to index
-   let root_path = Path::from(path_kind::Membranes).path_entry_hash()?;
+   let root_path = Path::from(anchors::Membranes).path_entry_hash()?;
    let _lah = create_link(root_path, eh.clone(), MembranesLinkType::Membrane, LinkTag::from(()))?;
    /// Done
    Ok(eh)
@@ -109,11 +109,12 @@ pub fn publish_role(role: MembraneRole) -> ExternResult<EntryHash> {
       let _typed: Membrane = zome_utils::get_typed_from_eh(membrane_eh)?;
    }
    /// Create Entry
-   let ah = create_entry(MembranesEntry::Role(role.clone()))?;
+   let _ah = create_entry(MembranesEntry::Role(role.clone()))?;
    let eh = hash_entry(role.clone())?;
    /// Link entry to index
-   let root_path = Path::from(path_kind::Roles).path_entry_hash()?;
-   let _lah = create_link(root_path, ah.clone(), MembranesLinkType::Role, LinkTag::from(()))?;
+   let root_path = Path::from(anchors::Roles).path_entry_hash()?;
+   let lah = create_link(root_path, eh.clone(), MembranesLinkType::Role, LinkTag::from(()))?;
+   debug!("publish_role() LinkActionHash: {:?}", lah);
    /// Done
    Ok(eh)
 }
@@ -126,11 +127,11 @@ pub fn publish_RoleClaim(claim: RoleClaim) -> ExternResult<EntryHash> {
    let _role: MembraneRole = zome_utils::get_typed_from_eh(claim.role_eh.clone())?;
    let _membrane_claim: MembraneCrossedClaim = zome_utils::get_typed_from_eh(claim.membrane_claim_eh.clone())?;
    /// Create Entry
-   let ah = create_entry(MembranesEntry::RoleClaim(claim.clone()))?;
+   let _ah = create_entry(MembranesEntry::RoleClaim(claim.clone()))?;
    let eh = hash_entry(claim.clone())?;
    //let eh = hash_entry(claim.clone())?;
    /// Create Link from subject
-   let _lah = create_link(claim.subject, ah.clone(), MembranesLinkType::RolePassport, LinkTag::from(()))?;
+   let _lah = create_link(claim.subject, eh.clone(), MembranesLinkType::RolePassport, LinkTag::from(()))?;
    /// Done
    Ok(eh)
 }

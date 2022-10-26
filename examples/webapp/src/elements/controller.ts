@@ -106,6 +106,14 @@ export class TaskerController extends ScopedElementsMixin(LitElement) {
     console.log("place-controller.postInit() - DONE");
   }
 
+  /** */
+  async checkMyRole(_e: any) {
+    let response = await this._store.amIEditor();
+    console.log("checkMyRole() Editor =", response)
+    let span = this.shadowRoot!.getElementById("responseSpan") as HTMLSpanElement;
+    span.innerText = "" + response;
+    this.requestUpdate();
+  }
 
   /** */
   async refresh(_e: any) {
@@ -237,6 +245,8 @@ export class TaskerController extends ScopedElementsMixin(LitElement) {
           <input type="text" id="listTitleInput" name="title">
           <input type="button" value="create" @click=${this.onCreateList}>
         </form>
+        <button type="button" @click=${this.checkMyRole}>Am I Editor?</button>
+        <span id="responseSpan">unknown</span>
         <h1>
           Selected List:
           <select name="selectedList" id="selectedList" @click=${this.onListSelect}>

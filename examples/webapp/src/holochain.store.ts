@@ -120,6 +120,11 @@ export class HolochainStore {
     return this.service.completeTask(taskAh);
   }
 
+  async amIEditor(): Promise<boolean> {
+    let claimed_membranes = await this.service.claimAllMembranes();
+    console.log("Claimed membranes:", claimed_membranes)
+    return this.service.amIEditor();
+  }
 
   /** */
   async getTaskList(listAh: ActionHashB64): Promise<TaskList | null> {

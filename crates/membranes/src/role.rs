@@ -39,14 +39,6 @@ pub fn do_i_have_role(_role_eh: EntryHashB64) -> ExternResult<Option<EntryHashB6
 }
 
 
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-pub struct ClaimRoleInput {
-   subject: AgentPubKeyB64,
-   role_eh: EntryHashB64,
-   membrane_index: usize,
-}
-
-
 ///
 #[hdk_extern]
 pub fn claim_role(input: ClaimRoleInput) -> ExternResult<Option<EntryHashB64>> {
@@ -72,7 +64,7 @@ pub fn claim_role(input: ClaimRoleInput) -> ExternResult<Option<EntryHashB64>> {
    let claim = RoleClaim {
       subject: agent_id.clone(),
       membrane_index: input.membrane_index.clone(),
-      role_eh,
+      role_eh: role_eh,
       membrane_claim_eh: maybe_membrane_claim_eh.unwrap().into(),
    };
    let eh = publish_RoleClaim(claim)?;

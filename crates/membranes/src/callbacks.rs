@@ -22,13 +22,13 @@ fn init(_: ()) -> ExternResult<InitCallbackResult> {
 
 /// Initialize paths
 fn init_anchors() -> ExternResult<InitCallbackResult> {
-   let root_path = Path::from(path_kind::Roles);
+   let root_path = Path::from(anchors::Roles);
    let roles_path = root_path.clone().typed(MembranesLinkType::Role)?;
    roles_path.ensure()?;
-   let root_path = Path::from(path_kind::Membranes);
+   let root_path = Path::from(anchors::Membranes);
    let membranes_path = root_path.clone().typed(MembranesLinkType::Membrane)?;
    membranes_path.ensure()?;
-   let root_path = Path::from(path_kind::Thresholds);
+   let root_path = Path::from(anchors::Thresholds);
    let thresholds_path = root_path.clone().typed(MembranesLinkType::Threshold)?;
    thresholds_path.ensure()?;
    Ok(InitCallbackResult::Pass)
