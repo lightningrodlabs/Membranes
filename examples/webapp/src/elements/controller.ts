@@ -156,7 +156,12 @@ export class TaskerController extends ScopedElementsMixin(LitElement) {
     //console.log("onLockList() CALLED", e)
     const input = this.shadowRoot!.getElementById("itemTitleInput") as HTMLInputElement;
     //console.log(input)
-    let res = this._store.lockTaskList(this._selectedListAh!);
+    try {
+      let res = await this._store.lockTaskList(this._selectedListAh!);
+    } catch (e:any) {
+      console.error(e);
+      alert("Must be editor to lock list 😋")
+    }
     //console.log("onLockList res:", res)
     await this.refresh(null);
   }

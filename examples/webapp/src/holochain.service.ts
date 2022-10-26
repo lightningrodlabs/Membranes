@@ -60,7 +60,7 @@ export class HolochainService {
   }
 
   async lockTaskList(listAh: ActionHashB64): Promise<ActionHashB64> {
-    return this.callZome("tasker",'lock_task_list', listAh);
+    return this.callZome("tasker",'membraned_lock_task_list', listAh);
   }
 
 

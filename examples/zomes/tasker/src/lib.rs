@@ -7,11 +7,14 @@
 
 mod ui;
 mod basic_callbacks;
-mod basic_functions;
-
 mod membraned_callbacks;
-mod membraned_functions;
+mod helpers;
 
+#[macro_use]
+extern crate zome_utils;
+
+mod basic_functions;
+mod membraned_functions;
 
 use hdk::prelude::*;
 
