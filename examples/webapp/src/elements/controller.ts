@@ -15,23 +15,9 @@ import {ActionHashB64} from "@holochain-open-dev/core-types";
 
 export const delay = (ms:number) => new Promise(r => setTimeout(r, ms))
 
-const toHHMMSS = function (str: string) {
-  var sec_num = parseInt(str, 10); // don't forget the second param
-  var hours:any   = Math.floor(sec_num / 3600);
-  var minutes:any = Math.floor((sec_num - (hours * 3600)) / 60);
-  var seconds:any = sec_num - (hours * 3600) - (minutes * 60);
-
-  if (hours   < 10) {hours   = "0"+hours;}
-  if (minutes < 10) {minutes = "0"+minutes;}
-  if (seconds < 10) {seconds = "0"+seconds;}
-  return hours+':'+minutes+':'+seconds;
-}
-
-
-
 
 /**
- * @element place-controller
+ * @element tasker-controller
  */
 export class TaskerController extends ScopedElementsMixin(LitElement) {
   constructor() {
@@ -101,9 +87,9 @@ export class TaskerController extends ScopedElementsMixin(LitElement) {
 
   /** Called once after init is done and canvas has been rendered */
   private async postInit() {
-    console.log("place-controller.postInit() - START!");
+    console.log("tasker-controller.postInit() - START!");
     // FIXME
-    console.log("place-controller.postInit() - DONE");
+    console.log("tasker-controller.postInit() - DONE");
   }
 
   /** */
@@ -195,7 +181,7 @@ export class TaskerController extends ScopedElementsMixin(LitElement) {
 
   /** Render for real-time editing of frame */
   render() {
-    console.log("controller render() START", this._store.taskListStore);
+    console.log("membranes-admin-controller render() START", this._store.taskListStore);
 
     const listListLi = Object.entries(this._store.taskListStore).map(
         ([ahB64, taskList]) => {
@@ -243,7 +229,7 @@ export class TaskerController extends ScopedElementsMixin(LitElement) {
       <div>
         <button type="button" @click=${this.refresh}>Refresh</button>        
         <span>${this._store.myAgentPubKey}</span>
-        <h1>Lists</h1>
+        <h1>Tasker: Membranes Test App</h1>
         <ul>${listListLi}</ul>
         <form>
           <label for="listTitleInput">New list:</label>

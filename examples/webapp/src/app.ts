@@ -11,6 +11,7 @@ import {AppWebsocket} from "@holochain/client";
 import {TaskerController} from "./elements/controller";
 import {HolochainStore} from "./holochain.store";
 import {taskerContext} from "./types";
+import {MembranesAdminController} from "./elements/membranes-controller";
 
 let APP_ID = 'tasker'
 let HC_PORT:any = process.env.HC_PORT;
@@ -27,6 +28,8 @@ export class TaskerApp extends ScopedElementsMixin(LitElement) {
   _taskerStore: HolochainStore | null = null;
 
   _taskerCellId: CellId | null = null;
+
+  _canDisplayAdmin: boolean = false;
 
 
   /** */
@@ -55,15 +58,23 @@ export class TaskerApp extends ScopedElementsMixin(LitElement) {
     if (!this.loaded) {
       return html`<span>Loading...</span>`;
     }
+
     return html`
-       <tasker-controller style="flex: 1;"></tasker-controller>
-    `;
+      <div>
+        <input type="button" value="Show Tasker" @click=${() => {this._canDisplayAdmin = false; this.requestUpdate()}} >
+        <input type="button" value="Show Membranes" @click=${() => {this._canDisplayAdmin = true; this.requestUpdate()}} >
+      </div>
+      ${this._canDisplayAdmin? html`<membranes-admin-controller style="flex: 1;"></membranes-admin-controller>` 
+          : html`<tasker-controller style="flex: 1;"></tasker-controller>`
+      }
+    `
   }
 
 
   static get scopedElements() {
     return {
       "tasker-controller": TaskerController,
+      "membranes-admin-controller": MembranesAdminController,
     };
   }
 }
