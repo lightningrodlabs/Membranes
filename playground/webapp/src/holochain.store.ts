@@ -30,7 +30,7 @@ export class HolochainStore {
   taskItemStore: Dictionary<TaskItem> = {};
 
 
-
+  agentStore: AgentPubKeyB64[] = []
 
 
   /** Static info */
@@ -87,6 +87,7 @@ export class HolochainStore {
 
 
   async pullAllFromDht() {
+    /** Get Lists */
     const lists = await this.service.getAllLists();
     //console.log("pullAllFromDht:", lists)
     for (const listAh of lists) {
@@ -98,11 +99,14 @@ export class HolochainStore {
       }
     }
     //console.log(this.taskListStore)
+    /** Get Agents */
+    this.agentStore = await this.service.getAllAgents();
+    console.log({agentStore: this.agentStore})
   }
 
 
   /** */
-  async createTaskItem(title: string, assignee: ActionHashB64, listAh: ActionHashB64): Promise<ActionHashB64> {
+  async createTaskItem(title: string, assignee: AgentPubKeyB64, listAh: ActionHashB64): Promise<ActionHashB64> {
     return this.service.createTaskItem(title, assignee, listAh);
   }
 
@@ -114,7 +118,6 @@ export class HolochainStore {
   async lockTaskList(listAh: ActionHashB64): Promise<ActionHashB64> {
     return this.service.lockTaskList(listAh);
   }
-
 
   async completeTask(taskAh: ActionHashB64): Promise<ActionHashB64> {
     return this.service.completeTask(taskAh);
@@ -129,6 +132,11 @@ export class HolochainStore {
   /** */
   async getTaskList(listAh: ActionHashB64): Promise<TaskList | null> {
     return this.service.getTaskList(listAh);
+  }
+
+  /** */
+  async getAllAgents(): Promise<AgentPubKeyB64[]> {
+    return this.service.getAllAgents();
   }
 
 }

@@ -73,7 +73,7 @@ export class HolochainService {
   }
 
 
-  async getAllLists(): Promise<[ActionHashB64]> {
+  async getAllLists(): Promise<ActionHashB64[]> {
     return this.callZome("tasker",'get_all_lists', null);
   }
 
@@ -96,10 +96,10 @@ export class HolochainService {
     return this.callZome("membranes", 'get_my_role_claims', null);
   }
 
-  /** Membranes */
+  /** agent_directory */
 
-  async getAllAgents(): Promise<number> {
-    return this.callZome("agent_directory",'claim_all_membranes', null);
+  async getAllAgents(): Promise<AgentPubKeyB64[]> {
+    return this.callZome("agent_directory",'get_registered_agents', null);
   }
 
 

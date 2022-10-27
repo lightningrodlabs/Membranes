@@ -2,6 +2,9 @@ import {AgentPubKeyB64, EntryHashB64, ActionHashB64, HoloHashB64} from "@holocha
 //import { createContext, Context } from "@holochain-open-dev/context";
 import { createContext } from '@lit-labs/context';
 import { HolochainStore } from "./holochain.store";
+import {ActionHash, AgentPubKey} from "@holochain/client";
+
+import * as base64 from "byte-base64";
 
 export const taskerContext = createContext<HolochainStore>('tasker/service');
 
@@ -24,8 +27,8 @@ export interface TaskListEntry {
 
 export interface TaskItemEntry {
   title: string,
-  assignee: AgentPubKeyB64,
-  list_ah: ActionHashB64,
+  assignee: AgentPubKey,
+  list_ah: ActionHash,
 }
 
 
@@ -53,6 +56,21 @@ export interface ReassignTaskInput {
   assignee: AgentPubKeyB64,
 }
 
+
+
+/** Convert hash (Uint8Array) to/from base64 string */
+export function htos(u8array: Uint8Array): string {
+  if (!u8array) {
+    console.error("htos() argument is undefined")
+  }
+  return base64.bytesToBase64(u8array)
+}
+export function stoh(str: string): Uint8Array {
+  if (!str) {
+    console.error("stoh() argument is undefined")
+  }
+  return base64.base64ToBytes(str)
+}
 
 
 

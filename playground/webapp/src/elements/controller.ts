@@ -5,7 +5,7 @@ import {property} from "lit/decorators.js";
 //import {contextProvided} from "@holochain-open-dev/context";
 import { contextProvided } from '@lit-labs/context';
 
-import {Dictionary, taskerContext, TaskList, TaskListEntry} from "../types";
+import {Dictionary, htos, taskerContext, TaskList, TaskListEntry} from "../types";
 import {HolochainStore} from "../holochain.store";
 //import {SlBadge, SlTooltip} from '@scoped-elements/shoelace';
 import {ScopedElementsMixin} from "@open-wc/scoped-elements";
@@ -128,9 +128,14 @@ export class TaskerController extends ScopedElementsMixin(LitElement) {
   /** */
   async onCreateTask(e: any) {
     //console.log("onCreateTask() CALLED", e)
+    /* Assignee */
+    const assigneeSelect = this.shadowRoot!.getElementById("selectedAgent") as HTMLSelectElement;
+    const assignee = assigneeSelect.value;
+    console.log("Assignee value:", assignee);
+    /* Title */
     const input = this.shadowRoot!.getElementById("itemTitleInput") as HTMLInputElement;
     //console.log(input)
-    let res = this._store.createTaskItem(input.value, this._store.myAgentPubKey, this._selectedListAh!);
+    let res = this._store.createTaskItem(input.value, assignee, this._selectedListAh!);
     //console.log("onCreateList res:", res)
     input.value = "";
     await this.refresh(null);
@@ -197,15 +202,23 @@ export class TaskerController extends ScopedElementsMixin(LitElement) {
       }
     )
 
+    const AgentOptions = Object.entries(this._store.agentStore).map(
+        ([index, agentIdB64]) => {
+          console.log("" + index + ". " + agentIdB64)
+          return html `<option value="${agentIdB64}">${agentIdB64.substring(0, 12)}</option>`
+        }
+    )
+
+
     /** Display selected list */
     let selectedListHtml = html `<h3>\<none\></h3>`
     if (this._selectedList) {
       const listItems = Object.entries(this._selectedList.items).map(
           ([index, [ahB64, taskItem]]) => {
-            //console.log("taskList:", ahB64)
+            console.log("taskItem:", taskItem)
             return html`
               <input type="checkbox" id="${ahB64}" value="${ahB64}" .checked=${taskItem.isCompleted} .disabled=${this._selectedList!.isLocked || taskItem.isCompleted}>              
-              <label for="${ahB64}">${taskItem.entry.title}</label><br>
+              <label for="${ahB64}"><b>${taskItem.entry.title}</b></label><span> - <i>${htos(taskItem.entry.assignee)}</i></span><br>
               `
           }
       )
@@ -216,7 +229,10 @@ export class TaskerController extends ScopedElementsMixin(LitElement) {
           <br/>
           <label for="itemTitleInput">Add task:</label>
           <input type="text" id="itemTitleInput" name="title" .disabled=${this._selectedList.isLocked}>
-          <input type="button" value="Add" @click=${this.onCreateTask} .disabled=${this._selectedList.isLocked}>
+          <select name="selectedAgent" id="selectedAgent">
+            ${AgentOptions}
+          </select>
+        <input type="button" value="Add" @click=${this.onCreateTask} .disabled=${this._selectedList.isLocked}>
           <form id="listForm">
               ${listItems}
           <input type="button" value="submit" @click=${this.onSubmitCompletion} .disabled=${this._selectedList.isLocked}>
@@ -229,7 +245,7 @@ export class TaskerController extends ScopedElementsMixin(LitElement) {
       <div>
         <button type="button" @click=${this.refresh}>Refresh</button>        
         <span>${this._store.myAgentPubKey}</span>
-        <h1>Tasker: Membranes Test App</h1>
+        <h1>Tasker: Membranes Playground</h1>
         <ul>${listListLi}</ul>
         <form>
           <label for="listTitleInput">New list:</label>
