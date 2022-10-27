@@ -4,10 +4,10 @@ members = [
   "crates/membranes_types",
   "crates/membranes_integrity",
   "crates/membranes",
-  "examples/zomes/tasker",
-  "examples/zomes/tasker_model",
-  "examples/zomes/agent_directory",
-  "examples/zomes/agent_directory_integrity",
+  "playground/zomes/tasker",
+  "playground/zomes/tasker_model",
+  "playground/zomes/agent_directory",
+  "playground/zomes/agent_directory_integrity",
   #"sweettest",
 ]
 

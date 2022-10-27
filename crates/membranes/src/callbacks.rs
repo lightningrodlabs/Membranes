@@ -35,7 +35,6 @@ fn init_anchors() -> ExternResult<InitCallbackResult> {
 }
 
 
-
 /// Validate DNA properties
 fn init_properties() -> ExternResult<InitCallbackResult> {
    // let maybe_place_properties = get_properties(());

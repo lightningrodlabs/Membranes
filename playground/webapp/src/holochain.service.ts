@@ -96,6 +96,13 @@ export class HolochainService {
     return this.callZome("membranes", 'get_my_role_claims', null);
   }
 
+  /** Membranes */
+
+  async getAllAgents(): Promise<number> {
+    return this.callZome("agent_directory",'claim_all_membranes', null);
+  }
+
+
   /** Private */
 
   /** */
