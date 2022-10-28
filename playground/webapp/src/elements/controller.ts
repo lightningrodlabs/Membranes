@@ -254,12 +254,12 @@ export class TaskerController extends ScopedElementsMixin(LitElement) {
         </form>
         <button type="button" @click=${this.checkMyRole}>Am I Editor?</button>
         <span id="responseSpan">unknown</span>
-        <h1>
+        <h2>
           Selected List:
           <select name="selectedList" id="selectedList" @click=${this.onListSelect}>
             ${listListOption}
           </select>
-        </h1>
+        </h2>
         ${selectedListHtml}
       </div>
     `;

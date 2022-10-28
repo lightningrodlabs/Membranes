@@ -37,8 +37,8 @@ export class MembranesBridge {
 
   /** Membranes */
 
-  async myClaimedMembranes(): Promise<MembraneCrossedClaimEntry[]> {
-    return this.callZome('get_my_membrane_claims', null);
+  async myClaimedMembranes(): Promise<[EntryHash, MembraneCrossedClaimEntry][]> {
+    return this.callZome('get_my_membrane_claims_details', null);
   }
 
   async hasAgentCrossedMembrane(subject: AgentPubKeyB64, membraneEh: EntryHashB64): Promise<EntryHashB64 | null> {
@@ -54,10 +54,14 @@ export class MembranesBridge {
     return this.callZome('get_membrane', eh);
   }
 
+  async getMembraneCrossedClaim(eh: EntryHash): Promise<MembraneCrossedClaimEntry | null> {
+    return this.callZome('get_membrane_crossed_claim', eh);
+  }
+
   /** Roles */
 
-  async myClaimedRoles(): Promise<RoleClaimEntry[]> {
-    return this.callZome('get_my_role_claims', null);
+  async myClaimedRoles(): Promise<[EntryHash, RoleClaimEntry][]> {
+    return this.callZome('get_my_role_claims_details', null);
   }
 
 
@@ -72,6 +76,15 @@ export class MembranesBridge {
   async claimRole(subject: AgentPubKeyB64, roleEh: EntryHashB64, membraneIndex: number): Promise<EntryHashB64 | null> {
     return this.callZome('claim_role', {subject, roleEh, membraneIndex});
   }
+
+  async getRole(eh: EntryHash): Promise<MembraneRoleEntry | null> {
+    return this.callZome('get_role', eh);
+  }
+
+  async getRoleByName(name: string): Promise<MembraneRoleEntry | null> {
+    return this.callZome('get_role_by_name', name);
+  }
+
 
   /** Thresholds */
 

@@ -9,6 +9,7 @@ import { contextProvided } from '@lit-labs/context';
 import {ScopedElementsMixin} from "@open-wc/scoped-elements";
 import {ActionHashB64} from "@holochain-open-dev/core-types";
 import {MembranesViewModel, membranesContext} from "../membranes.view_model";
+import {EntryHash} from "@holochain/client";
 //import {IMAGE_SCALE} from "../constants";
 
 
@@ -47,17 +48,8 @@ export class MembranesAdminController extends ScopedElementsMixin(LitElement) {
   /** Private properties */
   _pullCount: number = 0
 
+
   /** Getters */
-
-
-  // get datePickerElem(): any {
-  //   return this.shadowRoot!.getElementById("my-date-picker");
-  // }
-  //
-  // get loadingOverlayElem(): HTMLDivElement {
-  //   return this.shadowRoot!.getElementById("loading-overlay") as HTMLDivElement;
-  // }
-
 
   /** After first render only */
   async firstUpdated() {
@@ -83,42 +75,72 @@ export class MembranesAdminController extends ScopedElementsMixin(LitElement) {
   }
 
 
-
-  /** Called once after init is done and canvas has been rendered */
-  private async postInit() {
-    console.log("membranes-admin-controller.postInit() - START!");
-    // FIXME
-    console.log("membranes-admin-controller.postInit() - DONE");
-  }
-
-
   /** */
   async refresh(_e: any) {
     console.log("refresh(): Pulling data from DHT")
-    await this._viewModel.pullAllFromDht()
+    await this._viewModel.pullAllFromDht();
+    await this._viewModel.pullMyClaims();
     this._pullCount += 1;
     this.requestUpdate();
-  }
-
-
-  /** */
-  async onListSelect(e: any) {
-    //console.log("onListSelect() CALLED", e)
-    //console.log("onListSelect() list:", e.originalTarget.value)
   }
 
 
   /** Render for real-time editing of frame */
   render() {
     console.log("membranes-admin-controller render() START");
-
-
+    /* Roles */
+    const rolesLi = Object.entries(this._viewModel.roleStore).map(
+        ([ehB64, role]) => {
+          //console.log("membrane:", ehB64)
+          return html `<li title=${ehB64}><abbr>${role.name} - [${role.enteringMembranes.length}]</abbr></li>`
+        }
+    )
+    /* Membranes */
+    const membranesLi = Object.entries(this._viewModel.membraneStore).map(
+        ([ehB64, membrane]) => {
+          console.log("membrane:", membrane)
+          return html `<li>${ehB64} - [${membrane.thresholds.length}]</li>`
+        }
+    )
+    /* Thresholds */
+    const thresholdsLi = Object.entries(this._viewModel.thresholdStore).map(
+        ([ehB64, threshold]) => {
+          //console.log("membrane:", ehB64)
+          return html `<li title=${ehB64}>$<abbr>${JSON.stringify(threshold)}</abbr></li>`
+        }
+    )
+    /* My Role Claims */
+    const myRolesLi = Object.entries(this._viewModel.myRoleClaimsStore).map(
+        ([ehB64, claim]) => {
+          //console.log("membrane:", ehB64)
+          return html `<li title=${ehB64}><abbr>${claim.role.name} - (crossed membrane index:${claim.membraneIndex})</abbr></li>`
+        }
+    )
+    /* My Membrane Claims */
+    const myMembranesLi = Object.entries(this._viewModel.myMembraneClaimsStore).map(
+        ([ehB64, claim]) => {
+          //console.log("membrane:", ehB64)
+          return html `<li title="proof: ${JSON.stringify(claim.proof)}"><abbr>${ehB64}</abbr></li>`
+        }
+    )
     /** render all */
     return html`
       <div>
         <button type="button" @click=${this.refresh}>Refresh</button>        
         <span>${this._viewModel.myAgentPubKey}</span>
         <h1>Membrane Admin</h1>
+        <h2>Roles</h2>
+        <ul>${rolesLi}</ul>        
+        <h2>Membranes</h2>
+        <ul>${membranesLi}</ul>
+        <h2>Thresholds</h2>
+        <ul>${thresholdsLi}</ul>
+        <hr class="solid">        
+        <h2>My Passport</h2>
+        <h3>Roles</h3>
+        <ul>${myRolesLi}</ul>
+        <h3>Membranes</h3>
+        <ul>${myMembranesLi}</ul>
       </div>
     `;
   }

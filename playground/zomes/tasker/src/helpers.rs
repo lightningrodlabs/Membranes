@@ -10,10 +10,10 @@ use crate::holo_hash::{AgentPubKeyB64, EntryHashB64};
 #[hdk_extern]
 pub fn claim_all_membranes(_: ()) -> ExternResult<usize> {
    /// Get all Membranes
-   let membranes: Vec<Membrane> = call_membranes_zome("get_all_membranes_details", ())?;
+   let membranes: Vec<(EntryHash, Membrane)> = call_membranes_zome("get_all_membranes_details", ())?;
    /// Claim each Membrane
    let mut claim_count = 0;
-   for membrane in membranes {
+   for (_eh, membrane) in membranes {
       let membrane_eh = hash_entry(membrane)?;
       let maybe_claim: Option<EntryHashB64> = call_membranes_zome("claim_membrane", ClaimMembraneInput {
          subject: agent_info()?.agent_initial_pubkey.into(),
@@ -33,7 +33,7 @@ pub fn claim_all_membranes(_: ()) -> ExternResult<usize> {
 pub fn am_i_editor(_: ()) -> ExternResult<bool> {
    debug!("am_i_editor() CALLED");
    /// Get Role
-   let maybe_editorRole: Option<MembraneRole> = call_membranes_zome("get_role", "editor".to_string())?;
+   let maybe_editorRole: Option<MembraneRole> = call_membranes_zome("get_role_by_name", "editor".to_string())?;
    debug!("am_i_editor() maybe_editorRole: {:?}", maybe_editorRole);
    if maybe_editorRole.is_none() {
       return Ok(false);

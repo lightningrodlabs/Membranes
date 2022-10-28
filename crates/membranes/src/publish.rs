@@ -6,12 +6,13 @@ use membranes_types::*;
 use membranes_integrity::*;
 
 use crate::{constants::*, anchors};
+use crate::anchors::get_role_by_name;
 
 
 ///
 #[hdk_extern]
 pub fn publish_vouch(vouch: Vouch) -> ExternResult<EntryHash> {
-   let maybe_role = anchors::get_role(vouch.for_role.clone())?;
+   let maybe_role = get_role_by_name(vouch.for_role.clone())?;
    if maybe_role.is_none() {
       let msg = format!("Could not get Role declared in Vouch: {}", vouch.for_role);
       return Err(wasm_error!(WasmErrorInner::Guest(msg)));

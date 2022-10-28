@@ -5,37 +5,9 @@ use membranes_integrity::*;
 use membranes_types::*;
 
 use crate::{anchors, constants::*};
-use crate::anchors::get_role;
+use crate::anchors::get_role_by_name;
 use crate::publish::{publish_MembraneCrossedClaim};
 use crate::role::{has_role};
-
-
-///
-#[hdk_extern]
-pub fn get_my_membrane_claims(_:()) -> ExternResult<Vec<MembraneCrossedClaim>> {
-   let result_pairs = zome_utils::get_typed_from_links(agent_info()?.agent_initial_pubkey, MembranesLinkType::MembranePassport, None)?;
-   debug!("Membrane claims found: {}", result_pairs.len());
-   let mut result = Vec::new();
-   for (claim, _link) in result_pairs {
-      //let eh = hash_entry(role.clone())?;
-      result.push(claim);
-   }
-   Ok(result)
-}
-
-
-///
-#[hdk_extern]
-pub fn get_my_role_claims(_:()) -> ExternResult<Vec<RoleClaim>> {
-   let result_pairs = zome_utils::get_typed_from_links(agent_info()?.agent_initial_pubkey, MembranesLinkType::RolePassport, None)?;
-   debug!("Role claims found: {}", result_pairs.len());
-   let mut result = Vec::new();
-   for (claim, _link) in result_pairs {
-      //let eh = hash_entry(role.clone())?;
-      result.push(claim);
-   }
-   Ok(result)
-}
 
 
 /// Returns entry hash of MembraneCrossedClaim for that Membrane, if exists
@@ -107,7 +79,7 @@ fn claim_vouchThreshold(subject: AgentPubKey, th: VouchThreshold) -> ExternResul
       if vouch.subject != subject { continue }
       /// Vouch author must have required Role
       let author = zome_utils::get_author(&link.target)?;
-      let maybe_role = get_role(th.by_role.clone())?;
+      let maybe_role = get_role_by_name(th.by_role.clone())?;
       if maybe_role.is_none() {
          let msg = format!("Could not get Role declared in vouch_threshold: {}", vouch.for_role);
          return Err(wasm_error!(WasmErrorInner::Guest(msg)));

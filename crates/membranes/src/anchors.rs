@@ -50,7 +50,7 @@ pub fn get_all_roles_details(_ : ()) -> ExternResult<Vec<(EntryHash, MembraneRol
 
 ///
 #[hdk_extern]
-pub fn get_role(requested_name: String) -> ExternResult<Option<MembraneRole>> {
+pub fn get_role_by_name(requested_name: String) -> ExternResult<Option<MembraneRole>> {
    let roles = get_all_roles_details(())?;
    for (_eh, role) in roles {
       if role.name == requested_name {
