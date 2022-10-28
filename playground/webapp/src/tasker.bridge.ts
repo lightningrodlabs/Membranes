@@ -1,17 +1,16 @@
 import {AgnosticClient} from '@holochain-open-dev/cell-client';
 import { EntryHashB64, ActionHashB64, AgentPubKeyB64 } from '@holochain-open-dev/core-types';
-import { serializeHash } from '@holochain-open-dev/utils';
 
 import {
   TaskListEntry,
   TaskItemEntry,
-  HoloHashed,
   //Signal,
-  Dictionary, TaskItem, TaskList,
-} from './types';
-import {CellId, InstalledAppInfo} from "@holochain/client";
+  TaskItem, TaskList,
+} from './tasker.types';
+import {CellId} from "@holochain/client";
 
-export class HolochainService {
+
+export class TaskerBridge {
 
   /** Ctor */
   constructor(public agnosticClient: AgnosticClient, public cellId: CellId /*, protected roleId: string*/) {
@@ -23,25 +22,14 @@ export class HolochainService {
   }
 
 
-  /** Fields */
-
-  //agnosticClient: AgnosticClient
-
-
-  /** Methods */
-
-  get myAgentPubKey() : AgentPubKeyB64 {
-    return serializeHash(this.cellId[1]);
-    //return this.agentId
-  }
-
-
   /** Zome API */
 
   // async getProperties(): Promise<DnaProperties> {
   //   return this.callPlaceZome('get_properties', null);
   // }
 
+
+  /** Basic */
 
   async createTaskList(title: string): Promise<ActionHashB64> {
     return this.callZome("tasker",'create_task_list', title);
@@ -86,20 +74,6 @@ export class HolochainService {
 
   async amIEditor(): Promise<boolean> {
     return this.callZome("tasker", 'am_i_editor', null);
-  }
-
-  async claimedMembranes(): Promise<number> {
-    return this.callZome("membranes", 'get_my_membrane_claims', null);
-  }
-
-  async claimedRoles(): Promise<number> {
-    return this.callZome("membranes", 'get_my_role_claims', null);
-  }
-
-  /** agent_directory */
-
-  async getAllAgents(): Promise<AgentPubKeyB64[]> {
-    return this.callZome("agent_directory",'get_registered_agents', null);
   }
 
 

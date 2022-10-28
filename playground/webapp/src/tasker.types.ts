@@ -1,20 +1,13 @@
 import {AgentPubKeyB64, EntryHashB64, ActionHashB64, HoloHashB64} from "@holochain-open-dev/core-types";
-//import { createContext, Context } from "@holochain-open-dev/context";
-import { createContext } from '@lit-labs/context';
-import { HolochainStore } from "./holochain.store";
 import {ActionHash, AgentPubKey} from "@holochain/client";
 
 import * as base64 from "byte-base64";
 
-export const taskerContext = createContext<HolochainStore>('tasker/service');
 
-export type Dictionary<T> = { [key: string]: T };
-
-
-export interface HoloHashed<T> {
-  hash: HoloHashB64;
-  content: T;
-}
+// export interface HoloHashed<T> {
+//   hash: HoloHashB64;
+//   content: T;
+// }
 
 // export interface DnaProperties {
 //   startTime: number,

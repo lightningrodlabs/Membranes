@@ -5,11 +5,10 @@ import {property} from "lit/decorators.js";
 //import {contextProvided} from "@holochain-open-dev/context";
 import { contextProvided } from '@lit-labs/context';
 
-import {Dictionary, taskerContext, TaskList, TaskListEntry} from "../types";
-import {HolochainStore} from "../holochain.store";
 //import {SlBadge, SlTooltip} from '@scoped-elements/shoelace';
 import {ScopedElementsMixin} from "@open-wc/scoped-elements";
 import {ActionHashB64} from "@holochain-open-dev/core-types";
+import {MembranesViewModel, membranesContext} from "../membranes.view_model";
 //import {IMAGE_SCALE} from "../constants";
 
 
@@ -28,8 +27,6 @@ const toHHMMSS = function (str: string) {
 }
 
 
-
-
 /**
  * @element membranes-admin-controller
  */
@@ -43,8 +40,8 @@ export class MembranesAdminController extends ScopedElementsMixin(LitElement) {
   debugMode: boolean = false;
 
   /** Dependencies */
-  @contextProvided({ context: taskerContext })
-  _store!: HolochainStore;
+  @contextProvided({ context: membranesContext })
+  _viewModel!: MembranesViewModel;
 
 
   /** Private properties */
@@ -98,7 +95,7 @@ export class MembranesAdminController extends ScopedElementsMixin(LitElement) {
   /** */
   async refresh(_e: any) {
     console.log("refresh(): Pulling data from DHT")
-    await this._store.pullAllFromDht()
+    await this._viewModel.pullAllFromDht()
     this._pullCount += 1;
     this.requestUpdate();
   }
@@ -113,14 +110,14 @@ export class MembranesAdminController extends ScopedElementsMixin(LitElement) {
 
   /** Render for real-time editing of frame */
   render() {
-    console.log("membranes-admin-controller render() START", this._store.taskListStore);
+    console.log("membranes-admin-controller render() START");
 
 
     /** render all */
     return html`
       <div>
         <button type="button" @click=${this.refresh}>Refresh</button>        
-        <span>${this._store.myAgentPubKey}</span>
+        <span>${this._viewModel.myAgentPubKey}</span>
         <h1>Membrane Admin</h1>
       </div>
     `;

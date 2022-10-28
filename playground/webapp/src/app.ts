@@ -9,9 +9,8 @@ import {serializeHash} from '@holochain-open-dev/utils';
 import {AppWebsocket} from "@holochain/client";
 
 import {TaskerController} from "./elements/controller";
-import {HolochainStore} from "./holochain.store";
-import {taskerContext} from "./types";
-import {MembranesAdminController} from "./elements/membranes-controller";
+import {TaskerViewModel, taskerContext} from "./tasker.view_model";
+import {MembranesAdminController} from "@membranes/elements";
 
 let APP_ID = 'tasker'
 let HC_PORT:any = process.env.HC_PORT;
@@ -25,7 +24,7 @@ export class TaskerApp extends ScopedElementsMixin(LitElement) {
 
   @state() loaded = false;
 
-  _taskerStore: HolochainStore | null = null;
+  _taskerViewModel: TaskerViewModel | null = null;
 
   _taskerCellId: CellId | null = null;
 
@@ -46,8 +45,8 @@ export class TaskerApp extends ScopedElementsMixin(LitElement) {
     /** Setup Tasker */
     const appInfo = await hcClient.appWebsocket.appInfo({installed_app_id});
     this._taskerCellId  = appInfo.cell_data[0].cell_id;
-    this._taskerStore = new HolochainStore(hcClient, this._taskerCellId);
-    new ContextProvider(this, taskerContext, this._taskerStore);
+    this._taskerViewModel = new TaskerViewModel(hcClient, this._taskerCellId);
+    new ContextProvider(this, taskerContext, this._taskerViewModel);
     /** Done */
     this.loaded = true;
   }

@@ -10,7 +10,7 @@ pub const AGENT_DIRECTORY_PATH: &str = "registered_agents";
 
 /// Returns the addresses of all agents who have accessed the DNA
 #[hdk_extern]
-pub fn get_registered_agents(_:()) -> ExternResult<Vec<AgentPubKeyB64>> {
+pub fn get_registered_agents(_:()) -> ExternResult<Vec<AgentPubKey>> {
    //debug!("*** get_registered_agents() called !");
    let child_links = get_directory_typed_path().children_paths()?;
    //debug!("*** get_registered_agents() child_links.len = {}", child_links.len());
@@ -20,7 +20,7 @@ pub fn get_registered_agents(_:()) -> ExternResult<Vec<AgentPubKeyB64>> {
                                   path_to_key(&typed_link.path)
                                })
                                .filter_map(Result::ok)
-                               .map(|key| key.into())
+                               //.map(|key| key.into())
                                .collect();
    Ok(agent_keys)
 }

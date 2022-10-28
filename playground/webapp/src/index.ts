@@ -1,8 +1,10 @@
 
+export * from './tasker.types';
+export * from './tasker.bridge';
+export * from './tasker.view_model';
+
+export * from './agent_directory.bridge';
+
 export * from './elements/controller';
-export * from './elements/membranes-controller';
-export * from './holochain.service';
-export * from './holochain.store';
-export * from './types';
 
 export * from './app';

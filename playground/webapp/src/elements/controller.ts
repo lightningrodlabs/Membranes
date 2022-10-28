@@ -5,8 +5,8 @@ import {property} from "lit/decorators.js";
 //import {contextProvided} from "@holochain-open-dev/context";
 import { contextProvided } from '@lit-labs/context';
 
-import {Dictionary, htos, taskerContext, TaskList, TaskListEntry} from "../types";
-import {HolochainStore} from "../holochain.store";
+import {htos, TaskList} from "../tasker.types";
+import {TaskerViewModel, taskerContext} from "../tasker.view_model";
 //import {SlBadge, SlTooltip} from '@scoped-elements/shoelace';
 import {ScopedElementsMixin} from "@open-wc/scoped-elements";
 import {ActionHashB64} from "@holochain-open-dev/core-types";
@@ -30,7 +30,7 @@ export class TaskerController extends ScopedElementsMixin(LitElement) {
 
   /** Dependencies */
   @contextProvided({ context: taskerContext })
-  _store!: HolochainStore;
+  _viewModel!: TaskerViewModel;
 
 
   /** Private properties */
@@ -77,7 +77,7 @@ export class TaskerController extends ScopedElementsMixin(LitElement) {
     await delay(1 * 1000);
 
     /** Get latest from DHT and store it */
-    await this._store.pullAllFromDht();
+    await this._viewModel.pullAllFromDht();
 
     /** Done */
     console.log("place-controller.init() - DONE");
@@ -94,7 +94,7 @@ export class TaskerController extends ScopedElementsMixin(LitElement) {
 
   /** */
   async checkMyRole(_e: any) {
-    let response = await this._store.amIEditor();
+    let response = await this._viewModel.amIEditor();
     console.log("checkMyRole() Editor =", response)
     let span = this.shadowRoot!.getElementById("responseSpan") as HTMLSpanElement;
     span.innerText = "" + response;
@@ -104,10 +104,10 @@ export class TaskerController extends ScopedElementsMixin(LitElement) {
   /** */
   async refresh(_e: any) {
     console.log("refresh(): Pulling data from DHT")
-    await this._store.pullAllFromDht()
+    await this._viewModel.pullAllFromDht()
     this._pullCount += 1;
     if (this._selectedListAh) {
-      this._selectedList = await this._store.getTaskList(this._selectedListAh!)
+      this._selectedList = await this._viewModel.getTaskList(this._selectedListAh!)
     }
     this.requestUpdate();
   }
@@ -118,7 +118,7 @@ export class TaskerController extends ScopedElementsMixin(LitElement) {
     //console.log("onCreateList() CALLED", e)
     const input = this.shadowRoot!.getElementById("listTitleInput") as HTMLInputElement;
     //console.log(input)
-    let res = this._store.createTaskList(input.value);
+    let res = this._viewModel.createTaskList(input.value);
     //console.log("onCreateList res:", res)
     input.value = "";
     await this.refresh(null);
@@ -135,7 +135,7 @@ export class TaskerController extends ScopedElementsMixin(LitElement) {
     /* Title */
     const input = this.shadowRoot!.getElementById("itemTitleInput") as HTMLInputElement;
     //console.log(input)
-    let res = this._store.createTaskItem(input.value, assignee, this._selectedListAh!);
+    let res = this._viewModel.createTaskItem(input.value, assignee, this._selectedListAh!);
     //console.log("onCreateList res:", res)
     input.value = "";
     await this.refresh(null);
@@ -148,7 +148,7 @@ export class TaskerController extends ScopedElementsMixin(LitElement) {
     const input = this.shadowRoot!.getElementById("itemTitleInput") as HTMLInputElement;
     //console.log(input)
     try {
-      let res = await this._store.lockTaskList(this._selectedListAh!);
+      let res = await this._viewModel.lockTaskList(this._selectedListAh!);
     } catch (e:any) {
       console.error(e);
       alert("Must be editor to lock list 😋")
@@ -163,7 +163,7 @@ export class TaskerController extends ScopedElementsMixin(LitElement) {
     //console.log("onListSelect() CALLED", e)
     //console.log("onListSelect() list:", e.originalTarget.value)
     this._selectedListAh = e.originalTarget.value
-    this._selectedList = await this._store.getTaskList(e.originalTarget.value)
+    this._selectedList = await this._viewModel.getTaskList(e.originalTarget.value)
     this.requestUpdate();
   }
 
@@ -176,7 +176,7 @@ export class TaskerController extends ScopedElementsMixin(LitElement) {
           const checkbox = this.shadowRoot!.getElementById(ahB64) as HTMLInputElement;
           //console.log("" + checkbox.checked + ". checkbox " + ahB64)
           if (checkbox.checked) {
-            this._store.completeTask(ahB64)
+            this._viewModel.completeTask(ahB64)
           }
         }
     )
@@ -186,23 +186,23 @@ export class TaskerController extends ScopedElementsMixin(LitElement) {
 
   /** Render for real-time editing of frame */
   render() {
-    console.log("membranes-admin-controller render() START", this._store.taskListStore);
+    console.log("membranes-admin-controller render() START", this._viewModel.taskListStore);
 
-    const listListLi = Object.entries(this._store.taskListStore).map(
+    const listListLi = Object.entries(this._viewModel.taskListStore).map(
         ([ahB64, taskList]) => {
           //console.log("taskList:", ahB64)
           return html `<li>${taskList.title}</li>`
         }
     )
 
-    const listListOption = Object.entries(this._store.taskListStore).map(
+    const listListOption = Object.entries(this._viewModel.taskListStore).map(
       ([ahB64, taskList]) => {
         //console.log("taskList:", ahB64)
         return html `<option value="${ahB64}">${taskList.title}</option>`
       }
     )
 
-    const AgentOptions = Object.entries(this._store.agentStore).map(
+    const AgentOptions = Object.entries(this._viewModel.agentStore).map(
         ([index, agentIdB64]) => {
           console.log("" + index + ". " + agentIdB64)
           return html `<option value="${agentIdB64}">${agentIdB64.substring(0, 12)}</option>`
@@ -244,7 +244,7 @@ export class TaskerController extends ScopedElementsMixin(LitElement) {
     return html`
       <div>
         <button type="button" @click=${this.refresh}>Refresh</button>        
-        <span>${this._store.myAgentPubKey}</span>
+        <span>${this._viewModel.myAgentPubKey}</span>
         <h1>Tasker: Membranes Playground</h1>
         <ul>${listListLi}</ul>
         <form>

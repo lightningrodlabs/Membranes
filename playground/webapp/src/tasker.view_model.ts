@@ -1,24 +1,29 @@
-import {EntryHashB64, ActionHashB64, AgentPubKeyB64} from '@holochain-open-dev/core-types';
+import {EntryHashB64, ActionHashB64, AgentPubKeyB64, Dictionary} from '@holochain-open-dev/core-types';
 import {AgnosticClient, CellClient} from '@holochain-open-dev/cell-client';
-import {HolochainService} from './holochain.service';
-import {
-  Dictionary, TaskItem,
-  TaskItemEntry, TaskList,
-} from './types';
+import {TaskerBridge} from './tasker.bridge';
+import {TaskItem, TaskItemEntry, TaskList } from './tasker.types';
 import {CellId} from "@holochain/client";
+import {serializeHash} from "@holochain-open-dev/utils";
+import {AgentDirectoryBridge} from "./agent_directory.bridge";
+import {createContext} from "@lit-labs/context";
 
 
 const areEqual = (first: Uint8Array, second: Uint8Array) =>
       first.length === second.length && first.every((value, index) => value === second[index]);
 
 
+
+export const taskerContext = createContext<TaskerViewModel>('tasker/service');
+
+
 /**
  *
  */
-export class HolochainStore {
+export class TaskerViewModel {
 
   /** Private */
-  private service : HolochainService
+  private taskerZome : TaskerBridge
+  private agentDirectoryZome : AgentDirectoryBridge
   //private _dnaProperties?: DnaProperties;
 
 
@@ -44,15 +49,15 @@ export class HolochainStore {
 
   /** Ctor */
   constructor(protected client: AgnosticClient, cellId: CellId) {
-    this.service = new HolochainService(client, cellId);
+    this.taskerZome = new TaskerBridge(client, cellId);
+    this.agentDirectoryZome = new AgentDirectoryBridge(client, cellId);
     //let cellClient = this.service.cellClient
-    this.myAgentPubKey = this.service.myAgentPubKey;
+    this.myAgentPubKey = serializeHash(cellId[1]);
 
     // this.service.getProperties().then((properties) => {
     //   this.latestBucketIndex = Math.floor(properties.startTime / properties.bucketSizeSec) - 1;
     // });
   }
-
 
 
   /** */
@@ -86,12 +91,13 @@ export class HolochainStore {
   // }
 
 
+  /** */
   async pullAllFromDht() {
     /** Get Lists */
-    const lists = await this.service.getAllLists();
+    const lists = await this.taskerZome.getAllLists();
     //console.log("pullAllFromDht:", lists)
     for (const listAh of lists) {
-      const maybeList = await this.service.getTaskList(listAh);
+      const maybeList = await this.taskerZome.getTaskList(listAh);
       //console.log({maybeList})
       if (maybeList) {
         this.taskListStore[listAh] = maybeList
@@ -99,44 +105,47 @@ export class HolochainStore {
       }
     }
     //console.log(this.taskListStore)
+
     /** Get Agents */
-    this.agentStore = await this.service.getAllAgents();
+    await this.getAllAgents();
     console.log({agentStore: this.agentStore})
   }
 
 
   /** */
   async createTaskItem(title: string, assignee: AgentPubKeyB64, listAh: ActionHashB64): Promise<ActionHashB64> {
-    return this.service.createTaskItem(title, assignee, listAh);
+    return this.taskerZome.createTaskItem(title, assignee, listAh);
   }
 
   /** */
   async createTaskList(title: string): Promise<ActionHashB64> {
-    return this.service.createTaskList(title);
+    return this.taskerZome.createTaskList(title);
   }
 
   async lockTaskList(listAh: ActionHashB64): Promise<ActionHashB64> {
-    return this.service.lockTaskList(listAh);
+    return this.taskerZome.lockTaskList(listAh);
   }
 
   async completeTask(taskAh: ActionHashB64): Promise<ActionHashB64> {
-    return this.service.completeTask(taskAh);
+    return this.taskerZome.completeTask(taskAh);
   }
 
   async amIEditor(): Promise<boolean> {
-    let claimed_membranes = await this.service.claimAllMembranes();
+    let claimed_membranes = await this.taskerZome.claimAllMembranes();
     console.log("Claimed membranes:", claimed_membranes)
-    return this.service.amIEditor();
+    return this.taskerZome.amIEditor();
   }
 
   /** */
   async getTaskList(listAh: ActionHashB64): Promise<TaskList | null> {
-    return this.service.getTaskList(listAh);
+    return this.taskerZome.getTaskList(listAh);
   }
 
   /** */
   async getAllAgents(): Promise<AgentPubKeyB64[]> {
-    return this.service.getAllAgents();
+    let agents = await this.agentDirectoryZome.getAllAgents();
+    this.agentStore = agents.map((agentKey) => serializeHash(agentKey));
+    return this.agentStore;
   }
 
 }
