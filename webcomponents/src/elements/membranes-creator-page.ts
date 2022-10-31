@@ -36,6 +36,7 @@ export class MembranesCreatorPage extends ScopedElementsMixin(LitElement) {
     private _pullCount: number = 0
 
     private _membranesForRole: EntryHashB64[] = [];
+    private _thresoldsForMembrane: EntryHashB64[] = [];
 
     /** Getters */
 
@@ -96,6 +97,29 @@ export class MembranesCreatorPage extends ScopedElementsMixin(LitElement) {
     }
 
 
+
+    /** */
+    async onCreateMembrane(e: any) {
+        console.log("onCreateMembrane() CALLED", e)
+        let res = this._viewModel.createMembrane(this._thresoldsForMembrane);
+        console.log("onCreateMembrane res:", res)
+        this._thresoldsForMembrane = [];
+        await this.refresh(null);
+    }
+
+
+    /** */
+    async onAddThreshold(e: any) {
+        console.log("onAddThreshold() CALLED", e)
+        const thresholdSelect = this.shadowRoot!.getElementById("thresholdSelectedList") as HTMLSelectElement;
+        const eh = thresholdSelect.value;
+        console.log("thresholdSelect eh:", eh);
+        this._thresoldsForMembrane.push(eh);
+        this.requestUpdate();
+    }
+
+
+
     /** */
     render() {
         console.log("membranes-creator-page render() START");
@@ -105,13 +129,17 @@ export class MembranesCreatorPage extends ScopedElementsMixin(LitElement) {
                 return html `<li>${ehB64}</li>`
             }
         )
-
         const membraneOptions = Object.entries(this._viewModel.membraneStore).map(
             ([ehB64, _membrane]) => {
                 return html `<option value="${ehB64}">${ehB64.substring(0, 12)}</option>`
             }
         )
 
+        const thresholdsLi = Object.entries(this._thresoldsForMembrane).map(
+            ([_index, ehB64]) => {
+                return html `<li>${ehB64}</li>`
+            }
+        )
         const thresholdOptions = Object.entries(this._viewModel.thresholdStore).map(
             ([ehB64, _th]) => {
                 return html `<option value="${ehB64}">${ehB64.substring(0, 12)}</option>`
@@ -124,6 +152,7 @@ export class MembranesCreatorPage extends ScopedElementsMixin(LitElement) {
             <button type="button" @click=${this.refresh}>Refresh</button>        
             <span>${this._viewModel.myAgentPubKey}</span>
             <h1>Membrane Creator</h1>
+            <!-- NEW ROLE -->
             <h2>New Role</h2>
               <form>
                   <label for="roleNameInput">Name:</label>
@@ -138,7 +167,19 @@ export class MembranesCreatorPage extends ScopedElementsMixin(LitElement) {
                   </div>
               </form>
             <hr class="solid">
+            <!-- NEW Membrane -->
             <h2>New Membrane</h2>
+            <form>
+                <ul id="thresholdsList">${thresholdsLi}</ul>
+                <select name="thresholdSelectedList" id="thresholdSelectedList">
+                    ${thresholdOptions}
+                </select>
+                <input type="button" value="Add" @click=${this.onAddThreshold}>
+                <div>
+                    <input type="button" value="create" @click=${this.onCreateMembrane}>
+                </div>
+            </form>            
+            <!-- NEW Threshold -->
             <hr class="solid">
             <h2>New Threshold</h2>
         </div>

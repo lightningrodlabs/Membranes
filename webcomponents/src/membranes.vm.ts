@@ -257,4 +257,15 @@ export class MembranesViewModel {
     return this.bridge.publishRole(role);
   }
 
+
+  /** */
+  async createMembrane(ehs: EntryHashB64[]): Promise<EntryHash> {
+    const thresholdEhs: EntryHash[] = Object.values(ehs).map((ehb64) => deserializeHash(ehb64));
+    const membrane: MembraneEntry = {
+      thresholdEhs,
+    };
+    return this.bridge.publishMembrane(membrane);
+  }
+
+
 }
