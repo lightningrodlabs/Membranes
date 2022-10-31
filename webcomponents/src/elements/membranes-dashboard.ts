@@ -7,9 +7,10 @@ import { contextProvided } from '@lit-labs/context';
 
 //import {SlBadge, SlTooltip} from '@scoped-elements/shoelace';
 import {ScopedElementsMixin} from "@open-wc/scoped-elements";
-import {ActionHashB64} from "@holochain-open-dev/core-types";
+import {ActionHashB64, Dictionary} from "@holochain-open-dev/core-types";
 import {MembranesViewModel, membranesContext} from "../membranes.vm";
 import {EntryHash} from "@holochain/client";
+import {CreateEntryCountThreshold, isCreateThreshold, isVouchThreshold, VouchThreshold} from "../membranes.types";
 //import {IMAGE_SCALE} from "../constants";
 
 
@@ -39,6 +40,9 @@ export class MembranesDashboard extends ScopedElementsMixin(LitElement) {
   /** Public attributes */
   @property({ type: Boolean, attribute: 'debug' })
   debugMode: boolean = false;
+
+  @property()
+  appEntryTypeStore: Dictionary<[string, boolean][]> = {};
 
   /** Dependencies */
   @contextProvided({ context: membranesContext })
@@ -105,8 +109,26 @@ export class MembranesDashboard extends ScopedElementsMixin(LitElement) {
     /* Thresholds */
     const thresholdsLi = Object.entries(this._viewModel.thresholdStore).map(
         ([ehB64, threshold]) => {
-          //console.log("membrane:", ehB64)
-          return html `<li title=${ehB64}>$<abbr>${JSON.stringify(threshold)}</abbr></li>`
+          console.log({threshold})
+          let desc = "";
+          if (threshold.hasOwnProperty('vouch')) {
+            let typed = (threshold as any).vouch as VouchThreshold;
+            desc = "'" + typed.forRole + "' if " + typed.requiredCount  + " vouch(es) by '" + typed.byRole + "'"
+            console.log(desc)
+          } else {
+            // FIXME
+            let typed = (threshold as any).createEntryCount as CreateEntryCountThreshold;
+            /*
+            const zomeTypes = this.appEntryTypeStore[typed.entryType.zomeId];
+            console.log({zomeTypes})
+            const entryType = zomeTypes[typed.entryType.id]
+            console.log({entryType})
+             */
+            const entryType = typed.entryType.id
+            desc = "Create " + typed.requiredCount  + " entries of type '" + entryType + "'"
+            console.log(desc)
+          }
+          return html `<li title=${ehB64}><abbr>${desc}</abbr></li>`
         }
     )
     /* My Role Claims */

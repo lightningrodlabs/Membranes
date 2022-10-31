@@ -145,7 +145,7 @@ export class MembranesCreatorPage extends ScopedElementsMixin(LitElement) {
                 const zomeOptions = Object.entries(this.appEntryTypeStore).map(
                     ([zomeName, _entryDef]) => {
                         return html`
-                            <option value="${zomeName}">${zomeName}</option>`
+                            <option>${zomeName}</option>`
                     }
                 )
                 let zomeTypes = Object.entries(this.appEntryTypeStore)
@@ -157,7 +157,7 @@ export class MembranesCreatorPage extends ScopedElementsMixin(LitElement) {
                     entryTypeOptions = Object.entries(zomeTypes[0]).map(
                         ([_zomeName, pair]) => {
                             return html`
-                                <option value="${pair[0]}">${pair[0]}</option>`;
+                                <option>${pair[0]}</option>`;
                         });
                 }
                 console.log({entryTypeOptions})
@@ -204,7 +204,9 @@ export class MembranesCreatorPage extends ScopedElementsMixin(LitElement) {
         console.log("onCreateThreshold() CALLED", e);
         switch (this._selectedKind) {
             case "CreateEntryCountThreshold": {
-                const entryType: MyAppEntryType = {id: 0, zomeId: 0, isPublic: true};  // FIXME
+                const zomeSelector = this.shadowRoot!.getElementById("selectedZome") as HTMLSelectElement;
+                const entrySelector = this.shadowRoot!.getElementById("selectedEntryType") as HTMLSelectElement;
+                const entryType: MyAppEntryType = {id: entrySelector.selectedIndex, zomeId: zomeSelector.selectedIndex, isPublic: true};  // FIXME
                 const input = this.shadowRoot!.getElementById("createEntryCountNumber") as HTMLInputElement;
                 const count = Number(input.value);
                 const res = this._viewModel.createCreateEntryCountThreshold(entryType, count);

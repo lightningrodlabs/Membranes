@@ -51,6 +51,13 @@ export interface MyAppEntryType {
 
 export type MembraneThresholdEntry = CreateEntryCountThreshold | VouchThreshold
 
+export function isVouchThreshold(obj: any): obj is VouchThreshold  {
+  return obj.hasOwnProperty('byRole')
+}
+export function isCreateThreshold(obj: any): obj is CreateEntryCountThreshold  {
+  return obj.hasOwnProperty('entryType')
+}
+
 export enum MembraneThresholdKind {
   CreateEntryCountThreshold,
   VouchThreshold,

@@ -76,7 +76,7 @@ export class MembranesViewModel {
 
   /** */
   private async convertMembraneEntry(membraneEntry: MembraneEntry): Promise<Membrane> {
-    console.log("convertMembraneEntry() called", membraneEntry)
+    //console.log("convertMembraneEntry() called", membraneEntry)
     let thresholds = []
     for (const thresholdEh of membraneEntry.thresholdEhs) {
       let maybeStoredThreshold = this.thresholdStore[serializeHash(thresholdEh)];
@@ -86,7 +86,7 @@ export class MembranesViewModel {
       thresholds.push(maybeStoredThreshold)
     }
     let membrane = {thresholds}
-    console.log("convertMembraneEntry() result", membrane)
+    //console.log("convertMembraneEntry() result", membrane)
     return membrane;
   }
 
@@ -107,19 +107,19 @@ export class MembranesViewModel {
 
   /** */
   private async convertMembraneCrossedClaimEntry(membraneClaimEntry: MembraneCrossedClaimEntry): Promise<MembraneCrossedClaim> {
-    console.log("convertMembraneCrossedClaimEntry() called", membraneClaimEntry)
+    //console.log("convertMembraneCrossedClaimEntry() called", membraneClaimEntry)
     let membraneClaim = {
       proofs: membraneClaimEntry.proofs,
       subject: serializeHash(membraneClaimEntry.subject),
       membrane: await this.pullMembrane(membraneClaimEntry.membraneEh),
     };
-    console.log("convertMembraneCrossedClaimEntry() result", membraneClaim)
+    //console.log("convertMembraneCrossedClaimEntry() result", membraneClaim)
     return membraneClaim;
   }
 
   /** */
   private async convertRoleClaimEntry(entry: RoleClaimEntry): Promise<RoleClaim> {
-    console.log("convertRoleClaimEntry() called", entry)
+    //console.log("convertRoleClaimEntry() called", entry)
     let roleClaim = {
       subject: serializeHash(entry.subject),
       membraneIndex: entry.membraneIndex,
@@ -127,14 +127,14 @@ export class MembranesViewModel {
       membraneClaim: await this.pullMembraneCrossedClaim(entry.membraneClaimEh),
 
     };
-    console.log("convertRoleClaimEntry() result", roleClaim)
+    //console.log("convertRoleClaimEntry() result", roleClaim)
     return roleClaim;
   }
 
 
   /** */
   private async pullThreshold(eh: EntryHash): Promise<MembraneThresholdEntry> {
-    console.log("pullThreshold() called", eh)
+    //console.log("pullThreshold() called", eh)
     let thB64 = serializeHash(eh)
     const maybeThreshold = await this.bridge.getThreshold(eh)
     if (!maybeThreshold) {
@@ -148,7 +148,7 @@ export class MembranesViewModel {
 
   /** */
   private async pullMembrane(eh: EntryHash): Promise<Membrane> {
-    console.log("pullMembrane() called", eh)
+    //console.log("pullMembrane() called", eh)
     let b64 = serializeHash(eh)
     const maybeEntry = await this.bridge.getMembrane(eh)
     if (!maybeEntry) {
@@ -163,7 +163,7 @@ export class MembranesViewModel {
 
   /** */
   private async pullMembraneCrossedClaim(eh: EntryHash): Promise<MembraneCrossedClaim> {
-    console.log("pullMembraneCrossedClaim() called", eh)
+    //console.log("pullMembraneCrossedClaim() called", eh)
     let b64 = serializeHash(eh)
     const maybeEntry = await this.bridge.getMembraneCrossedClaim(eh)
     if (!maybeEntry) {
@@ -177,7 +177,7 @@ export class MembranesViewModel {
 
   /** */
   private async pullRole(eh: EntryHash): Promise<MembraneRole> {
-    console.log("pullRole() called", eh)
+    //console.log("pullRole() called", eh)
     let b64 = serializeHash(eh)
     const maybeEntry = await this.bridge.getRole(eh)
     if (!maybeEntry) {
@@ -219,6 +219,10 @@ export class MembranesViewModel {
       this.roleStore[b64] = role
     }
     console.log({roleStore: this.roleStore})
+
+    //const aet: AppEntryType = {id: 0, zome_id: 0, visibility: 'Public'};
+    //let res = await this.bridge.echoAppEntryType(aet)
+
   }
 
 

@@ -1,6 +1,6 @@
 import {AgnosticClient} from '@holochain-open-dev/cell-client';
 import { EntryHashB64, AgentPubKeyB64 } from '@holochain-open-dev/core-types';
-import {CellId, SignedActionHashed, EntryHash} from "@holochain/client";
+import {CellId, SignedActionHashed, EntryHash, AppEntryType} from "@holochain/client";
 import {createContext} from "@lit-labs/context";
 import {
   CreateEntryCountThreshold,
@@ -108,6 +108,10 @@ export class MembranesBridge {
 
   async getThreshold(thresholdEh: EntryHash): Promise<MembraneThresholdEntry | null> {
     return this.callZome('get_threshold', thresholdEh);
+  }
+
+  async echoAppEntryType(aet: AppEntryType): Promise<any> {
+    return this.callZome('echo_app_entry_type', aet);
   }
 
   /** Private */

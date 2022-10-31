@@ -67,6 +67,12 @@ pub fn publish_vouchThreshold(vouch_threshold: VouchThreshold) -> ExternResult<E
    Ok(eh)
 }
 
+#[hdk_extern]
+pub fn echo_app_entry_type(entry_type: AppEntryType) -> ExternResult<()> {
+   debug!("echo_app_entry_type() called: {:?}", entry_type);
+   Ok(())
+}
+
 
 #[hdk_extern]
 pub fn publish_createEntryCountThreshold(create_threshold: CreateEntryCountThreshold) -> ExternResult<EntryHash> {

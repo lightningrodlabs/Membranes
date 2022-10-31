@@ -112,7 +112,7 @@ export class TaskerApp extends ScopedElementsMixin(LitElement) {
     let page;
     switch (this._pageDisplayIndex) {
       case 0: page = html`<tasker-page style="flex: 1;"></tasker-page>` ; break;
-      case 1: page = html`<membranes-dashboard style="flex: 1;"></membranes-dashboard>`; break;
+      case 1: page = html`<membranes-dashboard .appEntryTypeStore=${this.appEntryTypeStore} style="flex: 1;"></membranes-dashboard>`; break;
       case 2: page = html`<membranes-creator-page .appEntryTypeStore=${this.appEntryTypeStore} style="flex: 1;"></membranes-creator-page>`; break;
       default: page = html`unknown page index`;
     };
