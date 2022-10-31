@@ -13,6 +13,14 @@ pub const Thresholds: &'static str = "Thresholds";
 
 ///
 #[hdk_extern]
+pub fn dna_info_hack(_: ()) -> ExternResult<Vec<ZomeName>> {
+   let result = dna_info()?;
+   Ok(result.zome_names)
+}
+
+
+///
+#[hdk_extern]
 pub fn get_all_membranes_details(_:()) -> ExternResult<Vec<(EntryHash, Membrane)>> {
    let root_path = Path::from(anchors::Membranes).path_entry_hash()?;
    let result_pairs = zome_utils::get_typed_from_links::<Membrane>(root_path, MembranesLinkType::Membrane, None)?;

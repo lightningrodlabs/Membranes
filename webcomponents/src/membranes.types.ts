@@ -40,13 +40,24 @@ export interface Privilege {
   crud: string,
 }
 
+
 /** THRESHOLDS */
+
+export interface MyAppEntryType {
+  id: number,
+  zomeId: number,
+  isPublic: boolean,
+}
 
 export type MembraneThresholdEntry = CreateEntryCountThreshold | VouchThreshold
 
+export enum MembraneThresholdKind {
+  CreateEntryCountThreshold,
+  VouchThreshold,
+}
 
 export interface CreateEntryCountThreshold {
-  entryType: AppEntryType,
+  entryType: MyAppEntryType,
   requiredCount: number,
 }
 

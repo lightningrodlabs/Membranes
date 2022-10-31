@@ -70,6 +70,7 @@ pub fn publish_vouchThreshold(vouch_threshold: VouchThreshold) -> ExternResult<E
 
 #[hdk_extern]
 pub fn publish_createEntryCountThreshold(create_threshold: CreateEntryCountThreshold) -> ExternResult<EntryHash> {
+   debug!("publish_createEntryCountThreshold() called: {:?}", create_threshold);
    /// Make sure AppEntryType exists
    /// FIXME
    /// Create Entry

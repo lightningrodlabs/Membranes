@@ -3,11 +3,12 @@ import { EntryHashB64, AgentPubKeyB64 } from '@holochain-open-dev/core-types';
 import {CellId, SignedActionHashed, EntryHash} from "@holochain/client";
 import {createContext} from "@lit-labs/context";
 import {
+  CreateEntryCountThreshold,
   MembraneCrossedClaimEntry,
   MembraneEntry,
   MembraneRoleEntry,
   MembraneThresholdEntry,
-  RoleClaimEntry
+  RoleClaimEntry, VouchThreshold
 } from "./membranes.types";
 
 /** */
@@ -95,6 +96,15 @@ export class MembranesBridge {
 
 
   /** Thresholds */
+
+  async publishVouchThreshold(typed: VouchThreshold): Promise<EntryHash> {
+    return this.callZome('publish_vouchThreshold', typed);
+  }
+
+  async publishCreateEntryCountThreshold(typed: CreateEntryCountThreshold): Promise<EntryHash> {
+    console.log({typed})
+    return this.callZome('publish_createEntryCountThreshold', typed);
+  }
 
   async getThreshold(thresholdEh: EntryHash): Promise<MembraneThresholdEntry | null> {
     return this.callZome('get_threshold', thresholdEh);

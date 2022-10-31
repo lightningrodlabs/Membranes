@@ -121,7 +121,7 @@ fn claim_createEntryCountThreshold(subject: AgentPubKey, th: CreateEntryCountThr
    let query = ChainQueryFilter::default()
       .include_entries(false)
       .action_type(ActionType::Create)
-      .entry_type(EntryType::App(th.entry_type));
+      .entry_type(EntryType::App(th.entry_type.into_typed()));
    let activity = get_agent_activity(subject, query, ActivityRequest::Full)?;
    let actions = activity.valid_activity;
    debug!("claim_createEntryCountThreshold() valid actions found: {:?}", actions);

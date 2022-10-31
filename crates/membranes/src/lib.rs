@@ -19,10 +19,15 @@ mod get;
 #[macro_use]
 extern crate zome_utils;
 
+
+use hdk::hdi::hdk_extern;
+use hdk::info::dna_info;
+use hdk::map_extern::ExternResult;
+use hdk::prelude::holo_hash::EntryHashB64;
+use hdk::prelude::ZomeName;
 //pub use utils::*;
 pub use constants::*;
 pub use publish::*;
 pub use membrane::*;
+use membranes_types::ClaimRoleInput;
 pub use role::*;
-
-

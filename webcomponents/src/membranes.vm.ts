@@ -1,15 +1,16 @@
 import {EntryHashB64, ActionHashB64, AgentPubKeyB64, Dictionary} from '@holochain-open-dev/core-types';
 import {AgnosticClient, CellClient} from '@holochain-open-dev/cell-client';
-import {AgentPubKey, CellId, EntryHash, SignedActionHashed} from "@holochain/client";
+import {AgentPubKey, AppEntryType, CellId, EntryHash, SignedActionHashed} from "@holochain/client";
 import {deserializeHash, serializeHash} from "@holochain-open-dev/utils";
 import {MembranesBridge} from "./membranes.bridge";
 import {
+  CreateEntryCountThreshold,
   MembraneCrossedClaimEntry,
   MembraneEntry,
   MembraneRoleEntry,
-  MembraneThresholdEntry,
+  MembraneThresholdEntry, MyAppEntryType,
   Privilege,
-  RoleClaimEntry, ThresholdReachedProof
+  RoleClaimEntry, ThresholdReachedProof, VouchThreshold
 } from "./membranes.types";
 import {createContext} from "@lit-labs/context";
 
@@ -266,6 +267,26 @@ export class MembranesViewModel {
     };
     return this.bridge.publishMembrane(membrane);
   }
+
+
+  /** */
+  async createVouchThreshold(requiredCount: number, byRole: string, forRole: string): Promise<EntryHash> {
+    const typed: VouchThreshold = {
+      requiredCount, byRole, forRole
+    };
+    return this.bridge.publishVouchThreshold(typed);
+  }
+
+
+  /** */
+  async createCreateEntryCountThreshold(entryType: MyAppEntryType, requiredCount: number): Promise<EntryHash> {
+    const typed: CreateEntryCountThreshold = {
+      entryType: entryType,
+      requiredCount: requiredCount,
+    };
+    return this.bridge.publishCreateEntryCountThreshold(typed);
+  }
+
 
 
 }

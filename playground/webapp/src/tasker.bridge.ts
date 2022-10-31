@@ -13,13 +13,7 @@ import {CellId} from "@holochain/client";
 export class TaskerBridge {
 
   /** Ctor */
-  constructor(public agnosticClient: AgnosticClient, public cellId: CellId /*, protected roleId: string*/) {
-    // let maybe_cell = hcClient.cellDataByRoleId(roleId);
-    // if (!maybe_cell) {
-    //   throw new Error("Cell not found for role: " + roleId);
-    // }
-    //this.agnosticClient = client
-  }
+  constructor(public agnosticClient: AgnosticClient, public cellId: CellId /*, protected roleId: string*/) {}
 
 
   /** Zome API */

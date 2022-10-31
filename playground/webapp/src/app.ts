@@ -1,7 +1,7 @@
 import { LitElement, html } from "lit";
 import { state } from "lit/decorators.js";
 import { ScopedElementsMixin } from "@open-wc/scoped-elements";
-import {CellId} from "@holochain/client";
+import {CellId, InstalledCell} from "@holochain/client";
 import {HolochainClient} from "@holochain-open-dev/cell-client";
 import {ContextProvider} from "@lit-labs/context";
 
@@ -9,7 +9,14 @@ import {AppWebsocket} from "@holochain/client";
 
 import {TaskerPage} from "./elements/tasker-page";
 import {TaskerViewModel, taskerContext} from "./tasker.vm";
-import {MembranesDashboard, MembranesViewModel, membranesContext, MembranesCreatorPage} from "@membranes/elements";
+import {
+  MembranesDashboard,
+  MembranesViewModel,
+  membranesContext,
+  MembranesCreatorPage,
+  MembraneThresholdEntry
+} from "@membranes/elements";
+import {Dictionary} from "@holochain-open-dev/core-types";
 
 let APP_ID = 'tasker'
 let HC_PORT:any = process.env.HC_PORT;
@@ -31,6 +38,40 @@ export class TaskerApp extends ScopedElementsMixin(LitElement) {
   private _pageDisplayIndex: number = 0;
 
 
+  private _cells: InstalledCell[] = []
+
+  /** ZomeName -> (AppEntryDefName, isPublic) */
+  appEntryTypeStore: Dictionary<[string, boolean][]> = {};
+
+  async getEntryDefs(hcClient: HolochainClient, cellId: CellId, zomeName: string): Promise<[string, boolean][]> {
+    try {
+      const entryDefs = await hcClient.callZome(cellId, zomeName, "entry_defs", null, 10 * 1000);
+      console.debug("getEntryDefs() for " + zomeName + " result:")
+      console.log({entryDefs})
+      let result: [string, boolean][] = []
+      for (const def of entryDefs.Defs) {
+        const name = def.id.App;
+        result.push([name, def.visibility.hasOwnProperty('Public') ])
+      }
+      console.log({result})
+      return result;
+    } catch (e) {
+      console.error("Calling getEntryDefs() on " + zomeName + " failed: ")
+      console.error({e})
+    }
+    return [];
+  }
+
+  async getDnaInfo(hcClient: HolochainClient, cellId: CellId, zomeName: string): Promise<string[]> {
+    console.debug("getDnaInfo() for " + zomeName + " ...")
+    const dnaInfo = await hcClient.callZome(cellId, zomeName, "dna_info_hack", null, 10 * 1000);
+    //const result = this.client.callZome(this.mainCellId, zomeName, "entry_defs", null, 10 * 1000);
+    console.debug("getDnaInfo() for " + zomeName + " result:")
+    console.debug({dnaInfo})
+    return dnaInfo as string[];
+  }
+
+
   /** */
   async firstUpdated() {
     const wsUrl = `ws://localhost:${HC_PORT}`
@@ -49,6 +90,14 @@ export class TaskerApp extends ScopedElementsMixin(LitElement) {
     new ContextProvider(this, taskerContext, this._taskerViewModel);
     this._membranesViewModel = new MembranesViewModel(hcClient, this._taskerCellId);
     new ContextProvider(this, membranesContext, this._membranesViewModel);
+    /** */
+    this._cells = Object.values(appInfo.cell_data);
+    for (const cell of this._cells) {
+      let dnaInfo = await this.getDnaInfo(hcClient, cell.cell_id, "membranes");
+      for (const zomeName of dnaInfo) {
+        this.appEntryTypeStore[zomeName] = await this.getEntryDefs(hcClient, cell.cell_id, zomeName);
+      }
+    }
     /** Done */
     this.loaded = true;
   }
@@ -64,7 +113,7 @@ export class TaskerApp extends ScopedElementsMixin(LitElement) {
     switch (this._pageDisplayIndex) {
       case 0: page = html`<tasker-page style="flex: 1;"></tasker-page>` ; break;
       case 1: page = html`<membranes-dashboard style="flex: 1;"></membranes-dashboard>`; break;
-      case 2: page = html`<membranes-creator-page style="flex: 1;"></membranes-creator-page>`; break;
+      case 2: page = html`<membranes-creator-page .appEntryTypeStore=${this.appEntryTypeStore} style="flex: 1;"></membranes-creator-page>`; break;
       default: page = html`unknown page index`;
     };
 

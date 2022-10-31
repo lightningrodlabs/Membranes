@@ -7,9 +7,10 @@ import { contextProvided } from '@lit-labs/context';
 
 //import {SlBadge, SlTooltip} from '@scoped-elements/shoelace';
 import {ScopedElementsMixin} from "@open-wc/scoped-elements";
-import {ActionHashB64, EntryHashB64} from "@holochain-open-dev/core-types";
+import {ActionHashB64, Dictionary, EntryHashB64} from "@holochain-open-dev/core-types";
 import {MembranesViewModel, membranesContext} from "../membranes.vm";
-import {EntryHash} from "@holochain/client";
+import {AppEntryType, EntryHash} from "@holochain/client";
+import {MembraneThresholdKind, MyAppEntryType} from "../membranes.types";
 //import {IMAGE_SCALE} from "../constants";
 
 
@@ -27,6 +28,9 @@ export class MembranesCreatorPage extends ScopedElementsMixin(LitElement) {
     @property({ type: Boolean, attribute: 'debug' })
     debugMode: boolean = false;
 
+    @property()
+    appEntryTypeStore: Dictionary<[string, boolean][]> = {};
+
     /** Dependencies */
     @contextProvided({ context: membranesContext })
     _viewModel!: MembranesViewModel;
@@ -36,7 +40,10 @@ export class MembranesCreatorPage extends ScopedElementsMixin(LitElement) {
     private _pullCount: number = 0
 
     private _membranesForRole: EntryHashB64[] = [];
-    private _thresoldsForMembrane: EntryHashB64[] = [];
+    private _thresholdsForMembrane: EntryHashB64[] = [];
+    private _kindForm = html``
+    private _selectedZomeName = ""
+    private _selectedKind = ""
 
     /** Getters */
 
@@ -59,6 +66,7 @@ export class MembranesCreatorPage extends ScopedElementsMixin(LitElement) {
      */
     private async init() {
         console.log("membranes-creator-page.init() - START!");
+        console.log({appEntryTypeStore: this.appEntryTypeStore})
         /** Done */
         console.log("membranes-creator-page.init() - DONE");
     }
@@ -101,9 +109,9 @@ export class MembranesCreatorPage extends ScopedElementsMixin(LitElement) {
     /** */
     async onCreateMembrane(e: any) {
         console.log("onCreateMembrane() CALLED", e)
-        let res = this._viewModel.createMembrane(this._thresoldsForMembrane);
+        let res = this._viewModel.createMembrane(this._thresholdsForMembrane);
         console.log("onCreateMembrane res:", res)
-        this._thresoldsForMembrane = [];
+        this._thresholdsForMembrane = [];
         await this.refresh(null);
     }
 
@@ -114,10 +122,111 @@ export class MembranesCreatorPage extends ScopedElementsMixin(LitElement) {
         const thresholdSelect = this.shadowRoot!.getElementById("thresholdSelectedList") as HTMLSelectElement;
         const eh = thresholdSelect.value;
         console.log("thresholdSelect eh:", eh);
-        this._thresoldsForMembrane.push(eh);
+        this._thresholdsForMembrane.push(eh);
         this.requestUpdate();
     }
 
+
+    /** */
+    async onZomeSelect(e: any) {
+        console.log("onZomeSelect() CALLED", e)
+        this._selectedZomeName = e.originalTarget.value
+        this.requestUpdate();
+    }
+
+
+    /** */
+    async onKindSelect(e: any) {
+        console.log("onKindSelect() CALLED", e);
+        const kindName = e.originalTarget.value;
+        this._selectedKind = kindName
+        switch(kindName) {
+            case "CreateEntryCountThreshold": {
+                const zomeOptions = Object.entries(this.appEntryTypeStore).map(
+                    ([zomeName, _entryDef]) => {
+                        return html`
+                            <option value="${zomeName}">${zomeName}</option>`
+                    }
+                )
+                let zomeTypes = Object.entries(this.appEntryTypeStore)
+                    .filter((item) => {return item[0] == this._selectedZomeName;})
+                    .map((item) => {return item[1]});
+                console.log({zomeTypes})
+                let entryTypeOptions = null;
+                if (zomeTypes.length > 0) {
+                    entryTypeOptions = Object.entries(zomeTypes[0]).map(
+                        ([_zomeName, pair]) => {
+                            return html`
+                                <option value="${pair[0]}">${pair[0]}</option>`;
+                        });
+                }
+                console.log({entryTypeOptions})
+                this._kindForm = html`
+                    <h3>CreateEntryCountThreshold</h3>
+                    Zome:
+                    <select name="selectedZome" id="selectedZome" @click=${this.onZomeSelect}>
+                        ${zomeOptions}
+                    </select>
+                    <br/>
+                    EntryType:
+                    <select name="selectedEntryType" id="selectedEntryType">
+                        ${entryTypeOptions}
+                    </select>    
+                    <br/>
+                    <label for="createEntryCountNumber">Minimum number of entries:</label>
+                    <input type="number" id="createEntryCountNumber">                    
+                `;
+                break;
+            }
+            case "VouchThreshold":  {
+                this._kindForm = html`
+                    <h3>VouchThreshold</h3>
+                    <label for="forRoleInput">For Role:</label>
+                    <input type="text" id="forRoleInput">
+                    <br/>
+                    <label for="byRoleInput">By Role:</label>
+                    <input type="text" id="byRoleInput">                    
+                    <br/>
+                    <label for="requiredVouchCount">Minimum number of vouches:</label>
+                    <input type="number" id="requiredVouchCount">                    
+                `;
+                break;
+            }
+            default: this._kindForm = html ``
+        }
+        /* Done */
+        this.requestUpdate();
+    }
+
+
+    /** */
+    async onCreateThreshold(e: any) {
+        console.log("onCreateThreshold() CALLED", e);
+        switch (this._selectedKind) {
+            case "CreateEntryCountThreshold": {
+                const entryType: MyAppEntryType = {id: 0, zomeId: 0, isPublic: true};  // FIXME
+                const input = this.shadowRoot!.getElementById("createEntryCountNumber") as HTMLInputElement;
+                const count = Number(input.value);
+                const res = this._viewModel.createCreateEntryCountThreshold(entryType, count);
+                break;
+            }
+            case "VouchThreshold": {
+                const input = this.shadowRoot!.getElementById("requiredVouchCount") as HTMLInputElement;
+                const count = Number(input.value);
+                const input2 = this.shadowRoot!.getElementById("forRoleInput") as HTMLInputElement;
+                const forRole = input2.value;
+                const input3 = this.shadowRoot!.getElementById("byRoleInput") as HTMLInputElement;
+                const byRole = input3.value;
+                let res = this._viewModel.createVouchThreshold(count, forRole, byRole);
+                break;
+            }
+            default:
+                break;
+        }
+        this._kindForm = html``;
+        this._selectedZomeName = "";
+        await this.refresh(null);
+    }
 
 
     /** */
@@ -135,7 +244,7 @@ export class MembranesCreatorPage extends ScopedElementsMixin(LitElement) {
             }
         )
 
-        const thresholdsLi = Object.entries(this._thresoldsForMembrane).map(
+        const thresholdsLi = Object.entries(this._thresholdsForMembrane).map(
             ([_index, ehB64]) => {
                 return html `<li>${ehB64}</li>`
             }
@@ -145,6 +254,12 @@ export class MembranesCreatorPage extends ScopedElementsMixin(LitElement) {
                 return html `<option value="${ehB64}">${ehB64.substring(0, 12)}</option>`
             }
         )
+
+        const kindOptions = Object.keys(MembraneThresholdKind)
+            .filter((item) => {return isNaN(Number(item));})
+            .map((kind) => {
+                return html `<option value="${kind}">${kind}</option>`
+            });
 
         /** render all */
         return html`
@@ -157,6 +272,8 @@ export class MembranesCreatorPage extends ScopedElementsMixin(LitElement) {
               <form>
                   <label for="roleNameInput">Name:</label>
                   <input type="text" id="roleNameInput" name="name">
+                  <br/>
+                  Allowed entering Membranes:
                   <ul id="membranesForRoleList">${membranesForRoleLi}</ul>
                   <select name="membraneSelectedList" id="membraneSelectedList">
                       ${membraneOptions}
@@ -182,6 +299,19 @@ export class MembranesCreatorPage extends ScopedElementsMixin(LitElement) {
             <!-- NEW Threshold -->
             <hr class="solid">
             <h2>New Threshold</h2>
+            Selected threshold kind:
+            <select name="kindList" id="kindList" @click=${this.onKindSelect}>
+                ${kindOptions}
+            </select>
+            <form>
+                ${this._kindForm}
+                <div>
+                    <input type="button" value="create" @click=${this.onCreateThreshold}>
+                </div>
+            </form>
+            <!-- NEW Privilege -->
+            <hr class="solid">
+            <h2>New Privilege</h2>
         </div>
     `;
     }

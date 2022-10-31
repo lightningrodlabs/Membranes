@@ -9,11 +9,38 @@ pub enum MembraneThreshold {
    Vouch(VouchThreshold),
 }
 
+#[derive(Clone, PartialEq, Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct MyAppEntryType {
+   id: u8,
+   zome_id: u8,
+   is_public: bool,
+}
+
+impl MyAppEntryType {
+   pub fn into_typed(self) -> AppEntryType {
+      AppEntryType {
+         id: self.id.into(),
+         zome_id: self.zome_id.into(),
+         visibility:  if self.is_public {EntryVisibility::Public} else {EntryVisibility::Private},
+      }
+   }
+
+   pub fn from(other: AppEntryType) -> MyAppEntryType {
+      MyAppEntryType {
+         id: other.id.into(),
+         zome_id: other.zome_id.into(),
+         is_public:  other.visibility == EntryVisibility::Public,
+      }
+   }
+}
+
+
 //#[hdk_entry_helper]
 #[derive(Clone, PartialEq, Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct CreateEntryCountThreshold {
-   pub entry_type: AppEntryType,
+   pub entry_type: MyAppEntryType,
    pub required_count: usize,
 }
 
