@@ -28,7 +28,7 @@ pub fn has_crossed_membrane(input: HasCrossedMembraneInput) -> ExternResult<Opti
 }
 
 
-///
+/// Returns None if claim failed
 #[hdk_extern]
 pub fn claim_membrane(input: ClaimMembraneInput) -> ExternResult<Option<EntryHashB64>> {
    std::panic::set_hook(Box::new(zome_utils::zome_panic_hook));
@@ -36,17 +36,17 @@ pub fn claim_membrane(input: ClaimMembraneInput) -> ExternResult<Option<EntryHas
    /* Check input */
    let membrane: Membrane = zome_utils::get_typed_from_eh(input.membrane_eh.clone().into())?;
    /// Check all thresholds
-   let mut proof = Vec::new();
+   let mut proofs = Vec::new();
    for threshold_eh in membrane.threshold_ehs {
       let maybe_threshold_proof = claim_threshold(agent_id.clone(), threshold_eh)?;
       if maybe_threshold_proof.is_none() {
          return Ok(None)
       }
-      proof.push(maybe_threshold_proof.unwrap());
+      proofs.push(maybe_threshold_proof.unwrap());
    }
    /// Create and publish MembraneCrossedClaim
    let claim = MembraneCrossedClaim {
-      proof,
+      proofs,
       membrane_eh: input.membrane_eh.into(),
       subject: agent_id.clone(),
    };
@@ -56,21 +56,28 @@ pub fn claim_membrane(input: ClaimMembraneInput) -> ExternResult<Option<EntryHas
 }
 
 
-///
-fn claim_threshold(subject: AgentPubKey, threshold_eh: EntryHash) -> ExternResult<Option<Vec<SignedActionHashed>>> {
-   let threshold: MembraneThreshold = zome_utils::get_typed_from_eh(threshold_eh)?;
-   match threshold {
+/// Returns None if claim failed
+fn claim_threshold(subject: AgentPubKey, threshold_eh: EntryHash) -> ExternResult<Option<ThresholdReachedProof>> {
+   let threshold: MembraneThreshold = zome_utils::get_typed_from_eh(threshold_eh.clone())?;
+   let maybe_sahs = match threshold {
       MembraneThreshold::CreateEntryCount(th) => {
-         claim_createEntryCountThreshold(subject, th)
+         claim_createEntryCountThreshold(subject, th)?
       },
       MembraneThreshold::Vouch(th) => {
-         claim_vouchThreshold(subject, th)
+         claim_vouchThreshold(subject, th)?
       },
-   }
+   };
+   Ok(match maybe_sahs {
+      None => None,
+      Some(signed_actions) => Some(ThresholdReachedProof {
+         threshold_eh,
+         signed_actions,
+      })
+   })
 }
 
 
-///
+/// Returns None if claim failed
 fn claim_vouchThreshold(subject: AgentPubKey, th: VouchThreshold) -> ExternResult<Option<Vec<SignedActionHashed>>> {
    let link_pairs  = zome_utils::get_typed_from_links::<Vouch>(subject.clone(), MembranesLinkType::Vouch, None)?;
    let mut signed_vouches = Vec::new();
@@ -106,7 +113,7 @@ fn claim_vouchThreshold(subject: AgentPubKey, th: VouchThreshold) -> ExternResul
 }
 
 
-///
+/// Returns None if claim failed
 fn claim_createEntryCountThreshold(subject: AgentPubKey, th: CreateEntryCountThreshold) -> ExternResult<Option<Vec<SignedActionHashed>>> {
    /// Ask subject directly
    // FIXME

@@ -8,7 +8,7 @@ import { contextProvided } from '@lit-labs/context';
 //import {SlBadge, SlTooltip} from '@scoped-elements/shoelace';
 import {ScopedElementsMixin} from "@open-wc/scoped-elements";
 import {ActionHashB64} from "@holochain-open-dev/core-types";
-import {MembranesViewModel, membranesContext} from "../membranes.view_model";
+import {MembranesViewModel, membranesContext} from "../membranes.vm";
 import {EntryHash} from "@holochain/client";
 //import {IMAGE_SCALE} from "../constants";
 
@@ -29,9 +29,9 @@ const toHHMMSS = function (str: string) {
 
 
 /**
- * @element membranes-admin-controller
+ * @element membranes-dashboard
  */
-export class MembranesAdminController extends ScopedElementsMixin(LitElement) {
+export class MembranesDashboard extends ScopedElementsMixin(LitElement) {
   constructor() {
     super();
   }
@@ -53,7 +53,7 @@ export class MembranesAdminController extends ScopedElementsMixin(LitElement) {
 
   /** After first render only */
   async firstUpdated() {
-    console.log("membranes-admin-controller first update done!")
+    console.log("membranes-dashboard first update done!")
     await this.init();
   }
 
@@ -69,9 +69,9 @@ export class MembranesAdminController extends ScopedElementsMixin(LitElement) {
    * Get local snapshots and latest from DHT
    */
   private async init() {
-    console.log("membranes-admin-controller.init() - START!");
+    console.log("membranes-dashboard.init() - START!");
     /** Done */
-    console.log("membranes-admin-controller.init() - DONE");
+    console.log("membranes-dashboard.init() - DONE");
   }
 
 
@@ -87,7 +87,7 @@ export class MembranesAdminController extends ScopedElementsMixin(LitElement) {
 
   /** Render for real-time editing of frame */
   render() {
-    console.log("membranes-admin-controller render() START");
+    console.log("membranes-dashboard render() START");
     /* Roles */
     const rolesLi = Object.entries(this._viewModel.roleStore).map(
         ([ehB64, role]) => {
@@ -120,7 +120,7 @@ export class MembranesAdminController extends ScopedElementsMixin(LitElement) {
     const myMembranesLi = Object.entries(this._viewModel.myMembraneClaimsStore).map(
         ([ehB64, claim]) => {
           //console.log("membrane:", ehB64)
-          return html `<li title="proof: ${JSON.stringify(claim.proof)}"><abbr>${ehB64}</abbr></li>`
+          return html `<li title="proofs: ${JSON.stringify(claim.proofs)}"><abbr>${ehB64}</abbr></li>`
         }
     )
     /** render all */

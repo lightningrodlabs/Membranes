@@ -2,8 +2,14 @@ import {AgentPubKeyB64, EntryHashB64, ActionHashB64, HoloHashB64} from "@holocha
 import {ActionHash, AgentPubKey, AppEntryType, EntryHash, SignedActionHashed} from "@holochain/client";
 
 
+///
+export interface ThresholdReachedProof {
+  thresholdEh: EntryHash,
+  signedActions: SignedActionHashed[], // List of All signed actions required for proving a threshold
+}
+
 export interface MembraneCrossedClaimEntry {
-  proof: SignedActionHashed[][], // List of All signed actions required for proving each threshold
+  proofs: ThresholdReachedProof[],
   membraneEh: EntryHash, // to a Membrane entry
   subject: AgentPubKey,
 }

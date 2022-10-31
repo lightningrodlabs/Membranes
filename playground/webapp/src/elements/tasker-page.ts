@@ -6,7 +6,7 @@ import {property} from "lit/decorators.js";
 import { contextProvided } from '@lit-labs/context';
 
 import {htos, TaskList} from "../tasker.types";
-import {TaskerViewModel, taskerContext} from "../tasker.view_model";
+import {TaskerViewModel, taskerContext} from "../tasker.vm";
 //import {SlBadge, SlTooltip} from '@scoped-elements/shoelace';
 import {ScopedElementsMixin} from "@open-wc/scoped-elements";
 import {ActionHashB64} from "@holochain-open-dev/core-types";
@@ -17,9 +17,9 @@ export const delay = (ms:number) => new Promise(r => setTimeout(r, ms))
 
 
 /**
- * @element tasker-controller
+ * @element tasker-page
  */
-export class TaskerController extends ScopedElementsMixin(LitElement) {
+export class TaskerPage extends ScopedElementsMixin(LitElement) {
   constructor() {
     super();
   }
@@ -55,7 +55,7 @@ export class TaskerController extends ScopedElementsMixin(LitElement) {
 
   /** After first render only */
   async firstUpdated() {
-    console.log("place-controller first update done!")
+    //console.log("first update done!")
     await this.init();
   }
 
@@ -71,7 +71,7 @@ export class TaskerController extends ScopedElementsMixin(LitElement) {
    * Get local snapshots and latest from DHT
    */
   private async init() {
-    console.log("place-controller.init() - START!");
+    console.log("tasker-page.init() - START!");
 
     /** Wait a second for startup? */
     await delay(1 * 1000);
@@ -80,16 +80,16 @@ export class TaskerController extends ScopedElementsMixin(LitElement) {
     await this._viewModel.pullAllFromDht();
 
     /** Done */
-    console.log("place-controller.init() - DONE");
+    console.log("tasker-page.init() - DONE");
   }
 
 
 
   /** Called once after init is done and canvas has been rendered */
   private async postInit() {
-    console.log("tasker-controller.postInit() - START!");
+    console.log("tasker-page.postInit() - START!");
     // FIXME
-    console.log("tasker-controller.postInit() - DONE");
+    console.log("tasker-page.postInit() - DONE");
   }
 
   /** */
@@ -186,7 +186,7 @@ export class TaskerController extends ScopedElementsMixin(LitElement) {
 
   /** Render for real-time editing of frame */
   render() {
-    console.log("membranes-admin-controller render() START", this._viewModel.taskListStore);
+    console.log("membranes-dashboard render() START", this._viewModel.taskListStore);
 
     const listListLi = Object.entries(this._viewModel.taskListStore).map(
         ([ahB64, taskList]) => {

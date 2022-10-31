@@ -8,7 +8,7 @@ use crate::*;
 #[derive(Clone, PartialEq)]
 #[serde(rename_all = "camelCase")]
 pub struct MembraneCrossedClaim {
-   pub proof: Vec<Vec<SignedActionHashed>>, // List of All signed actions required for proving each threshold
+   pub proofs: Vec<ThresholdReachedProof>,
    pub membrane_eh: EntryHash, // to a Membrane entry
    pub subject: AgentPubKey,
 }

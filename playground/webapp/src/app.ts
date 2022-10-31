@@ -7,9 +7,9 @@ import {ContextProvider} from "@lit-labs/context";
 
 import {AppWebsocket} from "@holochain/client";
 
-import {TaskerController} from "./elements/controller";
-import {TaskerViewModel, taskerContext} from "./tasker.view_model";
-import {MembranesAdminController, MembranesViewModel, membranesContext} from "@membranes/elements";
+import {TaskerPage} from "./elements/tasker-page";
+import {TaskerViewModel, taskerContext} from "./tasker.vm";
+import {MembranesDashboard, MembranesViewModel, membranesContext} from "@membranes/elements";
 
 let APP_ID = 'tasker'
 let HC_PORT:any = process.env.HC_PORT;
@@ -65,8 +65,8 @@ export class TaskerApp extends ScopedElementsMixin(LitElement) {
         <input type="button" value="Show Tasker" @click=${() => {this._canDisplayAdmin = false; this.requestUpdate()}} >
         <input type="button" value="Show Membranes" @click=${() => {this._canDisplayAdmin = true; this.requestUpdate()}} >
       </div>
-      ${this._canDisplayAdmin? html`<membranes-admin-controller style="flex: 1;"></membranes-admin-controller>` 
-          : html`<tasker-controller style="flex: 1;"></tasker-controller>`
+      ${this._canDisplayAdmin? html`<membranes-dashboard style="flex: 1;"></membranes-dashboard>` 
+          : html`<tasker-page style="flex: 1;"></tasker-page>`
       }
     `
   }
@@ -74,8 +74,8 @@ export class TaskerApp extends ScopedElementsMixin(LitElement) {
 
   static get scopedElements() {
     return {
-      "tasker-controller": TaskerController,
-      "membranes-admin-controller": MembranesAdminController,
+      "tasker-page": TaskerPage,
+      "membranes-dashboard": MembranesDashboard,
     };
   }
 }

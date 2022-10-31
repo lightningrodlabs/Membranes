@@ -33,3 +33,12 @@ pub struct Vouch {
    pub subject: AgentPubKey,
    pub for_role: String,
 }
+
+
+///
+#[derive(Clone, PartialEq, Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ThresholdReachedProof {
+   pub threshold_eh: EntryHash,
+   pub signed_actions: Vec<SignedActionHashed>, // List of All signed actions required for proving a threshold
+}

@@ -9,7 +9,7 @@ import {
   MembraneRoleEntry,
   MembraneThresholdEntry,
   Privilege,
-  RoleClaimEntry
+  RoleClaimEntry, ThresholdReachedProof
 } from "./membranes.types";
 import {createContext} from "@lit-labs/context";
 
@@ -32,7 +32,7 @@ export interface MembraneRole {
 
 
 export interface MembraneCrossedClaim {
-  proof: SignedActionHashed[][], // TODO a B64 type of this
+  proofs: ThresholdReachedProof[], // TODO a B64 type of SignedActionHashed
   membrane: Membrane,
   subject: AgentPubKeyB64,
 }
@@ -108,7 +108,7 @@ export class MembranesViewModel {
   private async convertMembraneCrossedClaimEntry(membraneClaimEntry: MembraneCrossedClaimEntry): Promise<MembraneCrossedClaim> {
     console.log("convertMembraneCrossedClaimEntry() called", membraneClaimEntry)
     let membraneClaim = {
-      proof: membraneClaimEntry.proof,
+      proofs: membraneClaimEntry.proofs,
       subject: serializeHash(membraneClaimEntry.subject),
       membrane: await this.pullMembrane(membraneClaimEntry.membraneEh),
     };
