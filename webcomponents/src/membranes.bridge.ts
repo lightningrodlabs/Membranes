@@ -37,6 +37,10 @@ export class MembranesBridge {
 
   /** Membranes */
 
+  async publishMembrane(entry: MembraneEntry): Promise<EntryHash> {
+    return this.callZome('publish_membrane', entry);
+  }
+
   async myClaimedMembranes(): Promise<[EntryHash, MembraneCrossedClaimEntry][]> {
     return this.callZome('get_my_membrane_claims_details', null);
   }
@@ -75,6 +79,10 @@ export class MembranesBridge {
 
   async claimRole(subject: AgentPubKeyB64, roleEh: EntryHashB64, membraneIndex: number): Promise<EntryHashB64 | null> {
     return this.callZome('claim_role', {subject, roleEh, membraneIndex});
+  }
+
+  async publishRole(role: MembraneRoleEntry): Promise<EntryHash> {
+    return this.callZome('publish_role', role);
   }
 
   async getRole(eh: EntryHash): Promise<MembraneRoleEntry | null> {

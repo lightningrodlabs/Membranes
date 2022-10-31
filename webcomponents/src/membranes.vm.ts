@@ -1,7 +1,7 @@
 import {EntryHashB64, ActionHashB64, AgentPubKeyB64, Dictionary} from '@holochain-open-dev/core-types';
 import {AgnosticClient, CellClient} from '@holochain-open-dev/cell-client';
 import {AgentPubKey, CellId, EntryHash, SignedActionHashed} from "@holochain/client";
-import {serializeHash} from "@holochain-open-dev/utils";
+import {deserializeHash, serializeHash} from "@holochain-open-dev/utils";
 import {MembranesBridge} from "./membranes.bridge";
 import {
   MembraneCrossedClaimEntry,
@@ -244,4 +244,17 @@ export class MembranesViewModel {
     this.myMembraneClaimsStore = membraneClaimStore;
     console.log("pullMyClaims() myMembraneClaimsStore:", this.myMembraneClaimsStore)
   }
+
+
+  /** */
+  async createRole(name: string, membraneEhs: EntryHashB64[]): Promise<EntryHash> {
+    const enteringMembraneEhs: EntryHash[] = Object.values(membraneEhs).map((ehb64) => deserializeHash(ehb64));
+    const role: MembraneRoleEntry = {
+      name,
+      privileges: [],
+      enteringMembraneEhs,
+    };
+    return this.bridge.publishRole(role);
+  }
+
 }

@@ -184,7 +184,7 @@ export class TaskerPage extends ScopedElementsMixin(LitElement) {
   }
 
 
-  /** Render for real-time editing of frame */
+  /** */
   render() {
     console.log("membranes-dashboard render() START", this._viewModel.taskListStore);
 

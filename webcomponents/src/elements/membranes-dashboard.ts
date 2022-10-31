@@ -85,7 +85,7 @@ export class MembranesDashboard extends ScopedElementsMixin(LitElement) {
   }
 
 
-  /** Render for real-time editing of frame */
+  /** */
   render() {
     console.log("membranes-dashboard render() START");
     /* Roles */
@@ -128,7 +128,7 @@ export class MembranesDashboard extends ScopedElementsMixin(LitElement) {
       <div>
         <button type="button" @click=${this.refresh}>Refresh</button>        
         <span>${this._viewModel.myAgentPubKey}</span>
-        <h1>Membrane Admin</h1>
+        <h1>Membranes Dashboard</h1>
         <h2>Roles</h2>
         <ul>${rolesLi}</ul>        
         <h2>Membranes</h2>

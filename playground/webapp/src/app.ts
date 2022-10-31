@@ -9,7 +9,7 @@ import {AppWebsocket} from "@holochain/client";
 
 import {TaskerPage} from "./elements/tasker-page";
 import {TaskerViewModel, taskerContext} from "./tasker.vm";
-import {MembranesDashboard, MembranesViewModel, membranesContext} from "@membranes/elements";
+import {MembranesDashboard, MembranesViewModel, membranesContext, MembranesCreatorPage} from "@membranes/elements";
 
 let APP_ID = 'tasker'
 let HC_PORT:any = process.env.HC_PORT;
@@ -23,12 +23,12 @@ export class TaskerApp extends ScopedElementsMixin(LitElement) {
 
   @state() loaded = false;
 
-  _taskerViewModel: TaskerViewModel | null = null;
-  _membranesViewModel: MembranesViewModel | null = null;
+  private _taskerViewModel: TaskerViewModel | null = null;
+  private _membranesViewModel: MembranesViewModel | null = null;
 
-  _taskerCellId: CellId | null = null;
+  private _taskerCellId: CellId | null = null;
 
-  _canDisplayAdmin: boolean = false;
+  private _pageDisplayIndex: number = 0;
 
 
   /** */
@@ -60,14 +60,21 @@ export class TaskerApp extends ScopedElementsMixin(LitElement) {
       return html`<span>Loading...</span>`;
     }
 
+    let page;
+    switch (this._pageDisplayIndex) {
+      case 0: page = html`<tasker-page style="flex: 1;"></tasker-page>` ; break;
+      case 1: page = html`<membranes-dashboard style="flex: 1;"></membranes-dashboard>`; break;
+      case 2: page = html`<membranes-creator-page style="flex: 1;"></membranes-creator-page>`; break;
+      default: page = html`unknown page index`;
+    };
+
     return html`
       <div>
-        <input type="button" value="Show Tasker" @click=${() => {this._canDisplayAdmin = false; this.requestUpdate()}} >
-        <input type="button" value="Show Membranes" @click=${() => {this._canDisplayAdmin = true; this.requestUpdate()}} >
+        <input type="button" value="Tasker" @click=${() => {this._pageDisplayIndex = 0; this.requestUpdate()}} >
+        <input type="button" value="Membranes Dashboard" @click=${() => {this._pageDisplayIndex = 1; this.requestUpdate()}} >
+        <input type="button" value="Membranes Creator" @click=${() => {this._pageDisplayIndex = 2; this.requestUpdate()}} >
       </div>
-      ${this._canDisplayAdmin? html`<membranes-dashboard style="flex: 1;"></membranes-dashboard>` 
-          : html`<tasker-page style="flex: 1;"></tasker-page>`
-      }
+      ${page}
     `
   }
 
@@ -76,6 +83,7 @@ export class TaskerApp extends ScopedElementsMixin(LitElement) {
     return {
       "tasker-page": TaskerPage,
       "membranes-dashboard": MembranesDashboard,
+      "membranes-creator-page": MembranesCreatorPage,
     };
   }
 }
