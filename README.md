@@ -6,9 +6,9 @@ A holochain zome module that allows groups to define at runtime their Membranes 
 
 `bash ./scripts/install-hc-tools.sh`
 
-## PLayground hApp: Tasker
+## Tasker: Playground for Membranes
 
-Basic task management happ.
+A basic task management happ has been implemented to try out Membranes features.
 
 `npm install`
 `npm run devtest`
