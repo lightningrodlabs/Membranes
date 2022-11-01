@@ -1,6 +1,6 @@
 import {AgnosticClient} from '@holochain-open-dev/cell-client';
 import { EntryHashB64, AgentPubKeyB64 } from '@holochain-open-dev/core-types';
-import {CellId, SignedActionHashed, EntryHash, AppEntryType} from "@holochain/client";
+import {CellId, SignedActionHashed, EntryHash, AppEntryType, AgentPubKey} from "@holochain/client";
 import {createContext} from "@lit-labs/context";
 import {
   CreateEntryCountThreshold,
@@ -116,6 +116,10 @@ export class MembranesBridge {
 
   /** Vouch */
 
+  async getVouchAuthor(vouch: VouchEntry): Promise<AgentPubKey> {
+    return this.callZome('get_vouch_author', vouch);
+  }
+
   async publishVouch(typed: VouchEntry): Promise<EntryHash> {
     return this.callZome('publish_vouch', typed);
   }
@@ -128,7 +132,7 @@ export class MembranesBridge {
     return this.callZome('get_my_emitted_vouches', maybeRole);
   }
 
-  async getMyReceivedVouches(maybeRole: string | null): Promise<EntryHash[]> {
+  async getMyReceivedVouches(maybeRole: string | null): Promise<[EntryHash, AgentPubKey][]> {
     return this.callZome('get_my_received_vouches', maybeRole);
   }
 

@@ -20,3 +20,11 @@ pub fn echo_app_entry_type(entry_type: AppEntryType) -> ExternResult<()> {
    debug!("echo_app_entry_type() called: {:?}", entry_type);
    Ok(())
 }
+
+
+///
+#[hdk_extern]
+pub fn get_vouch_author(typed: Vouch) -> ExternResult<AgentPubKey> {
+   let eh = hash_entry(typed)?;
+   return zome_utils::get_author(&eh.into());
+}

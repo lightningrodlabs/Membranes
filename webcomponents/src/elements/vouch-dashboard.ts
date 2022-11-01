@@ -117,7 +117,9 @@ export class VouchDashboard extends ScopedElementsMixin(LitElement) {
     /* My Emitted Vouches */
     const myReceivedLi = Object.entries(this._viewModel.myVouchesStore).map(
         ([roleName, [emitted, received]]) => {
-          const lis = Object.values(received).map((vouch) => { return html`<li>${vouch.subject}</li>`})
+          const lis = Object.values(received).map(async ([vouch, author]) => {
+            return html`<li>${author}</li>`;
+          })
           return html `<li>${roleName}<ul>${lis}</ul></li>`
         }
     )

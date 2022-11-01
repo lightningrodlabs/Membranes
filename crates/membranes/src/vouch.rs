@@ -46,7 +46,7 @@ pub fn get_my_emitted_vouches(maybe_role: Option<String>) -> ExternResult<Vec<En
 
 ///
 #[hdk_extern]
-pub fn get_my_received_vouches(maybe_role: Option<String>) -> ExternResult<Vec<EntryHash>> {
+pub fn get_my_received_vouches(maybe_role: Option<String>) -> ExternResult<Vec<(EntryHash, AgentPubKey)>> {
    let author = agent_info()?.agent_initial_pubkey;
    let maybe_tag = match maybe_role {
       Some(name) => Some(LinkTag::from(name.into_bytes())),
@@ -55,7 +55,8 @@ pub fn get_my_received_vouches(maybe_role: Option<String>) -> ExternResult<Vec<E
    let result = get_links(author, MembranesLinkType::VouchReceived, maybe_tag)?;
    let res = result.iter().map(|link| {
       let eh: EntryHash =link.target.clone().into();
-      eh
+      let author = zome_utils::get_author(&eh.clone().into()).expect("must find Vouch author");
+      (eh, author)
    }).collect();
    Ok(res)
 }

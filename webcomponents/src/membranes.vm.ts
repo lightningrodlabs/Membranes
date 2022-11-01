@@ -23,7 +23,7 @@ const areEqual = (first: Uint8Array, second: Uint8Array) =>
 
 export interface Vouch {
   subject: AgentPubKeyB64,
-  forRole: String,
+  forRole: string,
 }
 
 
@@ -78,8 +78,8 @@ export class MembranesViewModel {
   myRoleClaimsStore: Dictionary<RoleClaim> = {};
   myMembraneClaimsStore: Dictionary<MembraneCrossedClaim> = {};
 
-  /** RoleName -> [[emitted],[received]] */
-  myVouchesStore: Dictionary<[Vouch[], Vouch[]]> = {};
+  /** RoleName -> [[emitted],[[received,author]]] */
+  myVouchesStore: Dictionary<[Vouch[], [Vouch, AgentPubKeyB64][]]> = {};
 
   /** Methods */
 
@@ -245,7 +245,7 @@ export class MembranesViewModel {
 
     for (const [eh, roleEntry] of roleEntries) {
       const emittedEhs = await this.bridge.getMyEmittedVouches(roleEntry.name);
-      const receivedEhs = await this.bridge.getMyReceivedVouches(roleEntry.name);
+      const receivedPairs: [EntryHash, AgentPubKey][] = await this.bridge.getMyReceivedVouches(roleEntry.name);
       /* */
       let emitted = [];
       for (const eh of emittedEhs) {
@@ -255,11 +255,12 @@ export class MembranesViewModel {
         }
       }
       /* */
-      let received = [];
-      for (const eh of receivedEhs) {
+      let received: [Vouch, AgentPubKeyB64][] = [];
+      for (const [eh, author] of receivedPairs) {
         const vouch = await this.bridge.getVouch(eh);
         if (vouch) {
-          received.push(this.convertVouchEntry(vouch))
+          const pair: [Vouch, AgentPubKeyB64] = [this.convertVouchEntry(vouch), serializeHash(author)]
+          received.push(pair)
         }
       }
       /* */
@@ -343,4 +344,13 @@ export class MembranesViewModel {
   async vouchAgent(agent: AgentPubKeyB64, forRole: string): Promise<EntryHash> {
     return this.bridge.publishVouch({subject: deserializeHash(agent), forRole});
   }
+
+
+  /* */
+  async getVouchAuthor(vouch: Vouch): Promise<AgentPubKeyB64> {
+    let entry: VouchEntry = {subject: deserializeHash(vouch.subject), forRole: vouch.forRole};
+    let res = await this.bridge.getVouchAuthor(entry);
+    return serializeHash(res);
+  }
+
 }
