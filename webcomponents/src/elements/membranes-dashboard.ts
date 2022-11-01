@@ -107,25 +107,25 @@ export class MembranesDashboard extends ScopedElementsMixin(LitElement) {
         }
     )
     /* Thresholds */
+    const allZomeTypes: [string, boolean][][] = Object.entries(this.appEntryTypeStore)
+    .map(([_name, types]) => {return types;})
     const thresholdsLi = Object.entries(this._viewModel.thresholdStore).map(
         ([ehB64, threshold]) => {
           console.log({threshold})
           let desc = "";
           if (threshold.hasOwnProperty('vouch')) {
             let typed = (threshold as any).vouch as VouchThreshold;
-            desc = "'" + typed.forRole + "' if " + typed.requiredCount  + " vouch(es) by '" + typed.byRole + "'"
+            desc = "Receive " + typed.requiredCount  + " '" + typed.forRole  + "' vouch(es) by a '" + typed.byRole + "'"
             console.log(desc)
           } else {
-            // FIXME
             let typed = (threshold as any).createEntryCount as CreateEntryCountThreshold;
-            /*
-            const zomeTypes = this.appEntryTypeStore[typed.entryType.zomeId];
+            const zomeTypes = allZomeTypes[typed.entryType.zomeId];
             console.log({zomeTypes})
             const entryType = zomeTypes[typed.entryType.id]
             console.log({entryType})
-             */
-            const entryType = typed.entryType.id
-            desc = "Create " + typed.requiredCount  + " entries of type '" + entryType + "'"
+            
+            //const entryType = typed.entryType.id
+            desc = "Create " + typed.requiredCount  + " '" + entryType[0] + "' entries"
             console.log(desc)
           }
           return html `<li title=${ehB64}><abbr>${desc}</abbr></li>`

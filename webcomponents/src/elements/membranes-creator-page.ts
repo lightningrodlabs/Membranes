@@ -130,7 +130,8 @@ export class MembranesCreatorPage extends ScopedElementsMixin(LitElement) {
     /** */
     async onZomeSelect(e: any) {
         console.log("onZomeSelect() CALLED", e)
-        this._selectedZomeName = e.originalTarget.value
+        const zomeSelector = this.shadowRoot!.getElementById("selectedZome") as HTMLSelectElement;
+        this._selectedZomeName = zomeSelector.value;
         this.requestUpdate();
     }
 
@@ -138,7 +139,11 @@ export class MembranesCreatorPage extends ScopedElementsMixin(LitElement) {
     /** */
     async onKindSelect(e: any) {
         console.log("onKindSelect() CALLED", e);
-        const kindName = e.originalTarget.value;
+        let kindName;
+        if (!e.hasOwnProperty('originalTarget')) {
+            const kindSelector = this.shadowRoot!.getElementById("kindList") as HTMLSelectElement;
+            kindName = kindSelector.value;    
+        } else { kindName = e.originalTarget.value }
         this._selectedKind = kindName
         switch(kindName) {
             case "CreateEntryCountThreshold": {

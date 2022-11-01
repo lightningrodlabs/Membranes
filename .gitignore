@@ -12,5 +12,13 @@ Cargo.lock
 .idea
 
 target
+node_modules
+playground/webapp/node_modules
+playground/webapp/dist
+playground/webapp/out-tsc
 
-examples/webapp/node_modules
+**/*.tsbuildinfo
+**/*.dna
+**/*.happ
+package-lock.json
+.hc
