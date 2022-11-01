@@ -1,6 +1,6 @@
 # Membranes
 
-A holochain zome moudle that allows groups to define at runtime their Membranes (i.e. processes for joining/leaving a group or gaining/losing provileges within the group)
+A holochain zome module that allows groups to define at runtime their Membranes (i.e. processes for joining/leaving a group or gaining/losing privileges within the group)
 
 # Setup
 
