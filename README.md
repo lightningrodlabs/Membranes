@@ -10,7 +10,7 @@ A holochain zome module that allows groups to define at runtime their Membranes 
 
 ## Tasker: Playground for Membranes
 
-A basic task management happ has been implemented to try out Membranes features.
+A basic task management happ for trying out Membranes' features.
 
 `npm install`
 `npm run devtest`
