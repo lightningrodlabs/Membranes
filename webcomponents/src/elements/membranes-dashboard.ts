@@ -10,7 +10,13 @@ import {ScopedElementsMixin} from "@open-wc/scoped-elements";
 import {ActionHashB64, Dictionary} from "@holochain-open-dev/core-types";
 import {MembranesViewModel, membranesContext} from "../membranes.vm";
 import {EntryHash} from "@holochain/client";
-import {CreateEntryCountThreshold, isCreateThreshold, isVouchThreshold, VouchThreshold} from "../membranes.types";
+import {
+  CreateEntryCountThreshold,
+  describe_threshold,
+  isCreateThreshold,
+  isVouchThreshold,
+  VouchThreshold
+} from "../membranes.types";
 //import {IMAGE_SCALE} from "../constants";
 
 
@@ -112,22 +118,7 @@ export class MembranesDashboard extends ScopedElementsMixin(LitElement) {
     const thresholdsLi = Object.entries(this._viewModel.thresholdStore).map(
         ([ehB64, threshold]) => {
           console.log({threshold})
-          let desc = "";
-          if (threshold.hasOwnProperty('vouch')) {
-            let typed = (threshold as any).vouch as VouchThreshold;
-            desc = "Receive " + typed.requiredCount  + " '" + typed.forRole  + "' vouch(es) by a '" + typed.byRole + "'"
-            console.log(desc)
-          } else {
-            let typed = (threshold as any).createEntryCount as CreateEntryCountThreshold;
-            const zomeTypes = allZomeTypes[typed.entryType.zomeId];
-            console.log({zomeTypes})
-            const entryType = zomeTypes[typed.entryType.id]
-            console.log({entryType})
-            
-            //const entryType = typed.entryType.id
-            desc = "Create " + typed.requiredCount  + " '" + entryType[0] + "' entries"
-            console.log(desc)
-          }
+          let desc = describe_threshold(threshold, allZomeTypes);
           return html `<li title=${ehB64}><abbr>${desc}</abbr></li>`
         }
     )

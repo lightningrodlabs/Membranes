@@ -167,33 +167,26 @@ export class MembranesCreatorPage extends ScopedElementsMixin(LitElement) {
                 }
                 console.log({entryTypeOptions})
                 this._kindForm = html`
-                    <h3>CreateEntryCountThreshold</h3>
-                    Zome:
+                    <label for="createEntryCountNumber">Create</label>
+                    <input type="number" id="createEntryCountNumber" style="width: 40px;">
                     <select name="selectedZome" id="selectedZome" @click=${this.onZomeSelect}>
                         ${zomeOptions}
                     </select>
-                    <br/>
-                    EntryType:
+                    <span>::</span>
                     <select name="selectedEntryType" id="selectedEntryType">
                         ${entryTypeOptions}
-                    </select>    
-                    <br/>
-                    <label for="createEntryCountNumber">Minimum number of entries:</label>
-                    <input type="number" id="createEntryCountNumber">                    
+                    </select>
+                    <span>entries.</span>
                 `;
                 break;
             }
             case "VouchThreshold":  {
                 this._kindForm = html`
-                    <h3>VouchThreshold</h3>
-                    <label for="forRoleInput">For Role:</label>
-                    <input type="text" id="forRoleInput">
-                    <br/>
-                    <label for="byRoleInput">By Role:</label>
-                    <input type="text" id="byRoleInput">                    
-                    <br/>
-                    <label for="requiredVouchCount">Minimum number of vouches:</label>
-                    <input type="number" id="requiredVouchCount">                    
+                    <label for="requiredVouchCount">Receive</label>
+                    <input type="number" id="requiredVouchCount" style="width: 40px;">
+                    <input type="text" id="forRoleInput" style="width: 80px;">
+                    <label for="byRoleInput">vouch(es) by a</label>
+                    <input type="text" id="byRoleInput" style="width: 80px;">
                 `;
                 break;
             }
@@ -279,8 +272,8 @@ export class MembranesCreatorPage extends ScopedElementsMixin(LitElement) {
               <form>
                   <label for="roleNameInput">Name:</label>
                   <input type="text" id="roleNameInput" name="name">
-                  <br/>
-                  Allowed entering Membranes:
+                  <br/><br/>
+                  Entering Membranes:
                   <ul id="membranesForRoleList">${membranesForRoleLi}</ul>
                   <select name="membraneSelectedList" id="membraneSelectedList">
                       ${membraneOptions}
@@ -305,13 +298,16 @@ export class MembranesCreatorPage extends ScopedElementsMixin(LitElement) {
             </form>            
             <!-- NEW Threshold -->
             <hr class="solid">
-            <h2>New Threshold</h2>
-            Selected threshold kind:
-            <select name="kindList" id="kindList" @click=${this.onKindSelect}>
-                ${kindOptions}
-            </select>
+            <h2>
+                New Threshold:
+                <select name="kindList" id="kindList" @click=${this.onKindSelect}>
+                    ${kindOptions}
+                </select>
+            </h2>
             <form>
-                ${this._kindForm}
+                <div style="padding:15px;">
+                    ${this._kindForm}
+                </div>                    
                 <div>
                     <input type="button" value="create" @click=${this.onCreateThreshold}>
                 </div>

@@ -81,3 +81,22 @@ export interface VouchEntry {
   forRole: string,
 }
 
+
+
+export function describe_threshold(th: MembraneThresholdEntry, allZomeTypes: [string, boolean][][]): string {
+  let desc = "";
+  if (th.hasOwnProperty('vouch')) {
+    let typed = (th as any).vouch as VouchThreshold;
+    desc = "Receive " + typed.requiredCount  + " \"" + typed.forRole  + "\" vouch(es) by a \"" + typed.byRole + "\""
+    //console.log(desc)
+  } else {
+    let typed = (th as any).createEntryCount as CreateEntryCountThreshold;
+    const zomeTypes = allZomeTypes[typed.entryType.zomeId];
+    //console.log({zomeTypes})
+    const entryType = zomeTypes[typed.entryType.id]
+    //console.log({entryType})
+    //const entryType = typed.entryType.id
+    desc = "Create " + typed.requiredCount  + " \"" + entryType[0] + "\" entries"
+  }
+  return desc;
+}
