@@ -74,6 +74,13 @@ export class MembranesViewModel {
 
   /** Methods */
 
+  findMembrane(membrane: Membrane): EntryHashB64 | undefined {
+    let result = Object.entries(this.membraneStore).find(([_ehb64, cur]) => {
+      return cur === membrane})
+    return result && result.length > 0? result[0] : undefined;
+  }
+
+
   /** */
   private async convertMembraneEntry(membraneEntry: MembraneEntry): Promise<Membrane> {
     //console.log("convertMembraneEntry() called", membraneEntry)

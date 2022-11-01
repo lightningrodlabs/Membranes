@@ -10,7 +10,7 @@ import {ScopedElementsMixin} from "@open-wc/scoped-elements";
 import {ActionHashB64, Dictionary, EntryHashB64} from "@holochain-open-dev/core-types";
 import {MembranesViewModel, membranesContext} from "../membranes.vm";
 import {AppEntryType, EntryHash} from "@holochain/client";
-import {MembraneThresholdKind, MyAppEntryType} from "../membranes.types";
+import {describe_threshold, MembraneThresholdKind, MyAppEntryType} from "../membranes.types";
 //import {IMAGE_SCALE} from "../constants";
 
 
@@ -233,6 +233,9 @@ export class MembranesCreatorPage extends ScopedElementsMixin(LitElement) {
     render() {
         console.log("membranes-creator-page render() START");
 
+        const allZomeTypes: [string, boolean][][] = Object.entries(this.appEntryTypeStore)
+            .map(([_name, types]) => {return types;})
+
         const membranesForRoleLi = Object.entries(this._membranesForRole).map(
             ([_index, ehB64]) => {
                 return html `<li>${ehB64}</li>`
@@ -246,12 +249,13 @@ export class MembranesCreatorPage extends ScopedElementsMixin(LitElement) {
 
         const thresholdsLi = Object.entries(this._thresholdsForMembrane).map(
             ([_index, ehB64]) => {
-                return html `<li>${ehB64}</li>`
+                return html `<li>${describe_threshold(this._viewModel.thresholdStore[ehB64], allZomeTypes)}</li>`
             }
         )
+
         const thresholdOptions = Object.entries(this._viewModel.thresholdStore).map(
-            ([ehB64, _th]) => {
-                return html `<option value="${ehB64}">${ehB64.substring(0, 12)}</option>`
+            ([ehB64, th]) => {
+                return html `<option value="${ehB64}">${describe_threshold(th, allZomeTypes)}</option>`
             }
         )
 
@@ -266,6 +270,7 @@ export class MembranesCreatorPage extends ScopedElementsMixin(LitElement) {
         <div>
             <button type="button" @click=${this.refresh}>Refresh</button>        
             <span>${this._viewModel.myAgentPubKey}</span>
+            <hr class="solid">
             <h1>Membrane Creator</h1>
             <!-- NEW ROLE -->
             <h2>New Role</h2>

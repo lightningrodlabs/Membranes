@@ -245,6 +245,7 @@ export class TaskerPage extends ScopedElementsMixin(LitElement) {
       <div>
         <button type="button" @click=${this.refresh}>Refresh</button>        
         <span>${this._viewModel.myAgentPubKey}</span>
+        <hr class="solid">
         <h1>Tasker: Membranes Playground</h1>
         <ul>${listListLi}</ul>
         <form>

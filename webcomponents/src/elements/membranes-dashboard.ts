@@ -98,23 +98,42 @@ export class MembranesDashboard extends ScopedElementsMixin(LitElement) {
   /** */
   render() {
     console.log("membranes-dashboard render() START");
+    const allZomeTypes: [string, boolean][][] = Object.entries(this.appEntryTypeStore)
+        .map(([_name, types]) => {return types;})
     /* Roles */
     const rolesLi = Object.entries(this._viewModel.roleStore).map(
         ([ehB64, role]) => {
-          //console.log("membrane:", ehB64)
-          return html `<li title=${ehB64}><abbr>${role.name} - [${role.enteringMembranes.length}]</abbr></li>`
+          const MembraneLi = Object.entries(role.enteringMembranes).map(
+              ([_index, membrane]) => {
+                return html `<li>${this._viewModel.findMembrane(membrane)}</li>`
+              }
+          )
+          return html `<li title=${ehB64}>
+            <abbr>${role.name} - [${role.enteringMembranes.length}]</abbr>
+            <ul>
+              ${MembraneLi}
+            </ul>
+          </li>`
         }
     )
     /* Membranes */
     const membranesLi = Object.entries(this._viewModel.membraneStore).map(
         ([ehB64, membrane]) => {
           console.log("membrane:", membrane)
-          return html `<li>${ehB64} - [${membrane.thresholds.length}]</li>`
+          const thresholdLi = Object.entries(membrane.thresholds).map(
+              ([_index, th]) => {
+                return html `<li>${describe_threshold(th, allZomeTypes)}</li>`
+              }
+          )
+          return html `<li>
+            ${ehB64} - [${membrane.thresholds.length}]
+            <ul>
+              ${thresholdLi}
+            </ul>
+          </li>`
         }
     )
     /* Thresholds */
-    const allZomeTypes: [string, boolean][][] = Object.entries(this.appEntryTypeStore)
-    .map(([_name, types]) => {return types;})
     const thresholdsLi = Object.entries(this._viewModel.thresholdStore).map(
         ([ehB64, threshold]) => {
           console.log({threshold})
@@ -123,17 +142,17 @@ export class MembranesDashboard extends ScopedElementsMixin(LitElement) {
         }
     )
     /* My Role Claims */
-    const myRolesLi = Object.entries(this._viewModel.myRoleClaimsStore).map(
+    const myRoleClaimsLi = Object.entries(this._viewModel.myRoleClaimsStore).map(
         ([ehB64, claim]) => {
           //console.log("membrane:", ehB64)
           return html `<li title=${ehB64}><abbr>${claim.role.name} - (crossed membrane index:${claim.membraneIndex})</abbr></li>`
         }
     )
     /* My Membrane Claims */
-    const myMembranesLi = Object.entries(this._viewModel.myMembraneClaimsStore).map(
+    const myMembraneClaimsLi = Object.entries(this._viewModel.myMembraneClaimsStore).map(
         ([ehB64, claim]) => {
-          //console.log("membrane:", ehB64)
-          return html `<li title="proofs: ${JSON.stringify(claim.proofs)}"><abbr>${ehB64}</abbr></li>`
+          console.log("membrane claim:", ehB64, claim)
+          return html `<li title="proofs: ${JSON.stringify(claim.proofs)}"><abbr>${this._viewModel.findMembrane(claim.membrane)}</abbr></li>`
         }
     )
     /** render all */
@@ -141,6 +160,7 @@ export class MembranesDashboard extends ScopedElementsMixin(LitElement) {
       <div>
         <button type="button" @click=${this.refresh}>Refresh</button>        
         <span>${this._viewModel.myAgentPubKey}</span>
+        <hr class="solid">
         <h1>Membranes Dashboard</h1>
         <h2>Roles</h2>
         <ul>${rolesLi}</ul>        
@@ -151,9 +171,9 @@ export class MembranesDashboard extends ScopedElementsMixin(LitElement) {
         <hr class="solid">        
         <h2>My Passport</h2>
         <h3>Roles</h3>
-        <ul>${myRolesLi}</ul>
+        <ul>${myRoleClaimsLi}</ul>
         <h3>Membranes</h3>
-        <ul>${myMembranesLi}</ul>
+        <ul>${myMembraneClaimsLi}</ul>
       </div>
     `;
   }
