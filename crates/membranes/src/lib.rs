@@ -14,6 +14,8 @@ mod membrane;
 //mod utils;
 mod anchors;
 mod get;
+mod misc;
+mod vouch;
 
 
 #[macro_use]

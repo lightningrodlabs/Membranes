@@ -10,6 +10,7 @@ import {AppWebsocket} from "@holochain/client";
 import {TaskerPage} from "./elements/tasker-page";
 import {TaskerViewModel, taskerContext} from "./tasker.vm";
 import {
+  VouchDashboard,
   MembranesDashboard,
   MembranesViewModel,
   membranesContext,
@@ -114,6 +115,7 @@ export class TaskerApp extends ScopedElementsMixin(LitElement) {
       case 0: page = html`<tasker-page style="flex: 1;"></tasker-page>` ; break;
       case 1: page = html`<membranes-dashboard .appEntryTypeStore=${this.appEntryTypeStore} style="flex: 1;"></membranes-dashboard>`; break;
       case 2: page = html`<membranes-creator-page .appEntryTypeStore=${this.appEntryTypeStore} style="flex: 1;"></membranes-creator-page>`; break;
+      case 3: page = html`<vouch-dashboard .agentStore=${this._taskerViewModel?.agentStore} style="flex: 1;"></vouch-dashboard>`; break;
       default: page = html`unknown page index`;
     };
 
@@ -122,6 +124,8 @@ export class TaskerApp extends ScopedElementsMixin(LitElement) {
         <input type="button" value="Tasker" @click=${() => {this._pageDisplayIndex = 0; this.requestUpdate()}} >
         <input type="button" value="Membranes Dashboard" @click=${() => {this._pageDisplayIndex = 1; this.requestUpdate()}} >
         <input type="button" value="Membranes Creator" @click=${() => {this._pageDisplayIndex = 2; this.requestUpdate()}} >
+        <input type="button" value="Vouch Dashboard" @click=${() => {this._pageDisplayIndex = 3; this.requestUpdate()}} >
+        
       </div>
       ${page}
     `
@@ -133,6 +137,7 @@ export class TaskerApp extends ScopedElementsMixin(LitElement) {
       "tasker-page": TaskerPage,
       "membranes-dashboard": MembranesDashboard,
       "membranes-creator-page": MembranesCreatorPage,
+      "vouch-dashboard": VouchDashboard,
     };
   }
 }

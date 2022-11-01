@@ -33,6 +33,8 @@ pub enum MembranesEntry {
 #[hdk_link_types]
 pub enum MembranesLinkType {
    Vouch,
+   VouchEmitted,
+   VouchReceived,
    MembranePassport,
    RolePassport,
    Role,

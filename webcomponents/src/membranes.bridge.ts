@@ -8,7 +8,7 @@ import {
   MembraneEntry,
   MembraneRoleEntry,
   MembraneThresholdEntry,
-  RoleClaimEntry, VouchThreshold
+  RoleClaimEntry, VouchEntry, VouchThreshold
 } from "./membranes.types";
 
 /** */
@@ -112,6 +112,24 @@ export class MembranesBridge {
 
   async echoAppEntryType(aet: AppEntryType): Promise<any> {
     return this.callZome('echo_app_entry_type', aet);
+  }
+
+  /** Vouch */
+
+  async publishVouch(typed: VouchEntry): Promise<EntryHash> {
+    return this.callZome('publish_vouch', typed);
+  }
+
+  async getVouch(eh: EntryHash): Promise<VouchEntry | null> {
+    return this.callZome('get_vouch', eh);
+  }
+
+  async getMyEmittedVouches(maybeRole: string | null): Promise<EntryHash[]> {
+    return this.callZome('get_my_emitted_vouches', maybeRole);
+  }
+
+  async getMyReceivedVouches(maybeRole: string | null): Promise<EntryHash[]> {
+    return this.callZome('get_my_received_vouches', maybeRole);
   }
 
   /** Private */

@@ -2,6 +2,12 @@ import {AgentPubKeyB64, EntryHashB64, ActionHashB64, HoloHashB64} from "@holocha
 import {ActionHash, AgentPubKey, AppEntryType, EntryHash, SignedActionHashed} from "@holochain/client";
 
 
+export interface VouchEntry {
+  subject: AgentPubKey,
+  forRole: string,
+}
+
+
 ///
 export interface ThresholdReachedProof {
   thresholdEh: EntryHash,

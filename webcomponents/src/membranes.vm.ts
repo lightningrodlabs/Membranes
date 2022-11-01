@@ -10,7 +10,7 @@ import {
   MembraneRoleEntry,
   MembraneThresholdEntry, MyAppEntryType,
   Privilege,
-  RoleClaimEntry, ThresholdReachedProof, VouchThreshold
+  RoleClaimEntry, ThresholdReachedProof, VouchEntry, VouchThreshold
 } from "./membranes.types";
 import {createContext} from "@lit-labs/context";
 
@@ -20,6 +20,12 @@ const areEqual = (first: Uint8Array, second: Uint8Array) =>
 
 
 /** ViewModel */
+
+export interface Vouch {
+  subject: AgentPubKeyB64,
+  forRole: String,
+}
+
 
 export interface Membrane {
   thresholds: MembraneThresholdEntry[]
@@ -72,6 +78,9 @@ export class MembranesViewModel {
   myRoleClaimsStore: Dictionary<RoleClaim> = {};
   myMembraneClaimsStore: Dictionary<MembraneCrossedClaim> = {};
 
+  /** RoleName -> [[emitted],[received]] */
+  myVouchesStore: Dictionary<[Vouch[], Vouch[]]> = {};
+
   /** Methods */
 
   findMembrane(membrane: Membrane): EntryHashB64 | undefined {
@@ -80,6 +89,11 @@ export class MembranesViewModel {
     return result && result.length > 0? result[0] : undefined;
   }
 
+
+  /** */
+  private convertVouchEntry(entry: VouchEntry): Vouch {
+    return {subject: serializeHash(entry.subject), forRole: entry.forRole};
+  }
 
   /** */
   private async convertMembraneEntry(membraneEntry: MembraneEntry): Promise<Membrane> {
@@ -227,8 +241,35 @@ export class MembranesViewModel {
     }
     console.log({roleStore: this.roleStore})
 
+    /** Get Vouches */
+
+    for (const [eh, roleEntry] of roleEntries) {
+      const emittedEhs = await this.bridge.getMyEmittedVouches(roleEntry.name);
+      const receivedEhs = await this.bridge.getMyReceivedVouches(roleEntry.name);
+      /* */
+      let emitted = [];
+      for (const eh of emittedEhs) {
+        const vouch = await this.bridge.getVouch(eh);
+        if (vouch) {
+          emitted.push(this.convertVouchEntry(vouch))
+        }
+      }
+      /* */
+      let received = [];
+      for (const eh of receivedEhs) {
+        const vouch = await this.bridge.getVouch(eh);
+        if (vouch) {
+          received.push(this.convertVouchEntry(vouch))
+        }
+      }
+      /* */
+      this.myVouchesStore[roleEntry.name] = [emitted, received];
+    }
+
     //const aet: AppEntryType = {id: 0, zome_id: 0, visibility: 'Public'};
     //let res = await this.bridge.echoAppEntryType(aet)
+
+
 
   }
 
@@ -299,5 +340,7 @@ export class MembranesViewModel {
   }
 
 
-
+  async vouchAgent(agent: AgentPubKeyB64, forRole: string): Promise<EntryHash> {
+    return this.bridge.publishVouch({subject: deserializeHash(agent), forRole});
+  }
 }

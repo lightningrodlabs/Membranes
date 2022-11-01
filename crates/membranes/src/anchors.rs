@@ -11,13 +11,6 @@ pub const Membranes: &'static str = "Membranes";
 pub const Thresholds: &'static str = "Thresholds";
 
 
-///
-#[hdk_extern]
-pub fn dna_info_hack(_: ()) -> ExternResult<Vec<ZomeName>> {
-   let result = dna_info()?;
-   Ok(result.zome_names)
-}
-
 
 ///
 #[hdk_extern]
@@ -34,6 +27,7 @@ pub fn get_all_membranes_details(_:()) -> ExternResult<Vec<(EntryHash, Membrane)
 }
 
 
+///
 #[hdk_extern]
 pub fn get_all_roles(_ : ()) -> ExternResult<Vec<(EntryHashB64, String)>> {
    // FIXME

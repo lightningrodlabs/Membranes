@@ -3,6 +3,15 @@ use hdi::prelude::*;
 
 use crate::*;
 
+#[hdk_entry_helper]
+#[derive(Clone, PartialEq)]
+#[serde(rename_all = "camelCase")]
+pub struct Vouch {
+   pub subject: AgentPubKey,
+   pub for_role: String,
+}
+
+
 ///
 #[hdk_entry_helper]
 #[derive(Clone, PartialEq)]

@@ -9,22 +9,6 @@ use crate::{constants::*, anchors};
 use crate::anchors::get_role_by_name;
 
 
-///
-#[hdk_extern]
-pub fn publish_vouch(vouch: Vouch) -> ExternResult<EntryHash> {
-   let maybe_role = get_role_by_name(vouch.for_role.clone())?;
-   if maybe_role.is_none() {
-      let msg = format!("Could not get Role declared in Vouch: {}", vouch.for_role);
-      return Err(wasm_error!(WasmErrorInner::Guest(msg)));
-   }
-   let role_name_bytes = maybe_role.unwrap().name.into_bytes();
-   let _ah = create_entry(MembranesEntry::Vouch(vouch.clone()))?;
-   let eh = hash_entry(vouch.clone())?;
-   let _lah = create_link(vouch.subject, eh.clone(), MembranesLinkType::Vouch, LinkTag::from(role_name_bytes))?;
-   /// Done
-   Ok(eh)
-}
-
 
 //#[hdk_extern]
 // pub fn publish_threshold(threshold: MembraneThreshold) -> ExternResult<EntryHash> {
@@ -65,12 +49,6 @@ pub fn publish_vouchThreshold(vouch_threshold: VouchThreshold) -> ExternResult<E
    let _lah = create_link(root_path, eh.clone(), MembranesLinkType::Threshold, LinkTag::from("VouchThreshold".to_string().into_bytes()))?;
    /// Done
    Ok(eh)
-}
-
-#[hdk_extern]
-pub fn echo_app_entry_type(entry_type: AppEntryType) -> ExternResult<()> {
-   debug!("echo_app_entry_type() called: {:?}", entry_type);
-   Ok(())
 }
 
 
