@@ -103,13 +103,17 @@ export class MembranesDashboard extends ScopedElementsMixin(LitElement) {
     /* Roles */
     const rolesLi = Object.entries(this._viewModel.roleStore).map(
         ([ehB64, role]) => {
+            console.log("Role", role)
           const MembraneLi = Object.entries(role.enteringMembranes).map(
               ([_index, membrane]) => {
                 return html `<li>${this._viewModel.findMembrane(membrane)}</li>`
               }
           )
-          return html `<li title=${ehB64}>
-            <abbr>${role.name} - [${role.enteringMembranes.length}]</abbr>
+            console.log("MembraneLi", MembraneLi)
+          return html `<li style="margin-top:10px;" title=${ehB64}>
+            <abbr><b>${role.name}</b></abbr>
+              <br/>
+              &nbsp;&nbsp;&nbsp;Membranes:
             <ul>
               ${MembraneLi}
             </ul>
@@ -125,8 +129,11 @@ export class MembranesDashboard extends ScopedElementsMixin(LitElement) {
                 return html `<li>${describe_threshold(th, allZomeTypes)}</li>`
               }
           )
-          return html `<li>
-            ${ehB64} - [${membrane.thresholds.length}]
+          return html `
+          <li style="margin-top:10px;">
+              <b>${ehB64}</b>
+              <br/>
+              &nbsp;&nbsp;&nbsp;Thresholds:
             <ul>
               ${thresholdLi}
             </ul>
@@ -166,10 +173,10 @@ export class MembranesDashboard extends ScopedElementsMixin(LitElement) {
         <ul>${rolesLi}</ul>        
         <h2>Membranes</h2>
         <ul>${membranesLi}</ul>
-        <h2>Thresholds</h2>
+        <h2 style="margin-top:30px;margin-bottom:0px;">Thresholds</h2>
         <ul>${thresholdsLi}</ul>
         <hr class="solid">        
-        <h2>My Passport</h2>
+        <h2>My Passport <button type="button" @click=${this.claimAll}>Claim all</button></h2>
         <h3>Roles</h3>
         <ul>${myRoleClaimsLi}</ul>
         <h3>Membranes</h3>
@@ -177,6 +184,11 @@ export class MembranesDashboard extends ScopedElementsMixin(LitElement) {
       </div>
     `;
   }
+
+    async claimAll(e:any) {
+      await this._viewModel.claimAll();
+      await this.refresh(undefined)
+    }
 
 
   /** */

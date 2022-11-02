@@ -16,14 +16,7 @@ pub struct ClaimRoleInput {
 
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-pub struct HasCrossedMembraneInput {
-   pub subject: AgentPubKeyB64,
-   pub membrane_eh: EntryHashB64,
-}
-
-
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-pub struct ClaimMembraneInput {
+pub struct MembraneInput {
    pub subject: AgentPubKeyB64,
    pub membrane_eh: EntryHashB64,
 }

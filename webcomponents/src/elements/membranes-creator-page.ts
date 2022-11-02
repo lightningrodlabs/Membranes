@@ -9,7 +9,6 @@ import { contextProvided } from '@lit-labs/context';
 import {ScopedElementsMixin} from "@open-wc/scoped-elements";
 import {ActionHashB64, Dictionary, EntryHashB64} from "@holochain-open-dev/core-types";
 import {MembranesViewModel, membranesContext} from "../membranes.vm";
-import {AppEntryType, EntryHash} from "@holochain/client";
 import {describe_threshold, MembraneThresholdKind, MyAppEntryType} from "../membranes.types";
 //import {IMAGE_SCALE} from "../constants";
 

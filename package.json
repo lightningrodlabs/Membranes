@@ -28,8 +28,8 @@
     "start:agent:playground" : "cross-env HC_PORT=$(port) ADMIN_PORT=$(port) concurrently \"npm run playground\" \"npm run dev:libs\" \"npm run start:happ\" \"sleep 5 && npm run start:ui -w playground/webapp\"",
     "start-proxied"          : "npm run build:happ && npm run build -w @place/elements && cross-env HC_PORT=$(port) concurrently -k \"npm run start:happ-proxied\" \"npm run start:ui -w playground/webapp\"",
 
-    "network"                : "npm run build:happ && concurrently-repeat \"npm run start:agent\"",
-    "network-proxied"        : "npm run build:happ && concurrently-repeat \"npm run start:agent-proxied\"",
+    "network"                : "npm run build:happ && concurrently-repeat \"npm run start:agent-proxied\"",
+    "network-mdns"           : "npm run build:happ && concurrently-repeat \"npm run start:agent\"",
     "network-playground"     : "npm run build:happ && concurrently-repeat \"npm run start:agent:playground\"",
 
     "playground"             : "run-singleton \"holochain-playground\"",

@@ -1,6 +1,6 @@
 import {EntryHashB64, ActionHashB64, AgentPubKeyB64, Dictionary} from '@holochain-open-dev/core-types';
 import {AgnosticClient, CellClient} from '@holochain-open-dev/cell-client';
-import {AgentPubKey, AppEntryType, CellId, EntryHash, SignedActionHashed} from "@holochain/client";
+import {AgentPubKey, CellId, EntryHash} from "@holochain/client";
 import {deserializeHash, serializeHash} from "@holochain-open-dev/utils";
 import {MembranesBridge} from "./membranes.bridge";
 import {
@@ -18,6 +18,28 @@ import {createContext} from "@lit-labs/context";
 const areEqual = (first: Uint8Array, second: Uint8Array) =>
       first.length === second.length && first.every((value, index) => value === second[index]);
 
+
+export function areThresholdEqual(first: MembraneThresholdEntry, second: MembraneThresholdEntry) : Boolean {
+  if (first.hasOwnProperty("entryType")) {
+    if (!second.hasOwnProperty("entryType")) return false;
+    const firstCreate = first as CreateEntryCountThreshold;
+    const secondCreate = second as CreateEntryCountThreshold;
+    return firstCreate.requiredCount == secondCreate.requiredCount && firstCreate.entryType == secondCreate.entryType;
+  }
+  const firstVouch = first as VouchThreshold;
+  const secondVouch = second as VouchThreshold;
+  return firstVouch == secondVouch;
+}
+
+export function areMembraneEqual(first: Membrane, second: Membrane) : Boolean {
+  if (first.thresholds.length !== second.thresholds.length) return false;
+  for(let i = 0; i< first.thresholds.length; i++) {
+    if (!areThresholdEqual(first.thresholds[i], second.thresholds[i])) {
+      return false;
+    }
+  }
+  return true;
+}
 
 /** ViewModel */
 
@@ -85,7 +107,9 @@ export class MembranesViewModel {
 
   findMembrane(membrane: Membrane): EntryHashB64 | undefined {
     let result = Object.entries(this.membraneStore).find(([_ehb64, cur]) => {
-      return cur === membrane})
+      return areMembraneEqual(cur, membrane);
+    })
+    console.log("findMembrane()", membrane, result)
     return result && result.length > 0? result[0] : undefined;
   }
 
@@ -272,6 +296,13 @@ export class MembranesViewModel {
 
 
 
+  }
+
+
+  /** */
+  async claimAll() {
+    //this.bridge.claimAllMembranes();
+    await this.bridge.claimAllRoles();
   }
 
 

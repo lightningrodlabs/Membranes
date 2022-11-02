@@ -93,13 +93,13 @@ export class TaskerPage extends ScopedElementsMixin(LitElement) {
   }
 
   /** */
-  async checkMyRole(_e: any) {
-    let response = await this._viewModel.amIEditor();
-    console.log("checkMyRole() Editor =", response)
-    let span = this.shadowRoot!.getElementById("responseSpan") as HTMLSpanElement;
-    span.innerText = "" + response;
-    this.requestUpdate();
-  }
+  // async checkMyRoles(_e: any) {
+  //   let roles = await this._viewModel.myRoles();
+  //   console.log("checkMyRoles()", roles)
+  //   let span = this.shadowRoot!.getElementById("responseSpan") as HTMLSpanElement;
+  //   span.innerText = "" + roles;
+  //   this.requestUpdate();
+  // }
 
   /** */
   async refresh(_e: any) {
@@ -186,7 +186,7 @@ export class TaskerPage extends ScopedElementsMixin(LitElement) {
 
   /** */
   render() {
-    console.log("membranes-dashboard render() START", this._viewModel.taskListStore);
+    console.log("tasker-page render() START", this._viewModel.taskListStore);
 
     const listListLi = Object.entries(this._viewModel.taskListStore).map(
         ([ahB64, taskList]) => {
@@ -247,14 +247,13 @@ export class TaskerPage extends ScopedElementsMixin(LitElement) {
         <span>${this._viewModel.myAgentPubKey}</span>
         <hr class="solid">
         <h1>Tasker: Membranes Playground</h1>
+        <span id="responseSpan">My Roles: ${this._viewModel.myRoles.length > 0? this._viewModel.myRoles : "none"}</span>
         <ul>${listListLi}</ul>
         <form>
           <label for="listTitleInput">New list:</label>
           <input type="text" id="listTitleInput" name="title">
           <input type="button" value="create" @click=${this.onCreateList}>
         </form>
-        <button type="button" @click=${this.checkMyRole}>Am I Editor?</button>
-        <span id="responseSpan">unknown</span>
         <h2>
           Selected List:
           <select name="selectedList" id="selectedList" @click=${this.onListSelect}>

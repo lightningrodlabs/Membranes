@@ -22,8 +22,8 @@ export const taskerContext = createContext<TaskerViewModel>('tasker/service');
 export class TaskerViewModel {
 
   /** Private */
-  private taskerZome : TaskerBridge
-  private agentDirectoryZome : AgentDirectoryBridge
+  private taskerBridge : TaskerBridge
+  private agentDirectoryBridge : AgentDirectoryBridge
   //private _dnaProperties?: DnaProperties;
 
 
@@ -37,6 +37,7 @@ export class TaskerViewModel {
 
   agentStore: AgentPubKeyB64[] = []
 
+  myRoles: string[] = []
 
   /** Static info */
 
@@ -49,8 +50,8 @@ export class TaskerViewModel {
 
   /** Ctor */
   constructor(protected client: AgnosticClient, cellId: CellId) {
-    this.taskerZome = new TaskerBridge(client, cellId);
-    this.agentDirectoryZome = new AgentDirectoryBridge(client, cellId);
+    this.taskerBridge = new TaskerBridge(client, cellId);
+    this.agentDirectoryBridge = new AgentDirectoryBridge(client, cellId);
     //let cellClient = this.service.cellClient
     this.myAgentPubKey = serializeHash(cellId[1]);
 
@@ -94,10 +95,10 @@ export class TaskerViewModel {
   /** */
   async pullAllFromDht() {
     /** Get Lists */
-    const lists = await this.taskerZome.getAllLists();
+    const lists = await this.taskerBridge.getAllLists();
     //console.log("pullAllFromDht:", lists)
     for (const listAh of lists) {
-      const maybeList = await this.taskerZome.getTaskList(listAh);
+      const maybeList = await this.taskerBridge.getTaskList(listAh);
       //console.log({maybeList})
       if (maybeList) {
         this.taskListStore[listAh] = maybeList
@@ -109,41 +110,44 @@ export class TaskerViewModel {
     /** Get Agents */
     await this.getAllAgents();
     console.log({agentStore: this.agentStore})
+
+    /** Get My Roles */
+    let res = await this.taskerBridge.getMyRoleClaimsDetails();
+    let p = Object.values(res).map(async ([_claim_eh, roleClaim]) => {
+      let role = await this.taskerBridge.getRole(roleClaim.roleEh);
+      return role? role.name : "";
+    })
+    Promise.all(p).then((v) => this.myRoles = v)
   }
 
 
   /** */
   async createTaskItem(title: string, assignee: AgentPubKeyB64, listAh: ActionHashB64): Promise<ActionHashB64> {
-    return this.taskerZome.createTaskItem(title, assignee, listAh);
+    return this.taskerBridge.createTaskItem(title, assignee, listAh);
   }
 
   /** */
   async createTaskList(title: string): Promise<ActionHashB64> {
-    return this.taskerZome.createTaskList(title);
+    return this.taskerBridge.createTaskList(title);
   }
 
   async lockTaskList(listAh: ActionHashB64): Promise<ActionHashB64> {
-    return this.taskerZome.lockTaskList(listAh);
+    return this.taskerBridge.lockTaskList(listAh);
   }
 
   async completeTask(taskAh: ActionHashB64): Promise<ActionHashB64> {
-    return this.taskerZome.completeTask(taskAh);
+    return this.taskerBridge.completeTask(taskAh);
   }
 
-  async amIEditor(): Promise<boolean> {
-    let claimed_membranes = await this.taskerZome.claimAllMembranes();
-    console.log("Claimed membranes:", claimed_membranes)
-    return this.taskerZome.amIEditor();
-  }
 
   /** */
   async getTaskList(listAh: ActionHashB64): Promise<TaskList | null> {
-    return this.taskerZome.getTaskList(listAh);
+    return this.taskerBridge.getTaskList(listAh);
   }
 
   /** */
   async getAllAgents(): Promise<AgentPubKeyB64[]> {
-    let agents = await this.agentDirectoryZome.getAllAgents();
+    let agents = await this.agentDirectoryBridge.getAllAgents();
     this.agentStore = agents.map((agentKey) => serializeHash(agentKey));
     return this.agentStore;
   }

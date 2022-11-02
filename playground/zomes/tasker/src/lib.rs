@@ -8,7 +8,6 @@
 mod ui;
 mod basic_callbacks;
 mod membraned_callbacks;
-mod helpers;
 
 #[macro_use]
 extern crate zome_utils;
@@ -32,7 +31,7 @@ where
       None,
       payload,
    )?;
-   debug!("call response for {}(): {:?}", fn_name, res);
+   debug!("call_membranes_zome() response for {}(): {:?}", fn_name, res);
    let output: O = zome_utils::decode_response(res)?;
    Ok(output)
 }

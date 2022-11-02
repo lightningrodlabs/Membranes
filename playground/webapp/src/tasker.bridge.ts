@@ -7,7 +7,8 @@ import {
   //Signal,
   TaskItem, TaskList,
 } from './tasker.types';
-import {CellId} from "@holochain/client";
+import {CellId, EntryHash} from "@holochain/client";
+import {MembraneRoleEntry, RoleClaimEntry} from "@membranes/elements";
 
 
 export class TaskerBridge {
@@ -59,17 +60,15 @@ export class TaskerBridge {
     return this.callZome("tasker",'get_all_lists', null);
   }
 
-
   /** Membranes */
 
-  async claimAllMembranes(): Promise<number> {
-    return this.callZome("tasker",'claim_all_membranes', null);
+  async getMyRoleClaimsDetails(): Promise<[EntryHash, RoleClaimEntry][]> {
+    return this.callZome("membranes",'get_my_role_claims_details', null);
   }
 
-  async amIEditor(): Promise<boolean> {
-    return this.callZome("tasker", 'am_i_editor', null);
+  async getRole(eh: EntryHash): Promise<MembraneRoleEntry | null> {
+    return this.callZome("membranes", "get_role", eh)
   }
-
 
   /** Private */
 

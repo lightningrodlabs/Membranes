@@ -1,11 +1,11 @@
 use hdk::prelude::*;
 use hdk::prelude::holo_hash::{ActionHashB64};
-use membranes_types::{ClaimMembraneInput, ClaimRoleInput, HasRoleInput, Membrane, MembraneRole};
+use membranes_types::{MembraneInput, ClaimRoleInput, HasRoleInput, Membrane, MembraneRole};
 use tasker_model::*;
 use crate::basic_functions::lock_task_list;
 use crate::call_membranes_zome;
-use crate::helpers::am_i_editor;
 use crate::holo_hash::{AgentPubKeyB64, EntryHashB64};
+
 //
 // #[hdk_extern]
 // fn create_task_list(title: String) -> ExternResult<ActionHashB64> {
@@ -76,11 +76,26 @@ use crate::holo_hash::{AgentPubKeyB64, EntryHashB64};
 // }
 
 
+pub fn am_i_editor() -> ExternResult<bool> {
+   let meB64: AgentPubKeyB64 = agent_info()?.agent_initial_pubkey.into();
+   let maybe_pair: Option<(EntryHashB64, MembraneRole)> = call_membranes_zome("get_role_with_name", "editor")?;
+   //debug!("am_i_editor() maybe_pair: {:?}", maybe_pair);
+   if maybe_pair.is_none() {
+      return zome_error!("'editor' role not found");
+   }
+   let maybe_signed_role_claim: Option<SignedActionHashed> = call_membranes_zome("has_role", HasRoleInput {subject: meB64, role_eh: maybe_pair.unwrap().0})?;
+   //debug!("am_i_editor() maybe_signed_role_claim: {:?}", maybe_signed_role_claim);
+   Ok(maybe_signed_role_claim.is_some())
+}
+
+
 #[hdk_extern]
 fn membraned_lock_task_list(list_ahb64: ActionHashB64) -> ExternResult<ActionHashB64> {
-   let canEditor = am_i_editor(())?;
+   std::panic::set_hook(Box::new(zome_utils::zome_panic_hook));
+   let canEditor = am_i_editor()?;
    if !canEditor {
       return zome_error!("Not allowed to lock task");
    }
-   return lock_task_list(list_ahb64);
+   let ah =  lock_task_list(list_ahb64)?;
+   Ok(ah)
 }

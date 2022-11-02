@@ -16,6 +16,8 @@ mod anchors;
 mod get;
 mod misc;
 mod vouch;
+mod claim_role;
+mod claim_membrane;
 
 
 #[macro_use]
