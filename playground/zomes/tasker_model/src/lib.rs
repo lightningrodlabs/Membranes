@@ -9,7 +9,7 @@ use hdi::prelude::*;
 
 /// List of all Entry types handled by this Zome
 #[hdk_entry_defs]
-#[unit_enum(UnitEntryTypes)]
+#[unit_enum(TaskerEntryTypes)]
 pub enum TaskerEntry {
    #[entry_def(required_validations = 3, visibility = "public")]
    TaskList(TaskList),
@@ -40,7 +40,7 @@ pub struct TaskItem {
 /// List of all Link types handled by this Zome
 #[hdk_link_types]
 #[derive(Serialize, Deserialize)]
-pub enum TaskerLink {
+pub enum TaskerLinkType {
    TaskLists,
    Locked,
    Completed,

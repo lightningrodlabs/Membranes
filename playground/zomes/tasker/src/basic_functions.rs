@@ -13,7 +13,7 @@ pub fn create_task_list(title: String) -> ExternResult<ActionHashB64> {
    let _ = create_link(
       directory_address,
       ah.clone(),
-      TaskerLink::TaskLists,
+      TaskerLinkType::TaskLists,
       LinkTag::from(()),
    )?;
    return Ok(ah.into());
@@ -36,7 +36,7 @@ pub fn create_task_item(input: CreateTaskItemInput) -> ExternResult<ActionHashB6
    let _ = create_link(
       input.list_ah,
       ah.clone(),
-      TaskerLink::Item,
+      TaskerLinkType::Item,
       LinkTag::from(()),
    )?;
    return Ok(ah.into());
@@ -69,7 +69,7 @@ pub fn complete_task(task_ah: ActionHashB64) -> ExternResult<ActionHashB64> {
    let res = create_link(
       task_ah.clone(),
       directory_address,
-      TaskerLink::Completed,
+      TaskerLinkType::Completed,
       LinkTag::from(()),
    )?;
    return Ok(res.into());
@@ -87,7 +87,7 @@ pub fn lock_task_list(list_ahb64: ActionHashB64) -> ExternResult<ActionHashB64> 
    let res = create_link(
       list_ah.clone(),
       directory_address,
-      TaskerLink::Locked,
+      TaskerLinkType::Locked,
       LinkTag::from(()),
    )?;
    return Ok(res.into());

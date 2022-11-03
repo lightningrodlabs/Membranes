@@ -22,7 +22,7 @@ pub fn get_task_item(task_ah: ActionHashB64) -> ExternResult<Option<FullTaskItem
    }
    let (_eh, task_item) = maybe_pair.unwrap();
    /// Lookup "Completed" link
-   let links = get_links(task_ah, TaskerLink::Completed, None)?;
+   let links = get_links(task_ah, TaskerLinkType::Completed, None)?;
    /// Done
    let full_item = FullTaskItem {
       entry: task_item,
@@ -53,9 +53,9 @@ pub fn get_task_list(list_ah: ActionHashB64) -> ExternResult<Option<FullTaskList
    }
    let (_eh, task_list) = maybe_pair.unwrap();
    /// Lookup "Locked" links
-   let locked_links = get_links(list_ah.clone(), TaskerLink::Locked, None)?;
+   let locked_links = get_links(list_ah.clone(), TaskerLinkType::Locked, None)?;
    /// Lookup "Item" links
-   let item_links = get_links(list_ah.clone(), TaskerLink::Item, None)?;
+   let item_links = get_links(list_ah.clone(), TaskerLinkType::Item, None)?;
    /// Convert to FullTaskItem
    let mut items = Vec::new();
    for item_link in item_links {
@@ -81,7 +81,7 @@ pub fn get_task_list(list_ah: ActionHashB64) -> ExternResult<Option<FullTaskList
 pub fn get_all_lists(_: ()) -> ExternResult<Vec<ActionHashB64>> {
    /// Get all TaskLists links
    let path_hash = Path::from("lists").path_entry_hash()?;
-   let list_links = get_links(path_hash, TaskerLink::TaskLists, None)?;
+   let list_links = get_links(path_hash, TaskerLinkType::TaskLists, None)?;
    trace!("get_all_lists() list_links length: {:?}", list_links.len());
    /// Find each TaskList from links
    let mut full_lists = Vec::new();

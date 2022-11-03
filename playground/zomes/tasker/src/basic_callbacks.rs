@@ -23,6 +23,7 @@ fn init_caps(_: ()) -> ExternResult<()> {
 /// Setup
 #[hdk_extern]
 fn init(_: ()) -> ExternResult<InitCallbackResult> {
+   std::panic::set_hook(Box::new(zome_utils::zome_panic_hook));
    debug!("*** Tasker.init() callback - START");
    let res = init_inner();
    if let Err(e) = res.clone() {
@@ -47,9 +48,9 @@ fn init_inner() -> ExternResult<InitCallbackResult> {
 /// Setup Global Anchors
 fn init_anchors(_: ()) -> ExternResult<()> {
    //let typed_path = path.clone().into_typed(ScopedLinkType::try_from(LinkTypes::Tree)?);
-   let path1 = Path::from("lists").typed(TaskerLink::TaskLists)?;
-   let path2 = Path::from("locked").typed(TaskerLink::Locked)?;
-   let path3 = Path::from("completed").typed(TaskerLink::Completed)?;
+   let path1 = Path::from("lists").typed(TaskerLinkType::TaskLists)?;
+   let path2 = Path::from("locked").typed(TaskerLinkType::Locked)?;
+   let path3 = Path::from("completed").typed(TaskerLinkType::Completed)?;
    path1.ensure()?;
    path2.ensure()?;
    path3.ensure()?;

@@ -23,6 +23,7 @@ where
    I: serde::Serialize + std::fmt::Debug,
    O: serde::de::DeserializeOwned + std::fmt::Debug
 {
+   debug!("call_membranes_zome() - {}()", fn_name);
    // TODO check fn_name exists
    let res = call(
       CallTargetCell::Local,

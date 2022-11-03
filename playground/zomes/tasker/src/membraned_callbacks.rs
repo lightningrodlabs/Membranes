@@ -30,14 +30,14 @@ pub fn init_membranes(_: ()) -> ExternResult<()> {
    //    "publish_vouchThreshold",
    //    VouchThreshold {required_count: 5, by_role: "editor".to_string(), for_role: "participant".to_string()},
    // )?;
-   let unit_entry_type: AppEntryType = UnitEntryTypes::TaskItem.try_into().unwrap();
+   let unit_entry_type: AppEntryType = TaskerEntryTypes::TaskItem.try_into().unwrap();
    let create3ItemThresholdEh: EntryHash = call_membranes_zome(
       "publish_createEntryCountThreshold",
       CreateEntryCountThreshold { entry_type: MyAppEntryType::from(unit_entry_type), required_count: 3},
    )?;
    // let create10ItemThresholdEh: EntryHash = call_membranes_zome(
    //    "publish_createEntryCountThreshold",
-   //    CreateEntryCountThreshold {entry_type: UnitEntryTypes::TaskItem.try_into().unwrap(), required_count: 10},
+   //    CreateEntryCountThreshold {entry_type: TaskerEntryTypes::TaskItem.try_into().unwrap(), required_count: 10},
    // )?;
    // Membranes
    let steererVouchMembraneEh: EntryHash = call_membranes_zome("publish_membrane", Membrane {threshold_ehs: vec![steererVouchThresholdEh]})?;
