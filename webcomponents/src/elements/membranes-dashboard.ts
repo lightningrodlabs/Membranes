@@ -131,7 +131,7 @@ export class MembranesDashboard extends ScopedElementsMixin(LitElement) {
           )
           return html `
           <li style="margin-top:10px;">
-              <b>${ehB64}</b>
+              <i>${ehB64}</i>
               <br/>
               &nbsp;&nbsp;&nbsp;Thresholds:
             <ul>

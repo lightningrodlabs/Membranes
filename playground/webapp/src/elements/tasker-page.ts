@@ -150,7 +150,7 @@ export class TaskerPage extends ScopedElementsMixin(LitElement) {
     try {
       let res = await this._viewModel.lockTaskList(this._selectedListAh!);
     } catch (e:any) {
-      console.error(e);
+      console.warn(e);
       alert("Must be editor to lock list 😋")
     }
     //console.log("onLockList res:", res)
@@ -246,8 +246,8 @@ export class TaskerPage extends ScopedElementsMixin(LitElement) {
         <button type="button" @click=${this.refresh}>Refresh</button>        
         <span>${this._viewModel.myAgentPubKey}</span>
         <hr class="solid">
-        <h1>Tasker: Membranes Playground</h1>
-        <span id="responseSpan">My Roles: ${this._viewModel.myRoles.length > 0? this._viewModel.myRoles : "none"}</span>
+        <h1>Tasker: Membranes playground</h1>
+        <span id="responseSpan"><b>My Roles:</b> ${this._viewModel.myRoles.length > 0? this._viewModel.myRoles : "none"}</span>
         <ul>${listListLi}</ul>
         <form>
           <label for="listTitleInput">New list:</label>
