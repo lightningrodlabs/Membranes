@@ -4,7 +4,8 @@
 #![allow(non_snake_case)]
 #![allow(unused_attributes)]
 
-/// TODO: Remove this once hdk/hash_path is moved to hdi
+/// Copied from hdk/hash_path
+/// TODO: Remove this once hdk/hash_path is moved to hdi and can be imported normally
 mod component_copypasta;
 use crate::component_copypasta::Component;
 
@@ -34,20 +35,12 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
          if link_type == AgentDirectoryLinkType::Agent {
             return validate_agent_link(create, signature);
          } else {
-            Ok(ValidateCallbackResult::Invalid(
-               "unknown link type".to_string(),
-            ))
+            Ok(ValidateCallbackResult::Invalid("Unknown link type".to_string()))
          }
       }
-      Op::RegisterDeleteLink (_)=> Ok(ValidateCallbackResult::Invalid(
-         "deleting links isn't valid".to_string(),
-      )),
-      Op::RegisterUpdate { .. } => Ok(ValidateCallbackResult::Invalid(
-         "updating entries isn't valid".to_string(),
-      )),
-      Op::RegisterDelete { .. } => Ok(ValidateCallbackResult::Invalid(
-         "deleting entries isn't valid".to_string(),
-      )),
+      Op::RegisterDeleteLink (_)=> Ok(ValidateCallbackResult::Invalid("Deleting links isn't allowed".to_string())),
+      Op::RegisterUpdate { .. } => Ok(ValidateCallbackResult::Invalid("Updating entries isn't allowed".to_string())),
+      Op::RegisterDelete { .. } => Ok(ValidateCallbackResult::Invalid("Deleting entries isn't allowed".to_string())),
       Op::RegisterAgentActivity { .. } => Ok(ValidateCallbackResult::Valid),
    }
 }
