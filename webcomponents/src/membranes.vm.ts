@@ -384,4 +384,8 @@ export class MembranesViewModel {
     return serializeHash(res);
   }
 
+  async getCreateCount(agent: AgentPubKeyB64, entryType: MyAppEntryType): Promise<number> {
+    return this.bridge.getCreateCount({subject: deserializeHash(agent), entryType});
+  }
+
 }

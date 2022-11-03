@@ -15,7 +15,8 @@ import {
   MembranesViewModel,
   membranesContext,
   MembranesCreatorPage,
-  MembraneThresholdEntry
+  MembraneThresholdEntry,
+  CreateEntryDashboard,
 } from "@membranes/elements";
 import {Dictionary} from "@holochain-open-dev/core-types";
 
@@ -116,6 +117,8 @@ export class TaskerApp extends ScopedElementsMixin(LitElement) {
       case 1: page = html`<membranes-dashboard .appEntryTypeStore=${this.appEntryTypeStore} style="flex: 1;"></membranes-dashboard>`; break;
       case 2: page = html`<membranes-creator-page .appEntryTypeStore=${this.appEntryTypeStore} style="flex: 1;"></membranes-creator-page>`; break;
       case 3: page = html`<vouch-dashboard .agentStore=${this._taskerViewModel?.agentStore} style="flex: 1;"></vouch-dashboard>`; break;
+      case 4: page = html`<create-entry-dashboard .agentStore=${this._taskerViewModel?.agentStore} .appEntryTypeStore=${this.appEntryTypeStore} style="flex: 1;"></create-entry-dashboard>`; break;
+
       default: page = html`unknown page index`;
     };
 
@@ -125,7 +128,7 @@ export class TaskerApp extends ScopedElementsMixin(LitElement) {
         <input type="button" value="Membranes Dashboard" @click=${() => {this._pageDisplayIndex = 1; this.requestUpdate()}} >
         <input type="button" value="Membranes Creator" @click=${() => {this._pageDisplayIndex = 2; this.requestUpdate()}} >
         <input type="button" value="Vouch Dashboard" @click=${() => {this._pageDisplayIndex = 3; this.requestUpdate()}} >
-        
+        <input type="button" value="CreateEntry Dashboard" @click=${() => {this._pageDisplayIndex = 4; this.requestUpdate()}} >    
       </div>
       ${page}
     `
@@ -138,6 +141,7 @@ export class TaskerApp extends ScopedElementsMixin(LitElement) {
       "membranes-dashboard": MembranesDashboard,
       "membranes-creator-page": MembranesCreatorPage,
       "vouch-dashboard": VouchDashboard,
+      "create-entry-dashboard": CreateEntryDashboard,
     };
   }
 }

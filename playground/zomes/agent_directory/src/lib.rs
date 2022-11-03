@@ -6,7 +6,6 @@
 
 use hdk::prelude::*;
 use hdk::hash_path::path::Component;
-use hdk::prelude::holo_hash::AgentPubKeyB64;
 
 use agent_directory_integrity::*;
 
@@ -21,13 +20,13 @@ pub fn get_registered_agents(_:()) -> ExternResult<Vec<AgentPubKey>> {
    let child_links = get_directory_typed_path().children_paths()?;
    //debug!("*** get_registered_agents() child_links.len = {}", child_links.len());
    let agent_keys = child_links.iter()
-                               .map(|typed_link| {
-                                  //debug!("Agent path found: {:?}", typed_link);
-                                  path_to_key(&typed_link.path)
-                               })
-                               .filter_map(Result::ok)
-                               //.map(|key| key.into())
-                               .collect();
+      .map(|typed_link| {
+         //debug!("Agent path found: {:?}", typed_link);
+         path_to_key(&typed_link.path)
+      })
+      .filter_map(Result::ok)
+      //.map(|key| key.into())
+      .collect();
    Ok(agent_keys)
 }
 
@@ -104,27 +103,6 @@ fn path_to_key(agent_path: &Path) -> ExternResult<AgentPubKey> {
       .map_err(|_e| { wasm_error!(WasmErrorInner::Guest(format!("Registered agent_path has invalid AgentPubKey {:?}", leaf))) });
    agent_key
 }
-
-
-// /// Returns the addresses of all agents who have accessed the local DNA
-// pub fn get_registered_agents() -> ExternResult<Vec<AgentPubKey>> {
-//    let child_links = get_directory_typed_path().children()?;
-//    let agent_keys = child_links.iter()
-//       .map(|link| {
-//          let record = get(link.target.to_owned(), GetOptions::default())?
-//             .ok_or(wasm_error!(WasmErrorInner::Guest(format!("Agent registration link invalid: {:?}", link.target))))?;
-//          let (_sah, entry) = record.into_inner();
-//          let entry = match entry {
-//             RecordEntry::Present(e) => Ok(e),
-//             _ => Err(wasm_error!(WasmErrorInner::Guest(format!("No entry for registered agent link to {:?}", link.target)))),
-//          }?;
-//          let child_path = Path::try_from(&entry)?;
-//          agent_pubkey_from_trailing_component(&child_path)
-//       })
-//       .filter_map(Result::ok)
-//       .collect();
-//    Ok(agent_keys)
-// }
 
 
 // /// Checks for and validates any creation of an agent address path

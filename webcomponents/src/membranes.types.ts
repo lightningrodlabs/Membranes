@@ -7,6 +7,10 @@ export interface VouchEntry {
   forRole: string,
 }
 
+export interface GetCreateCountInput {
+  subject: AgentPubKey,
+  entryType: MyAppEntryType,
+}
 
 ///
 export interface ThresholdReachedProof {
