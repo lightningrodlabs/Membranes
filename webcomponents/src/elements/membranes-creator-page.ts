@@ -216,7 +216,7 @@ export class MembranesCreatorPage extends ScopedElementsMixin(LitElement) {
                 const forRole = input2.value;
                 const input3 = this.shadowRoot!.getElementById("byRoleInput") as HTMLInputElement;
                 const byRole = input3.value;
-                let res = this._viewModel.createVouchThreshold(count, forRole, byRole);
+                let res = this._viewModel.createVouchThreshold(count, byRole, forRole);
                 break;
             }
             default:

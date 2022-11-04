@@ -4,7 +4,7 @@ use crate::validate_app_entry::validate_app_entry;
 ///
 #[hdk_extern]
 pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
-   debug!("*** membranes.validate() op = {:?}", op);
+   //debug!("*** membranes.validate() op = {:?}", op);
    match op {
       Op::StoreRecord ( _ ) => Ok(ValidateCallbackResult::Valid),
       Op::StoreEntry(storeEntry) => {
@@ -38,7 +38,7 @@ pub fn validate_entry(entry: Entry, maybe_entry_type: Option<&EntryType>) -> Ext
       },
    };
    /// Done
-   debug!("*** validate_entry() result = {:?}", result);
+   //debug!("*** validate_entry() result = {:?}", result);
    result
 }
 

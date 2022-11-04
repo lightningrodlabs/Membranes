@@ -66,6 +66,7 @@ pub fn claim_role_by_name(role_name: String) -> ExternResult<Option<EntryHashB64
    /// Claim Role
    let mut index = 0;
    for _membrane_eh in role.entering_membrane_ehs {
+      debug!("claim_role_by_name({}) claiming membrane {}", role_name, index);
       let maybe_claim: Option<EntryHashB64> = claim_role_with_membrane(ClaimRoleInput {
          subject: agent_info()?.agent_initial_pubkey.into(),
          role_eh: ehB64.clone(),

@@ -241,13 +241,20 @@ export class TaskerPage extends ScopedElementsMixin(LitElement) {
     }
 
     /** render all */
+    let myRoles = "none"
+    if (this._viewModel.myRoles.length > 0) {
+      myRoles = ""
+      for (const name of this._viewModel.myRoles) {
+        myRoles += ", " + name
+      }
+    }
     return html`
       <div>
         <button type="button" @click=${this.refresh}>Refresh</button>        
         <span>${this._viewModel.myAgentPubKey}</span>
         <hr class="solid">
         <h1>Tasker: Membranes playground</h1>
-        <span id="responseSpan"><b>My Roles:</b> ${this._viewModel.myRoles.length > 0? this._viewModel.myRoles : "none"}</span>
+        <span id="responseSpan"><b>My Roles:</b> ${myRoles}</span>
         <ul>${listListLi}</ul>
         <form>
           <label for="listTitleInput">New list:</label>

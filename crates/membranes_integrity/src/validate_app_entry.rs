@@ -1,6 +1,7 @@
+use std::collections::BTreeMap;
 use hdi::prelude::*;
 use membranes_types::*;
-use crate::{MembranesEntry, MembranesEntryTypes};
+use crate::{MembranesEntryTypes};
 use crate::get_index;
 
 
@@ -86,29 +87,48 @@ fn verify_threshold_proof(subject: AgentPubKey, threshold: MembraneThreshold, si
       MembraneThreshold::Vouch(th) => {
          let this_zome_id = zome_info()?.id;
          let vouch_entry_id = get_index(MembranesEntryTypes::Vouch)?;
+         let role_claim_entry_id = get_index(MembranesEntryTypes::RoleClaim)?;
          // return Ok(signed_actions.len() >= th.required_count); // FIXME
-         let mut confirmed_count = 0;
+         /// First pass: Sort SAH into action maps
+         /// FIXME: change to Sets as we dont actually need the SAHs at this stage
+         let mut claim_map: BTreeMap<AgentPubKey, SignedActionHashed> = BTreeMap::new();
+         let mut vouch_map: BTreeMap<AgentPubKey, SignedActionHashed> = BTreeMap::new();
          for signed_action in signed_actions {
             let action = signed_action.action().clone();
             /// Must find enough Vouch CreateEntry actions with the correct "for_role" by authors who have the "by_role" role
-            let mut confirmed_count = 0;
             if let Action::Create(create) = action.clone() {
                if let EntryType::App(app_entry_type) = create.entry_type.clone() {
-                  if app_entry_type.zome_id != this_zome_id { continue;}
-                  if app_entry_type.id.0 != vouch_entry_id { continue;}
-                  let vouch_entry = must_get_entry(create.entry_hash.clone())?;
-                  let vouch = Vouch::try_from(vouch_entry)?;
-                  if vouch.for_role != th.for_role {continue;}
-                  // FIXME: Check author. Add RoleClaim SAH of vouch authors to proof.
-                  // Seperate Vouch entries from RoleClaims.
-                  // Store count for each author
-                  // For each author validate Role and increment confirmed_count
-                  confirmed_count += 1;
+                  if app_entry_type.zome_id != this_zome_id { continue; }
+                  if app_entry_type.id.0 == vouch_entry_id {
+                     let vouch_entry = must_get_entry(create.entry_hash.clone())?;
+                     let vouch = Vouch::try_from(vouch_entry)?;
+                     if vouch.for_role != th.for_role { continue; }
+                     if vouch.subject != subject { continue; }
+                     // FIXME verify signature?
+                     vouch_map.insert(create.author, signed_action);
+                     continue;
+                  }
+                  if app_entry_type.id.0 == role_claim_entry_id {
+                     let role_claim_entry = must_get_entry(create.entry_hash.clone())?;
+                     let role_claim = RoleClaim::try_from(role_claim_entry)?;
+                     let role_entry = must_get_entry(role_claim.role_eh)?;
+                     let role = MembraneRole::try_from(role_entry)?;
+                     if role.name != th.by_role { continue; }
+                     // FIXME verify signature?
+                     claim_map.insert(role_claim.subject, signed_action);
+                     continue;
+                  }
                }
             }
          }
-         debug!("verify_threshold_proof() Vouch confirmed_count = {}", confirmed_count);
-         if confirmed_count < th.required_count {
+         debug!("verify_threshold_proof() vouches = {}", vouch_map.len());
+         debug!("verify_threshold_proof() role_claims = {}", claim_map.len());
+         /* Second pass: Must have a valid claim for each vouch author */
+         vouch_map = vouch_map.into_iter().filter(|(agent, _)| {
+            return claim_map.get(agent).is_some();
+         }).collect();
+         debug!("verify_threshold_proof() confirmed vouches = {}", vouch_map.len());
+         if vouch_map.len() < th.required_count {
             return Ok(false);
          }
       },

@@ -49,7 +49,7 @@ pub fn get_index(wtf: MembranesEntryTypes) -> ExternResult<u8> {
 /// List of all Link kinds handled by this Zome
 #[hdk_link_types]
 pub enum MembranesLinkType {
-   Vouch,
+   VouchCreated,
    VouchEmitted,
    VouchReceived,
    MembranePassport,

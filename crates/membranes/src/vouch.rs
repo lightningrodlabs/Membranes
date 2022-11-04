@@ -20,7 +20,7 @@ pub fn publish_vouch(vouch: Vouch) -> ExternResult<EntryHash> {
    let _lah = create_link(author, vouch_eh.clone(), MembranesLinkType::VouchEmitted, LinkTag::from(role_name_bytes))?;
    /// Link from role name
    let role_name_eh = Path::from(vouch.for_role.clone()).path_entry_hash()?;
-   create_link(role_name_eh, vouch_eh.clone(), MembranesLinkType::Vouch, LinkTag::from(vouch.subject.as_ref().to_vec()))?;
+   create_link(role_name_eh, vouch_eh.clone(), MembranesLinkType::VouchCreated, LinkTag::from(vouch.subject.as_ref().to_vec()))?;
    /// Done
    Ok(vouch_eh)
 }
@@ -35,13 +35,12 @@ pub fn get_my_emitted_vouches(maybe_role: Option<String>) -> ExternResult<Vec<En
       None => None,
    };
    let result = get_links(author, MembranesLinkType::VouchEmitted, maybe_tag)?;
-   let res = result.iter().map(|link| {
+   let res= result.iter().map(|link| {
       let eh: EntryHash =link.target.clone().into();
       eh
    }).collect();
    Ok(res)
 }
-
 
 
 ///
