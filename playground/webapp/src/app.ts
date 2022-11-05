@@ -70,6 +70,11 @@ export class TaskerApp extends ScopedElementsMixin(LitElement) {
     //const result = this.client.callZome(this.mainCellId, zomeName, "entry_defs", null, 10 * 1000);
     console.debug("getDnaInfo() for " + zomeName + " result:")
     console.debug({dnaInfo})
+
+    //const zomeInfo = await hcClient.callZome(cellId, zomeName, "zome_info", null, 10 * 1000);
+    //console.debug("zomeInfo() for " + zomeName + " result:")
+    //console.debug({zomeInfo})
+
     return dnaInfo as string[];
   }
 

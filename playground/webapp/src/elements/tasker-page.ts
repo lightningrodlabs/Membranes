@@ -162,8 +162,10 @@ export class TaskerPage extends ScopedElementsMixin(LitElement) {
   async onListSelect(e: any) {
     //console.log("onListSelect() CALLED", e)
     //console.log("onListSelect() list:", e.originalTarget.value)
-    this._selectedListAh = e.originalTarget.value
-    this._selectedList = await this._viewModel.getTaskList(e.originalTarget.value)
+    //this._selectedListAh = e.originalTarget.value
+    const selector = this.shadowRoot!.getElementById("selectedList") as HTMLSelectElement;
+    this._selectedListAh = selector.value;
+    this._selectedList = await this._viewModel.getTaskList(selector.value)
     this.requestUpdate();
   }
 

@@ -21,7 +21,7 @@ export interface TaskListEntry {
 export interface TaskItemEntry {
   title: string,
   assignee: AgentPubKey,
-  list_ah: ActionHash,
+  listAh: ActionHash,
 }
 
 
@@ -40,12 +40,12 @@ export interface TaskList {
 export interface CreateTaskItemInput {
   title: string,
   assignee: AgentPubKeyB64,
-  list_ah: ActionHashB64,
+  listAh: ActionHashB64,
 }
 
 
 export interface ReassignTaskInput {
-  task_ah: ActionHashB64,
+  taskAh: ActionHashB64,
   assignee: AgentPubKeyB64,
 }
 
