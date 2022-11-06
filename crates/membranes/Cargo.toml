@@ -1,19 +1,15 @@
 [package]
 name = "membranes"
-version = "0.1.0-hdk.154"
-edition = "2021"
+version.workspace = true
+edition.workspace = true
 
 [lib]
-name = "membranes"
 crate-type = [ "cdylib", "rlib" ]
 
 [dependencies]
-serde = { version = "1.0", default-features = false }
-#chrono = "=0.4.6"
-
-hdk = { version = "0.0.154", default-features = false }
-
-zome_utils = { git = "https://github.com/ddd-mtl/zome-utils", branch = "dev" }
+serde.workspace = true
+hdk.workspace = true
+zome_utils.workspace = true
 
 membranes_integrity = { path = "../membranes_integrity" }
 membranes_types = { path = "../membranes_types" }

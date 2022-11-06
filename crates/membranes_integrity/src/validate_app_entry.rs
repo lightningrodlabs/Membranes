@@ -71,13 +71,12 @@ fn verify_threshold_proof(subject: AgentPubKey, threshold: MembraneThreshold, si
             if !valid_signature {
                continue;
             }
-            if let Action::Create(create) = action.clone() {
-               if let EntryType::App(app_entry_type) = create.entry_type.clone() {
-                  if create.author == subject && app_entry_type == threshold_entry_type {
-                     confirmed_count += 1;
-                  }
-               }
+            let Action::Create(create) = action.clone() else { continue };
+            let EntryType::App(app_entry_type) = create.entry_type.clone() else { continue };
+            if create.author == subject && app_entry_type == threshold_entry_type {
+               confirmed_count += 1;
             }
+            
          }
          //debug!("verify_threshold_proof() CreateEntryCount confirmed_count = {}", confirmed_count);
          if confirmed_count < th.required_count {

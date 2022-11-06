@@ -31,10 +31,10 @@ pub fn validate_entry(entry: Entry, maybe_entry_type: Option<&EntryType>) -> Ext
       Entry::CapClaim(_claim) => Ok(ValidateCallbackResult::Valid),
       Entry::CapGrant(_grant) => Ok(ValidateCallbackResult::Valid),
       Entry::App(_entry_bytes) => {
-         let entry_def_index = if let EntryType::App(app_entry_type) = maybe_entry_type.unwrap() {
-            app_entry_type.id()
-         } else { unreachable!()};
-         validate_app_entry(entry_def_index, entry)
+         let EntryType::App(app_entry_type) = maybe_entry_type.unwrap() 
+            else { unreachable!() };
+         let entry_def_index = validate_app_entry(app_entry_type.id(), entry);
+         entry_def_index
       },
    };
    /// Done
