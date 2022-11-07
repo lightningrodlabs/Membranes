@@ -54,21 +54,19 @@ pub fn validate_agent_link(create_link: HoloHashed<CreateLink>, signature: Signa
    let unsafe_bytes = UnsafeBytes::from(tag_bytes.clone());
    let ser_bytes = SerializedBytes::from(unsafe_bytes);
    let maybe_component = Component::try_from(ser_bytes);
-   if maybe_component.is_err() {
+   let Ok(component) = maybe_component else {
       return Ok(ValidateCallbackResult::Invalid("Failed to convert LinkTag to Component".to_string()))
-   }
+   };
    /// Retrieve AgentPubKey from Component
-   let maybe_agent_key = AgentPubKey::from_raw_39(maybe_component.unwrap().as_ref().to_vec());
+   let maybe_agent_key = AgentPubKey::from_raw_39(component.as_ref().to_vec());
    //debug!("validate_agent_link(): agent_key = {:?}", maybe_agent_key);
-   if maybe_agent_key.is_err() {
+   /// Check key in LinkTag matches author and action signature
+   let Ok(agent_key) = maybe_agent_key else {
       /// TODO: Path root is also of type Agent but does not have the LinkTag, so skip for now.
       // return Ok(ValidateCallbackResult::Invalid("Failed to convert Component to AgentPubKey".to_string()))
       return Ok(ValidateCallbackResult::Valid);
-   }
-   /// Check key in LinkTag matches author and action signature
-   let agent_key = maybe_agent_key.unwrap();
-   let success = agent_key == create_link.author;
-   if !success {
+   };
+   if agent_key != create_link.author {
       return Ok(ValidateCallbackResult::Invalid("Link Author and Tag don't match".to_string()))
    }
    let success = verify_signature(agent_key, signature, Action::CreateLink(create_link.content))?;

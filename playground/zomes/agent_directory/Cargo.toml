@@ -1,6 +1,7 @@
 [package]
 name = "agent_directory"
 version = "0.1.0-hdk.154"
+rust-version = "1.65.0"
 edition = "2021"
 
 [lib]
@@ -8,7 +9,5 @@ crate-type = [ "cdylib", "rlib" ]
 
 [dependencies]
 serde = { version = "1.0", default-features = false }
-
 hdk = { version = "0.0.154", default-features = false }
-
 agent_directory_integrity = { path = "../agent_directory_integrity" }

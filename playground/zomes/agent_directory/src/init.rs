@@ -18,23 +18,17 @@ fn init(_: ()) -> ExternResult<InitCallbackResult> {
 }
 
 
-/// Must be called at zome init time.
+/// Register this agent (during zome init).
 fn register_self() -> ExternResult<()> {
    let agent_address = agent_info()?.agent_initial_pubkey;
    /// Avoid duplicate linking if already registered
-   if Ok(true) == is_agent_registered(&agent_address) {
+   if Ok(true) == key_to_path(&agent_address).exists() {
       return Ok(());
    }
-   /// Not already registered- wire up paths & (implicitly) link them
-   let agent_path = get_agent_typed_path(&agent_address);
+   /// Not already registered. Wire up paths & (implicitly) link them
+   let agent_path = key_to_path(&agent_address);
    agent_path.ensure()?;
    debug!("*** registered_self() agent_path: {:?}", agent_path);
    /// Done
    Ok(())
-}
-
-
-/// Returns true if the given agent ID is a member of the local DNA
-fn is_agent_registered(address: &AgentPubKey) -> ExternResult<bool> {
-   get_agent_typed_path(address).exists()
 }

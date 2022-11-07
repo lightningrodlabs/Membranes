@@ -7,7 +7,7 @@ use crate::*;
 #[hdk_extern]
 pub fn get_registered_agents(_:()) -> ExternResult<Vec<AgentPubKey>> {
    //debug!("*** get_registered_agents() called !");
-   let child_links = get_directory_typed_path().children_paths()?;
+   let child_links = get_agent_directory_typed_path().children_paths()?;
    //debug!("*** get_registered_agents() child_links.len = {}", child_links.len());
    let agent_keys = child_links.iter()
       .map(|typed_link| {
