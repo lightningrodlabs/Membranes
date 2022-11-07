@@ -3,9 +3,12 @@ import {AgnosticClient} from '@holochain-open-dev/cell-client';
 import {AgentPubKey, CellId} from "@holochain/client";
 
 export class AgentDirectoryBridge {
-
   /** Ctor */
-  constructor(public agnosticClient: AgnosticClient, public cellId: CellId /*, protected roleId: string*/) {}
+  constructor(public agnosticClient: AgnosticClient, public cellId: CellId, defaultTimeout?: number) {
+    this.defaultTimeout = defaultTimeout? defaultTimeout : 10 * 1000;
+  }
+
+  defaultTimeout: number;
 
 
   /** Zome API */
@@ -22,7 +25,7 @@ export class AgentDirectoryBridge {
     //console.log("callZome: agent_directory." + fn_name + "() ", payload)
     //console.info({payload})
     try {
-      const result = this.agnosticClient.callZome(this.cellId, "agent_directory", fn_name, payload, 10 * 1000);
+      const result = this.agnosticClient.callZome(this.cellId, "agent_directory", fn_name, payload, this.defaultTimeout);
       //console.log("callZome: agent_directory." + fn_name + "() result")
       //console.info({result})
       return result;

@@ -19,6 +19,8 @@ import {
   CreateEntryDashboard,
 } from "@membranes/elements";
 import {Dictionary} from "@holochain-open-dev/core-types";
+import {AgentDirectoryDashboard} from "./elements/agent-directory-dashboard";
+import {agentDirectoryContext, AgentDirectoryViewModel} from "./agent_directory.vm";
 
 let APP_ID = 'tasker'
 let HC_PORT:any = process.env.HC_PORT;
@@ -34,6 +36,7 @@ export class TaskerApp extends ScopedElementsMixin(LitElement) {
 
   private _taskerViewModel: TaskerViewModel | null = null;
   private _membranesViewModel: MembranesViewModel | null = null;
+  private _agentDirectoryViewModel: AgentDirectoryViewModel | null = null;
 
   private _taskerCellId: CellId | null = null;
 
@@ -95,6 +98,8 @@ export class TaskerApp extends ScopedElementsMixin(LitElement) {
     this._taskerCellId  = appInfo.cell_data[0].cell_id;
     this._taskerViewModel = new TaskerViewModel(hcClient, this._taskerCellId);
     new ContextProvider(this, taskerContext, this._taskerViewModel);
+    this._agentDirectoryViewModel = new AgentDirectoryViewModel(hcClient, this._taskerCellId);
+    new ContextProvider(this, agentDirectoryContext, this._agentDirectoryViewModel);
     this._membranesViewModel = new MembranesViewModel(hcClient, this._taskerCellId);
     new ContextProvider(this, membranesContext, this._membranesViewModel);
     /** */
@@ -121,8 +126,9 @@ export class TaskerApp extends ScopedElementsMixin(LitElement) {
       case 0: page = html`<tasker-page style="flex: 1;"></tasker-page>` ; break;
       case 1: page = html`<membranes-dashboard .appEntryTypeStore=${this.appEntryTypeStore} style="flex: 1;"></membranes-dashboard>`; break;
       case 2: page = html`<membranes-creator-page .appEntryTypeStore=${this.appEntryTypeStore} style="flex: 1;"></membranes-creator-page>`; break;
-      case 3: page = html`<vouch-dashboard .agentStore=${this._taskerViewModel?.agentStore} style="flex: 1;"></vouch-dashboard>`; break;
-      case 4: page = html`<create-entry-dashboard .agentStore=${this._taskerViewModel?.agentStore} .appEntryTypeStore=${this.appEntryTypeStore} style="flex: 1;"></create-entry-dashboard>`; break;
+      case 3: page = html`<vouch-dashboard .agentStore=${this._agentDirectoryViewModel?.agentStore} style="flex: 1;"></vouch-dashboard>`; break;
+      case 4: page = html`<create-entry-dashboard .agentStore=${this._agentDirectoryViewModel?.agentStore} .appEntryTypeStore=${this.appEntryTypeStore} style="flex: 1;"></create-entry-dashboard>`; break;
+      case 5: page = html`<agent-directory-dashboard style="flex: 1;"></agent-directory-dashboard>`; break;
 
       default: page = html`unknown page index`;
     };
@@ -133,7 +139,8 @@ export class TaskerApp extends ScopedElementsMixin(LitElement) {
         <input type="button" value="Membranes Dashboard" @click=${() => {this._pageDisplayIndex = 1; this.requestUpdate()}} >
         <input type="button" value="Membranes Creator" @click=${() => {this._pageDisplayIndex = 2; this.requestUpdate()}} >
         <input type="button" value="Vouch Dashboard" @click=${() => {this._pageDisplayIndex = 3; this.requestUpdate()}} >
-        <input type="button" value="CreateEntry Dashboard" @click=${() => {this._pageDisplayIndex = 4; this.requestUpdate()}} >    
+        <input type="button" value="CreateEntry Dashboard" @click=${() => {this._pageDisplayIndex = 4; this.requestUpdate()}} >
+        <input type="button" value="Agent Directory" @click=${() => {this._pageDisplayIndex = 5; this.requestUpdate()}} >
       </div>
       ${page}
     `
@@ -147,6 +154,7 @@ export class TaskerApp extends ScopedElementsMixin(LitElement) {
       "membranes-creator-page": MembranesCreatorPage,
       "vouch-dashboard": VouchDashboard,
       "create-entry-dashboard": CreateEntryDashboard,
+      "agent-directory-dashboard": AgentDirectoryDashboard,
     };
   }
 }

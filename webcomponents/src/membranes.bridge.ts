@@ -123,9 +123,6 @@ export class MembranesBridge {
     return this.callZome('get_create_count', input);
   }
 
-  async echoAppEntryType(aet: AppEntryType): Promise<any> {
-    return this.callZome('echo_app_entry_type', aet);
-  }
 
   /** Vouch */
 

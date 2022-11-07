@@ -290,12 +290,6 @@ export class MembranesViewModel {
       /* */
       this.myVouchesStore[roleEntry.name] = [emitted, received];
     }
-
-    //const aet: AppEntryType = {id: 0, zome_id: 0, visibility: 'Public'};
-    //let res = await this.bridge.echoAppEntryType(aet)
-
-
-
   }
 
 
