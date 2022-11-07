@@ -156,7 +156,7 @@ export class CreateEntryDashboard extends ScopedElementsMixin(LitElement) {
           ${entryTypeOptions}
         </select>     
         <input type="button" value="Query" @click=${this.onQuery}>
-        <h3>Entries created:<span id="queryResultSpan">${this._queryResult}</span></h3>
+        <h3>Entries created:<span id="queryResultSpan">&nbsp;${this._queryResult}</span></h3>
       </div>
     `;
   }

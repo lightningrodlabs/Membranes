@@ -12,9 +12,9 @@ members = [
 ]
 
 [workspace.package]
-edition = "2021"
 version = "0.1.0-hdk.154"
 rust-version = "1.65.0"
+edition = "2021"
 
 [workspace.dependencies]
 serde = { version = "1.0", default-features = false }
