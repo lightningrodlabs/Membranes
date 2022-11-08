@@ -1,11 +1,10 @@
 import {css, html, LitElement} from "lit";
-import {property} from "lit/decorators.js";
+import {property, state} from "lit/decorators.js";
 
 import { contextProvided } from '@lit-labs/context';
 
 import {ScopedElementsMixin} from "@open-wc/scoped-elements";
 import {agentDirectoryContext, AgentDirectoryViewModel} from "../agent_directory.vm";
-
 
 
 /**
@@ -16,24 +15,22 @@ export class AgentDirectoryDashboard extends ScopedElementsMixin(LitElement) {
     super();
   }
 
+  @state() initialized = false;
+
   /** Public attributes */
   @property({ type: Boolean, attribute: 'debug' })
   debugMode: boolean = false;
 
-  // @property()
-  // agentStore: AgentPubKeyB64[] = []
-  //
-  // @property()
-  // appEntryTypeStore: Dictionary<[string, boolean][]> = {};
-
   /** Dependencies */
   @contextProvided({ context: agentDirectoryContext })
-  _viewModel!: AgentDirectoryViewModel;
+  _viewModel!: AgentDirectoryViewModel; // WARN is actually undefined at startup
 
 
   /** After first render only */
   async firstUpdated() {
-    // n/a
+    this._viewModel.subscribe(this);
+    await this._viewModel.pullAllFromDht();
+    this.initialized = true;
   }
 
 
@@ -46,7 +43,7 @@ export class AgentDirectoryDashboard extends ScopedElementsMixin(LitElement) {
   /** */
   async refresh(_e: any) {
     console.log("refresh(): Pulling data from DHT")
-    await this._viewModel.pullAllRegisteredAgents();
+    await this._viewModel.pullAllFromDht();
     this.requestUpdate();
   }
 
@@ -54,8 +51,15 @@ export class AgentDirectoryDashboard extends ScopedElementsMixin(LitElement) {
   /** */
   render() {
     console.log("agent-directory-dashboard render() START");
+
+    if (!this.initialized) {
+      return html`<span>Loading...</span>`;
+    }
+
+    let agents = this._viewModel.agents();
+
     /* Agents */
-    const agentOptions = Object.entries(this._viewModel.agentStore).map(
+    const agentOptions = Object.entries(agents).map(
         ([_index, agentIdB64]) => {
           //console.log("" + index + ". " + agentIdB64)
           return html `<li value="${agentIdB64}">${agentIdB64}</li>`

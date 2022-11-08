@@ -10,6 +10,7 @@ use hdi::prelude::*;
 /// List of all Entry types handled by this Zome
 #[hdk_entry_defs]
 #[unit_enum(TaskerEntryTypes)]
+#[derive(Clone, PartialEq)]
 pub enum TaskerEntry {
    #[entry_def(required_validations = 3, visibility = "public")]
    TaskList(TaskList),
@@ -33,7 +34,7 @@ pub struct TaskList {
 pub struct TaskItem {
    pub title: String,
    pub assignee: AgentPubKey,
-   pub list_ah: ActionHash, // to TaskList
+   pub list_eh: EntryHash, // to TaskList
 }
 
 

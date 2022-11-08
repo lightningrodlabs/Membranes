@@ -77,25 +77,24 @@ use crate::holo_hash::{AgentPubKeyB64, EntryHashB64};
 
 
 pub fn am_i_editor() -> ExternResult<bool> {
-   let meB64: AgentPubKeyB64 = agent_info()?.agent_initial_pubkey.into();
-   let maybe_pair: Option<(EntryHashB64, MembraneRole)> = call_membranes_zome("get_role_with_name", "editor")?;
-   //debug!("am_i_editor() maybe_pair: {:?}", maybe_pair);
-   if maybe_pair.is_none() {
+   let me = agent_info()?.agent_initial_pubkey;
+   let Ok(pair): ExternResult<(EntryHash, MembraneRole)> = call_membranes_zome("get_role_with_name", "editor")?
+   else {
       return zome_error!("'editor' role not found");
-   }
-   let maybe_signed_role_claim: Option<SignedActionHashed> = call_membranes_zome("has_role", HasRoleInput {subject: meB64, role_eh: maybe_pair.unwrap().0})?;
+   };
+   let maybe_signed_role_claim: Option<SignedActionHashed> = call_membranes_zome("has_role", HasRoleInput {subject: me, role_eh: pair.0})?;
    //debug!("am_i_editor() maybe_signed_role_claim: {:?}", maybe_signed_role_claim);
    Ok(maybe_signed_role_claim.is_some())
 }
 
 
 #[hdk_extern]
-fn membraned_lock_task_list(list_ahb64: ActionHashB64) -> ExternResult<ActionHashB64> {
+fn membraned_lock_task_list(list_eh: EntryHash) -> ExternResult<ActionHash> {
    std::panic::set_hook(Box::new(zome_utils::zome_panic_hook));
    let canEditor = am_i_editor()?;
    if !canEditor {
       return zome_error!("Not allowed to lock task");
    }
-   let ah =  lock_task_list(list_ahb64)?;
+   let ah =  lock_task_list(list_eh)?;
    Ok(ah)
 }

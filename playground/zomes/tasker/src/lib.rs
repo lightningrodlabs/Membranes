@@ -5,7 +5,7 @@
 #![allow(unused_attributes)]
 #![allow(unused_imports)]
 
-mod ui;
+mod get;
 mod basic_callbacks;
 mod membraned_callbacks;
 

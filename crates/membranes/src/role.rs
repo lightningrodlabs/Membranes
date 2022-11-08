@@ -9,17 +9,18 @@ use crate::{
 use crate::anchors::{get_all_membranes_details, get_all_roles_details, get_role_by_name};
 
 
+///
 #[hdk_extern]
-pub fn get_role_with_name(name: String) -> ExternResult<Option<(EntryHashB64, MembraneRole)>> {
+pub fn get_role_with_name(name: String) -> ExternResult<Option<(EntryHash, MembraneRole)>> {
+   std::panic::set_hook(Box::new(zome_utils::zome_panic_hook));
+   debug!("get_role_with_name() CALLED");
    /// Get Role
-   let maybe_role: Option<MembraneRole> = get_role_by_name(name)?;
-   debug!("claim_role_by_name() maybe_role: {:?}", maybe_role);
-   if maybe_role.is_none() {
+   let Some(role) = get_role_by_name(name)?
+   else {
       return Ok(None);
-   }
-   let role = maybe_role.unwrap();
-   let ehB64: EntryHashB64 = hash_entry(role.clone())?.into();
-   Ok(Some((ehB64, role)))
+   };
+   let eh = hash_entry(role.clone())?;
+   Ok(Some((eh, role)))
 }
 
 

@@ -126,8 +126,8 @@ export class TaskerApp extends ScopedElementsMixin(LitElement) {
       case 0: page = html`<tasker-page style="flex: 1;"></tasker-page>` ; break;
       case 1: page = html`<membranes-dashboard .appEntryTypeStore=${this.appEntryTypeStore} style="flex: 1;"></membranes-dashboard>`; break;
       case 2: page = html`<membranes-creator-page .appEntryTypeStore=${this.appEntryTypeStore} style="flex: 1;"></membranes-creator-page>`; break;
-      case 3: page = html`<vouch-dashboard .agentStore=${this._agentDirectoryViewModel?.agentStore} style="flex: 1;"></vouch-dashboard>`; break;
-      case 4: page = html`<create-entry-dashboard .agentStore=${this._agentDirectoryViewModel?.agentStore} .appEntryTypeStore=${this.appEntryTypeStore} style="flex: 1;"></create-entry-dashboard>`; break;
+      case 3: page = html`<vouch-dashboard style="flex: 1;"></vouch-dashboard>`; break;
+      case 4: page = html`<create-entry-dashboard .appEntryTypeStore=${this.appEntryTypeStore} style="flex: 1;"></create-entry-dashboard>`; break;
       case 5: page = html`<agent-directory-dashboard style="flex: 1;"></agent-directory-dashboard>`; break;
 
       default: page = html`unknown page index`;

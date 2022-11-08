@@ -1,64 +1,56 @@
 import {AgnosticClient} from '@holochain-open-dev/cell-client';
-import { EntryHashB64, ActionHashB64, AgentPubKeyB64 } from '@holochain-open-dev/core-types';
 
 import {
   TaskListEntry,
   TaskItemEntry,
   //Signal,
-  TaskItem, TaskList,
 } from './tasker.types';
-import {CellId, EntryHash} from "@holochain/client";
+import {AgentPubKey, CellId, EntryHash, ActionHash} from "@holochain/client";
 import {MembraneRoleEntry, RoleClaimEntry} from "@membranes/elements";
 
 
 export class TaskerBridge {
 
   /** Ctor */
-  constructor(public agnosticClient: AgnosticClient, public cellId: CellId /*, protected roleId: string*/) {}
+  constructor(public agnosticClient: AgnosticClient, public cellId: CellId ) {}
 
 
-  /** Zome API */
+  /** Tasker zome functions */
 
-  // async getProperties(): Promise<DnaProperties> {
-  //   return this.callPlaceZome('get_properties', null);
-  // }
-
-
-  /** Basic */
-
-  async createTaskList(title: string): Promise<ActionHashB64> {
+  async createTaskList(title: string): Promise<ActionHash> {
     return this.callZome("tasker",'create_task_list', title);
   }
 
-  async createTaskItem(title: string, assignee: AgentPubKeyB64, listAh: ActionHashB64): Promise<ActionHashB64> {
-    return this.callZome("tasker",'create_task_item', {title, assignee, listAh});
+  async createTaskItem(title: string, assignee: AgentPubKey, listEh: EntryHash): Promise<ActionHash> {
+    return this.callZome("tasker",'create_task_item', {title, assignee, listEh});
   }
 
-  async reassignTask(taskAh: ActionHashB64, assignee: ActionHashB64): Promise<ActionHashB64> {
-    return this.callZome("tasker",'reassign_task', {taskAh, assignee});
+  // async reassignTask(taskAh: ActionHash, assignee: ActionHash): Promise<ActionHash> {
+  //   return this.callZome("tasker",'reassign_task', {taskAh, assignee});
+  // }
+
+  async completeTask(eh: EntryHash): Promise<ActionHash> {
+    return this.callZome("tasker",'complete_task', eh);
   }
 
-  async completeTask(taskAh: ActionHashB64): Promise<ActionHashB64> {
-    return this.callZome("tasker",'complete_task', taskAh);
+  async lockTaskList(eh: EntryHash): Promise<ActionHash> {
+    return this.callZome("tasker",'membraned_lock_task_list', eh);
   }
 
-  async lockTaskList(listAh: ActionHashB64): Promise<ActionHashB64> {
-    return this.callZome("tasker",'membraned_lock_task_list', listAh);
-  }
-
-
-  async getTaskList(listAh: ActionHashB64): Promise<TaskList | null> {
-    return this.callZome("tasker",'get_task_list', listAh);
-  }
-
-  async getTaskItem(ah: ActionHashB64): Promise<TaskItem | null> {
-    return this.callZome("tasker",'get_task_item', ah);
+  async getListItems(eh: EntryHash): Promise<[EntryHash, TaskItemEntry, boolean][]> {
+    return this.callZome("tasker",'get_list_items', eh);
   }
 
 
-  async getAllLists(): Promise<ActionHashB64[]> {
+  // async getTaskItem(eh: EntryHash): Promise<[TaskItemEntry, boolean] | null> {
+  //   return this.callZome("tasker",'get_task_item', eh);
+  // }
+
+
+  async getAllLists(): Promise<[EntryHash, TaskListEntry][]> {
     return this.callZome("tasker",'get_all_lists', null);
   }
+
 
   /** Membranes */
 
@@ -69,6 +61,7 @@ export class TaskerBridge {
   async getRole(eh: EntryHash): Promise<MembraneRoleEntry | null> {
     return this.callZome("membranes", "get_role", eh)
   }
+
 
   /** Private */
 

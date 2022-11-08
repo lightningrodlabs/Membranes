@@ -4,19 +4,22 @@ use tasker_model::*;
 
 
 #[hdk_extern]
-pub fn create_task_list(title: String) -> ExternResult<ActionHashB64> {
+pub fn create_task_list(title: String) -> ExternResult<ActionHash> {
    std::panic::set_hook(Box::new(zome_utils::zome_panic_hook));
-   let ah = create_entry(TaskerEntry::TaskList(TaskList {title}))?;
-   let directory_address = Path::from("lists")
+   let entry =TaskerEntry::TaskList(TaskList {title});
+   let eh = hash_entry(entry.clone())?;
+   let ah = create_entry(entry)?;
+   let anchor = Path::from("lists")
       .path_entry_hash()
       .expect("TaskLists Path should hash");
-   let _ = create_link(
-      directory_address,
-      ah.clone(),
+   let link_ah = create_link(
+      anchor,
+      eh.clone(),
       TaskerLinkType::TaskLists,
       LinkTag::from(()),
    )?;
-   return Ok(ah.into());
+   debug!("create_task_list() link_ah = {link_ah}");
+   Ok(ah)
 }
 
 
@@ -24,71 +27,72 @@ pub fn create_task_list(title: String) -> ExternResult<ActionHashB64> {
 #[serde(rename_all = "camelCase")]
 pub struct CreateTaskItemInput {
    pub title: String,
-   pub assignee: AgentPubKeyB64,
-   pub list_ah: ActionHashB64
+   pub assignee: AgentPubKey,
+   pub list_eh: EntryHash,
 }
 
 #[hdk_extern]
-pub fn create_task_item(input: CreateTaskItemInput) -> ExternResult<ActionHashB64> {
+pub fn create_task_item(input: CreateTaskItemInput) -> ExternResult<ActionHash> {
    std::panic::set_hook(Box::new(zome_utils::zome_panic_hook));
-   let taskItem = TaskItem {title: input.title, assignee: input.assignee.into(), list_ah: input.list_ah.clone().into() };
-   let ah = create_entry(TaskerEntry::TaskItem(taskItem))?;
+   let taskItem = TaskItem {title: input.title, assignee: input.assignee, list_eh: input.list_eh.clone() };
+   let entry = TaskerEntry::TaskItem(taskItem);
+   let eh = hash_entry(entry.clone())?;
+   let ah = create_entry(entry)?;
    let _ = create_link(
-      input.list_ah,
-      ah.clone(),
+      input.list_eh,
+      eh.clone(),
       TaskerLinkType::Item,
       LinkTag::from(()),
    )?;
-   return Ok(ah.into());
+   Ok(ah)
 }
 
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ReassignTaskInput {
-   pub task_ah: ActionHashB64,
-   pub assignee: AgentPubKeyB64,
+   pub task_eh: EntryHash,
+   pub assignee: AgentPubKey,
 }
 
-#[hdk_extern]
-pub fn reassign_task(input: ReassignTaskInput) -> ExternResult<ActionHashB64> {
-   std::panic::set_hook(Box::new(zome_utils::zome_panic_hook));
-   let (_eh, item) = zome_utils::get_typed_from_ah::<TaskItem>(input.task_ah.clone().into())?; // FIXME should get latest and not content
-   let newItem = TaskItem {title: item.title, assignee: input.assignee.into(), list_ah: item.list_ah};
-   let res = update_entry(input.task_ah.into(), TaskerEntry::TaskItem(newItem))?;
-   return Ok(res.into());
-}
+// #[hdk_extern]
+// pub fn reassign_task(input: ReassignTaskInput) -> ExternResult<ActionHash> {
+//    std::panic::set_hook(Box::new(zome_utils::zome_panic_hook));
+//    let item = zome_utils::get_typed_from_eh::<TaskItem>(input.task_eh.clone())?; // FIXME should get latest and not content
+//    let newItem = TaskItem {title: item.title, assignee: input.assignee, list_eh: item.list_eh};
+//    let res = update_entry(input.task_eh.into(), TaskerEntry::TaskItem(newItem))?;
+//    Ok(res)
+// }
 
 
 #[hdk_extern]
-pub fn complete_task(task_ah: ActionHashB64) -> ExternResult<ActionHashB64> {
+pub fn complete_task(task_eh: EntryHash) -> ExternResult<ActionHash> {
    std::panic::set_hook(Box::new(zome_utils::zome_panic_hook));
    let directory_address = Path::from("completed")
       .path_entry_hash()
       .expect("completed path should hash");
-   let res = create_link(
-      task_ah.clone(),
+   let link_ah = create_link(
+      task_eh,
       directory_address,
       TaskerLinkType::Completed,
       LinkTag::from(()),
    )?;
-   return Ok(res.into());
+   Ok(link_ah)
 }
 
 
 #[hdk_extern]
-pub fn lock_task_list(list_ahb64: ActionHashB64) -> ExternResult<ActionHashB64> {
+pub fn lock_task_list(list_eh: EntryHash) -> ExternResult<ActionHash> {
    std::panic::set_hook(Box::new(zome_utils::zome_panic_hook));
    debug!("lock_task_list() CALLED");
    let directory_address = Path::from("locked")
       .path_entry_hash()
       .expect("completed path should hash");
-   let list_ah: ActionHash = list_ahb64.into();
-   let res = create_link(
-      list_ah.clone(),
+   let link_ah = create_link(
+      list_eh,
       directory_address,
       TaskerLinkType::Locked,
       LinkTag::from(()),
    )?;
-   return Ok(res.into());
+   Ok(link_ah)
 }

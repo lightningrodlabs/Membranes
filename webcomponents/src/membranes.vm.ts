@@ -1,3 +1,6 @@
+import {createContext} from "@lit-labs/context";
+import {LitElement} from "lit";
+import { writable, Writable, derived, Readable, get, readable } from 'svelte/store';
 import {EntryHashB64, ActionHashB64, AgentPubKeyB64, Dictionary} from '@holochain-open-dev/core-types';
 import {AgnosticClient, CellClient} from '@holochain-open-dev/cell-client';
 import {AgentPubKey, CellId, EntryHash} from "@holochain/client";
@@ -12,13 +15,9 @@ import {
   Privilege,
   RoleClaimEntry, ThresholdReachedProof, VouchEntry, VouchThreshold
 } from "./membranes.types";
-import {createContext} from "@lit-labs/context";
 
 
-const areEqual = (first: Uint8Array, second: Uint8Array) =>
-      first.length === second.length && first.every((value, index) => value === second[index]);
-
-
+/** */
 export function areThresholdEqual(first: MembraneThresholdEntry, second: MembraneThresholdEntry) : Boolean {
   if (first.hasOwnProperty("entryType")) {
     if (!second.hasOwnProperty("entryType")) return false;
@@ -40,6 +39,7 @@ export function areMembraneEqual(first: Membrane, second: Membrane) : Boolean {
   }
   return true;
 }
+
 
 /** ViewModel */
 
@@ -77,20 +77,21 @@ export interface RoleClaim {
 export const membranesContext = createContext<MembranesViewModel>('membranes/service');
 
 
-/** */
+/**
+ *
+ */
 export class MembranesViewModel {
-
   /** Ctor */
   constructor(protected client: AgnosticClient, cellId: CellId) {
-    this.bridge = new MembranesBridge(client, cellId);
+    this._bridge = new MembranesBridge(client, cellId);
     this.myAgentPubKey = serializeHash(cellId[1]);
   }
 
+  myAgentPubKey: AgentPubKeyB64;
 
   /** Fields */
-  private bridge : MembranesBridge
+  private _bridge : MembranesBridge
 
-  myAgentPubKey: AgentPubKeyB64;
 
   /** EntryHashB64 -> <typed> */
   thresholdStore: Dictionary<MembraneThresholdEntry> = {};
@@ -102,6 +103,7 @@ export class MembranesViewModel {
 
   /** RoleName -> [[emitted],[[received,author]]] */
   myVouchesStore: Dictionary<[Vouch[], [Vouch, AgentPubKeyB64][]]> = {};
+
 
   /** Methods */
 
@@ -181,7 +183,7 @@ export class MembranesViewModel {
   private async pullThreshold(eh: EntryHash): Promise<MembraneThresholdEntry> {
     //console.log("pullThreshold() called", eh)
     let thB64 = serializeHash(eh)
-    const maybeThreshold = await this.bridge.getThreshold(eh)
+    const maybeThreshold = await this._bridge.getThreshold(eh)
     if (!maybeThreshold) {
       console.warn("pullThreshold() Failed. Can't find Threshold at " + thB64)
       return Promise.reject("pullThreshold() Failed. Can't find Threshold at " + thB64);
@@ -195,7 +197,7 @@ export class MembranesViewModel {
   private async pullMembrane(eh: EntryHash): Promise<Membrane> {
     //console.log("pullMembrane() called", eh)
     let b64 = serializeHash(eh)
-    const maybeEntry = await this.bridge.getMembrane(eh)
+    const maybeEntry = await this._bridge.getMembrane(eh)
     if (!maybeEntry) {
       console.warn("pullMembrane() Failed. Can't find Membrane at " + b64)
       return Promise.reject("pullMembrane() Failed. Can't find Membrane at " + b64);
@@ -210,7 +212,7 @@ export class MembranesViewModel {
   private async pullMembraneCrossedClaim(eh: EntryHash): Promise<MembraneCrossedClaim> {
     //console.log("pullMembraneCrossedClaim() called", eh)
     let b64 = serializeHash(eh)
-    const maybeEntry = await this.bridge.getMembraneCrossedClaim(eh)
+    const maybeEntry = await this._bridge.getMembraneCrossedClaim(eh)
     if (!maybeEntry) {
       console.warn("pullMembraneCrossedClaim() Failed. Can't find Membrane at " + b64)
       return Promise.reject("pullMembraneCrossedClaim() Failed. Can't find Membrane at " + b64);
@@ -224,7 +226,7 @@ export class MembranesViewModel {
   private async pullRole(eh: EntryHash): Promise<MembraneRole> {
     //console.log("pullRole() called", eh)
     let b64 = serializeHash(eh)
-    const maybeEntry = await this.bridge.getRole(eh)
+    const maybeEntry = await this._bridge.getRole(eh)
     if (!maybeEntry) {
       console.warn("pullRole() Failed. Can't find Role at " + b64)
       return Promise.reject("pullRole() Failed. Can't find Role at " + b64);
@@ -235,10 +237,17 @@ export class MembranesViewModel {
   }
 
 
+  subscribe(parent: LitElement) {
+    // this._taskListEntryStore.subscribe((_value) => {
+    //   //console.log("localTaskListStore update called");
+    //   parent.requestUpdate();
+    // });
+  }
+
   /** */
   async pullAllFromDht() {
     /** Get Thresholds */
-    const thresholdEntries = await this.bridge.getAllThresholds();
+    const thresholdEntries = await this._bridge.getAllThresholds();
     for (const [eh, typed] of thresholdEntries) {
       const b64 = serializeHash(eh);
       this.thresholdStore[b64] = typed
@@ -246,7 +255,7 @@ export class MembranesViewModel {
     console.log({thresholdStore: this.thresholdStore})
 
     /** Get Membranes */
-    const membraneEntries = await this.bridge.getAllMembranes();
+    const membraneEntries = await this._bridge.getAllMembranes();
     //console.log("membraneEntries:", membraneEntries)
     for (const [eh, membraneEntry] of membraneEntries) {
       const b64 = serializeHash(eh);
@@ -256,7 +265,7 @@ export class MembranesViewModel {
     console.log({membraneStore: this.membraneStore})
 
     /** Get Roles */
-    const roleEntries = await this.bridge.getAllRoles();
+    const roleEntries = await this._bridge.getAllRoles();
     //console.log("roleEntries:", roleEntries)
     for (const [eh, roleEntry] of roleEntries) {
       const b64 = serializeHash(eh);
@@ -268,12 +277,12 @@ export class MembranesViewModel {
     /** Get Vouches */
 
     for (const [eh, roleEntry] of roleEntries) {
-      const emittedEhs = await this.bridge.getMyEmittedVouches(roleEntry.name);
-      const receivedPairs: [EntryHash, AgentPubKey][] = await this.bridge.getMyReceivedVouches(roleEntry.name);
+      const emittedEhs = await this._bridge.getMyEmittedVouches(roleEntry.name);
+      const receivedPairs: [EntryHash, AgentPubKey][] = await this._bridge.getMyReceivedVouches(roleEntry.name);
       /* */
       let emitted = [];
       for (const eh of emittedEhs) {
-        const vouch = await this.bridge.getVouch(eh);
+        const vouch = await this._bridge.getVouch(eh);
         if (vouch) {
           emitted.push(this.convertVouchEntry(vouch))
         }
@@ -281,7 +290,7 @@ export class MembranesViewModel {
       /* */
       let received: [Vouch, AgentPubKeyB64][] = [];
       for (const [eh, author] of receivedPairs) {
-        const vouch = await this.bridge.getVouch(eh);
+        const vouch = await this._bridge.getVouch(eh);
         if (vouch) {
           const pair: [Vouch, AgentPubKeyB64] = [this.convertVouchEntry(vouch), serializeHash(author)]
           received.push(pair)
@@ -296,14 +305,14 @@ export class MembranesViewModel {
   /** */
   async claimAll() {
     //this.bridge.claimAllMembranes();
-    await this.bridge.claimAllRoles();
+    await this._bridge.claimAllRoles();
   }
 
 
   /** */
   async pullMyClaims() {
     /** Role Claims */
-    const myRoleClaims = await this.bridge.myClaimedRoles();
+    const myRoleClaims = await this._bridge.myClaimedRoles();
     let store: Dictionary<RoleClaim> = {}
     for (const [eh, entry] of myRoleClaims) {
       const b64 = serializeHash(eh);
@@ -313,7 +322,7 @@ export class MembranesViewModel {
     this.myRoleClaimsStore = store;
     console.log("pullMyClaims() myRoleClaimsStore:", this.myRoleClaimsStore)
     /** Membrane Claims */
-    const myMembraneClaims = await this.bridge.myClaimedMembranes();
+    const myMembraneClaims = await this._bridge.myClaimedMembranes();
     let membraneClaimStore: Dictionary<MembraneCrossedClaim> = {}
     for (const [eh, entry] of myMembraneClaims) {
       const b64 = serializeHash(eh);
@@ -333,7 +342,7 @@ export class MembranesViewModel {
       privileges: [],
       enteringMembraneEhs,
     };
-    return this.bridge.publishRole(role);
+    return this._bridge.publishRole(role);
   }
 
 
@@ -343,7 +352,7 @@ export class MembranesViewModel {
     const membrane: MembraneEntry = {
       thresholdEhs,
     };
-    return this.bridge.publishMembrane(membrane);
+    return this._bridge.publishMembrane(membrane);
   }
 
 
@@ -352,7 +361,7 @@ export class MembranesViewModel {
     const typed: VouchThreshold = {
       requiredCount, byRole, forRole
     };
-    return this.bridge.publishVouchThreshold(typed);
+    return this._bridge.publishVouchThreshold(typed);
   }
 
 
@@ -362,24 +371,24 @@ export class MembranesViewModel {
       entryType: entryType,
       requiredCount: requiredCount,
     };
-    return this.bridge.publishCreateEntryCountThreshold(typed);
+    return this._bridge.publishCreateEntryCountThreshold(typed);
   }
 
 
   async vouchAgent(agent: AgentPubKeyB64, forRole: string): Promise<EntryHash> {
-    return this.bridge.publishVouch({subject: deserializeHash(agent), forRole});
+    return this._bridge.publishVouch({subject: deserializeHash(agent), forRole});
   }
 
 
   /* */
   async getVouchAuthor(vouch: Vouch): Promise<AgentPubKeyB64> {
     let entry: VouchEntry = {subject: deserializeHash(vouch.subject), forRole: vouch.forRole};
-    let res = await this.bridge.getVouchAuthor(entry);
+    let res = await this._bridge.getVouchAuthor(entry);
     return serializeHash(res);
   }
 
   async getCreateCount(agent: AgentPubKeyB64, entryType: MyAppEntryType): Promise<number> {
-    return this.bridge.getCreateCount({subject: deserializeHash(agent), entryType});
+    return this._bridge.getCreateCount({subject: deserializeHash(agent), entryType});
   }
 
 }

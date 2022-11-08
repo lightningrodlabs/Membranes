@@ -14,15 +14,15 @@ pub struct GetCreateCountInput {
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct HasRoleInput {
-   pub subject: AgentPubKeyB64,
-   pub role_eh: EntryHashB64,
+   pub subject: AgentPubKey,
+   pub role_eh: EntryHash,
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ClaimRoleInput {
-   pub subject: AgentPubKeyB64,
-   pub role_eh: EntryHashB64,
+   pub subject: AgentPubKey,
+   pub role_eh: EntryHash,
    pub membrane_index: usize,
 }
 
@@ -30,6 +30,6 @@ pub struct ClaimRoleInput {
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct MembraneInput {
-   pub subject: AgentPubKeyB64,
-   pub membrane_eh: EntryHashB64,
+   pub subject: AgentPubKey,
+   pub membrane_eh: EntryHash,
 }
