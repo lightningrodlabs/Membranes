@@ -1,21 +1,17 @@
 import {css, html, LitElement} from "lit";
-import {property} from "lit/decorators.js";
-
-
-//import {contextProvided} from "@holochain-open-dev/context";
-import { contextProvided } from '@lit-labs/context';
-
-//import {SlBadge, SlTooltip} from '@scoped-elements/shoelace';
+import {property, state} from "lit/decorators.js";
+import { writable, Writable, derived, Readable, get, readable } from 'svelte/store';
+import {contextProvided} from '@lit-labs/context';
 import {ScopedElementsMixin} from "@open-wc/scoped-elements";
+
 import {ActionHashB64, Dictionary, EntryHashB64} from "@holochain-open-dev/core-types";
+
 import {MembranesViewModel, membranesContext} from "../membranes.vm";
 import {describe_threshold, MembraneThresholdKind, MyAppEntryType} from "../membranes.types";
-//import {IMAGE_SCALE} from "../constants";
-
 
 
 /**
- * @element membranes-dashboard
+ * @element membranes-creator-page
  */
 export class MembranesCreatorPage extends ScopedElementsMixin(LitElement) {
     constructor() {
@@ -23,28 +19,21 @@ export class MembranesCreatorPage extends ScopedElementsMixin(LitElement) {
     }
 
 
-    /** Public attributes */
-    @property({ type: Boolean, attribute: 'debug' })
-    debugMode: boolean = false;
+    /** -- Fields -- */
+    @state() initialized = false;
+    @state() selectedZomeName = ""
+    @state() membranesForRole: EntryHashB64[] = [];
+    @state() thresholdsForMembrane: EntryHashB64[] = [];
+    @state() selectedKind = ""
 
     @property()
     appEntryTypeStore: Dictionary<[string, boolean][]> = {};
 
-    /** Dependencies */
     @contextProvided({ context: membranesContext })
     _viewModel!: MembranesViewModel;
 
 
-    /** Private properties */
-    private _pullCount: number = 0
-
-    private _membranesForRole: EntryHashB64[] = [];
-    private _thresholdsForMembrane: EntryHashB64[] = [];
-    private _kindForm = html``
-    private _selectedZomeName = ""
-    private _selectedKind = ""
-
-    /** Getters */
+    /** -- Methods -- */
 
     /** After first render only */
     async firstUpdated() {
@@ -65,86 +54,117 @@ export class MembranesCreatorPage extends ScopedElementsMixin(LitElement) {
      */
     private async init() {
         console.log("membranes-creator-page.init() - START!");
-        console.log({appEntryTypeStore: this.appEntryTypeStore})
-        /** Done */
+        this._viewModel.thresholdStore.subscribe((_v) => {this.requestUpdate()});
+        this._viewModel.membraneStore.subscribe((_v) => {this.requestUpdate()});
+        await this.refresh();
+        this.initialized = true;
         console.log("membranes-creator-page.init() - DONE");
     }
 
 
     /** */
-    async refresh(_e: any) {
-        console.log("refresh(): Pulling data from DHT")
+    async refresh(_e?: any) {
+        console.log("membranes-creator-page.refresh(): Pulling data from DHT")
         await this._viewModel.pullAllFromDht();
-        await this._viewModel.pullMyClaims();
-        this._pullCount += 1;
-        this.requestUpdate();
     }
 
 
     /** */
-    async onCreateRole(e: any) {
+    onCreateRole(e: any) {
         console.log("onCreateRole() CALLED", e)
         const input = this.shadowRoot!.getElementById("roleNameInput") as HTMLInputElement;
-        let res = this._viewModel.createRole(input.value, this._membranesForRole);
+        let res = this._viewModel.createRole(input.value, this.membranesForRole);
         console.log("onCreateRole res:", res)
         input.value = "";
-        this._membranesForRole = [];
-        await this.refresh(null);
+        this.membranesForRole = [];
     }
 
 
     /** */
-    async onAddMembrane(e: any) {
+    onAddMembrane(e: any) {
         console.log("onAddMembrane() CALLED", e)
         const membraneSelect = this.shadowRoot!.getElementById("membraneSelectedList") as HTMLSelectElement;
         const membraneEh = membraneSelect.value;
         console.log("membrane eh:", membraneEh);
-        this._membranesForRole.push(membraneEh);
+        this.membranesForRole.push(membraneEh);
         this.requestUpdate();
     }
 
 
 
     /** */
-    async onCreateMembrane(e: any) {
+    onCreateMembrane(e: any) {
         console.log("onCreateMembrane() CALLED", e)
-        let res = this._viewModel.createMembrane(this._thresholdsForMembrane);
+        let res = this._viewModel.createMembrane(this.thresholdsForMembrane);
         console.log("onCreateMembrane res:", res)
-        this._thresholdsForMembrane = [];
-        await this.refresh(null);
+        this.thresholdsForMembrane = [];
     }
 
 
     /** */
-    async onAddThreshold(e: any) {
+    onAddThreshold(e: any) {
         console.log("onAddThreshold() CALLED", e)
         const thresholdSelect = this.shadowRoot!.getElementById("thresholdSelectedList") as HTMLSelectElement;
         const eh = thresholdSelect.value;
         console.log("thresholdSelect eh:", eh);
-        this._thresholdsForMembrane.push(eh);
+        this.thresholdsForMembrane.push(eh);
         this.requestUpdate();
     }
 
 
     /** */
-    async onZomeSelect(e: any) {
+    onZomeSelect(e: any) {
         console.log("onZomeSelect() CALLED", e)
         const zomeSelector = this.shadowRoot!.getElementById("selectedZome") as HTMLSelectElement;
-        this._selectedZomeName = zomeSelector.value;
-        this.requestUpdate();
+        this.selectedZomeName = zomeSelector.value;
     }
 
 
     /** */
-    async onKindSelect(e: any) {
+    onKindSelect(e: any) {
         console.log("onKindSelect() CALLED", e);
         let kindName;
         if (!e.hasOwnProperty('originalTarget')) {
             const kindSelector = this.shadowRoot!.getElementById("kindList") as HTMLSelectElement;
             kindName = kindSelector.value;    
         } else { kindName = e.originalTarget.value }
-        this._selectedKind = kindName
-        switch(kindName) {
+        this.selectedKind = kindName
+    }
+
+
+    /** */
+    onCreateThreshold(e: any) {
+        console.log("onCreateThreshold() CALLED", e);
+        switch (this.selectedKind) {
+            case "CreateEntryCountThreshold": {
+                const zomeSelector = this.shadowRoot!.getElementById("selectedZome") as HTMLSelectElement;
+                const entrySelector = this.shadowRoot!.getElementById("selectedEntryType") as HTMLSelectElement;
+                const entryType: MyAppEntryType = {id: entrySelector.selectedIndex, zomeId: zomeSelector.selectedIndex, isPublic: true};  // FIXME
+                const input = this.shadowRoot!.getElementById("createEntryCountNumber") as HTMLInputElement;
+                const count = Number(input.value);
+                const _res = this._viewModel.createCreateEntryCountThreshold(entryType, count);
+                break;
+            }
+            case "VouchThreshold": {
+                const input = this.shadowRoot!.getElementById("requiredVouchCount") as HTMLInputElement;
+                const count = Number(input.value);
+                const input2 = this.shadowRoot!.getElementById("forRoleInput") as HTMLInputElement;
+                const forRole = input2.value;
+                const input3 = this.shadowRoot!.getElementById("byRoleInput") as HTMLInputElement;
+                const byRole = input3.value;
+                let _res = this._viewModel.createVouchThreshold(count, byRole, forRole);
+                break;
+            }
+            default:
+                break;
+        }
+        this.selectedZomeName = "";
+    }
+
+
+    /** */
+    renderThresholdForm() {
+        switch(this.selectedKind) {
             case "CreateEntryCountThreshold": {
                 const zomeOptions = Object.entries(this.appEntryTypeStore).map(
                     ([zomeName, _entryDef]) => {
@@ -153,7 +173,7 @@ export class MembranesCreatorPage extends ScopedElementsMixin(LitElement) {
                     }
                 )
                 let zomeTypes = Object.entries(this.appEntryTypeStore)
-                    .filter((item) => {return item[0] == this._selectedZomeName;})
+                    .filter((item) => {return item[0] == this.selectedZomeName;})
                     .map((item) => {return item[1]});
                 console.log({zomeTypes})
                 let entryTypeOptions = null;
@@ -165,7 +185,7 @@ export class MembranesCreatorPage extends ScopedElementsMixin(LitElement) {
                         });
                 }
                 console.log({entryTypeOptions})
-                this._kindForm = html`
+                return html`
                     <label for="createEntryCountNumber">Create</label>
                     <input type="number" id="createEntryCountNumber" style="width: 40px;">
                     <select name="selectedZome" id="selectedZome" @click=${this.onZomeSelect}>
@@ -180,7 +200,7 @@ export class MembranesCreatorPage extends ScopedElementsMixin(LitElement) {
                 break;
             }
             case "VouchThreshold":  {
-                this._kindForm = html`
+                return html`
                     <label for="requiredVouchCount">Receive</label>
                     <input type="number" id="requiredVouchCount" style="width: 40px;">
                     <input type="text" id="forRoleInput" style="width: 80px;">
@@ -189,70 +209,43 @@ export class MembranesCreatorPage extends ScopedElementsMixin(LitElement) {
                 `;
                 break;
             }
-            default: this._kindForm = html ``
-        }
-        /* Done */
-        this.requestUpdate();
-    }
-
-
-    /** */
-    async onCreateThreshold(e: any) {
-        console.log("onCreateThreshold() CALLED", e);
-        switch (this._selectedKind) {
-            case "CreateEntryCountThreshold": {
-                const zomeSelector = this.shadowRoot!.getElementById("selectedZome") as HTMLSelectElement;
-                const entrySelector = this.shadowRoot!.getElementById("selectedEntryType") as HTMLSelectElement;
-                const entryType: MyAppEntryType = {id: entrySelector.selectedIndex, zomeId: zomeSelector.selectedIndex, isPublic: true};  // FIXME
-                const input = this.shadowRoot!.getElementById("createEntryCountNumber") as HTMLInputElement;
-                const count = Number(input.value);
-                const res = this._viewModel.createCreateEntryCountThreshold(entryType, count);
-                break;
-            }
-            case "VouchThreshold": {
-                const input = this.shadowRoot!.getElementById("requiredVouchCount") as HTMLInputElement;
-                const count = Number(input.value);
-                const input2 = this.shadowRoot!.getElementById("forRoleInput") as HTMLInputElement;
-                const forRole = input2.value;
-                const input3 = this.shadowRoot!.getElementById("byRoleInput") as HTMLInputElement;
-                const byRole = input3.value;
-                let res = this._viewModel.createVouchThreshold(count, byRole, forRole);
-                break;
-            }
             default:
-                break;
-        }
-        this._kindForm = html``;
-        this._selectedZomeName = "";
-        await this.refresh(null);
+        };
+        return html ``
     }
 
 
     /** */
     render() {
         console.log("membranes-creator-page render() START");
-
+        if (!this.initialized) {
+            return html`<span>Loading...</span>`;
+        }
+        /* grab data */
+        const thresholds = get(this._viewModel.thresholdStore);
+        const membranes = get(this._viewModel.membraneStore);
         const allZomeTypes: [string, boolean][][] = Object.entries(this.appEntryTypeStore)
             .map(([_name, types]) => {return types;})
 
-        const membranesForRoleLi = Object.entries(this._membranesForRole).map(
+        /* Elements */
+        const membranesForRoleLi = Object.entries(this.membranesForRole).map(
             ([_index, ehB64]) => {
                 return html `<li>${ehB64}</li>`
             }
         )
-        const membraneOptions = Object.entries(this._viewModel.membraneStore).map(
+        const membraneOptions = Object.entries(membranes).map(
             ([ehB64, _membrane]) => {
                 return html `<option value="${ehB64}">${ehB64.substring(0, 12)}</option>`
             }
         )
 
-        const thresholdsLi = Object.entries(this._thresholdsForMembrane).map(
+        const thresholdsLi = Object.entries(this.thresholdsForMembrane).map(
             ([_index, ehB64]) => {
-                return html `<li>${describe_threshold(this._viewModel.thresholdStore[ehB64], allZomeTypes)}</li>`
+                return html `<li>${describe_threshold(thresholds[ehB64], allZomeTypes)}</li>`
             }
         )
 
-        const thresholdOptions = Object.entries(this._viewModel.thresholdStore).map(
+        const thresholdOptions = Object.entries(thresholds).map(
             ([ehB64, th]) => {
                 return html `<option value="${ehB64}">${describe_threshold(th, allZomeTypes)}</option>`
             }
@@ -264,12 +257,11 @@ export class MembranesCreatorPage extends ScopedElementsMixin(LitElement) {
                 return html `<option value="${kind}">${kind}</option>`
             });
 
+        const thresholdForm = this.renderThresholdForm();
+
         /** render all */
         return html`
         <div>
-            <button type="button" @click=${this.refresh}>Refresh</button>        
-            <span>${this._viewModel.myAgentPubKey}</span>
-            <hr class="solid">
             <h1>Membrane Creator</h1>
             <!-- NEW ROLE -->
             <h2>New Role</h2>
@@ -310,7 +302,7 @@ export class MembranesCreatorPage extends ScopedElementsMixin(LitElement) {
             </h2>
             <form>
                 <div style="padding:15px;">
-                    ${this._kindForm}
+                    ${thresholdForm}
                 </div>                    
                 <div>
                     <input type="button" value="create" @click=${this.onCreateThreshold}>
@@ -319,16 +311,16 @@ export class MembranesCreatorPage extends ScopedElementsMixin(LitElement) {
             <!-- NEW Privilege -->
             <hr class="solid">
             <h2>New Privilege</h2>
+            <span>FIXME</span>
         </div>
     `;
     }
 
+
     /** */
     static get scopedElements() {
         return {
-            //"place-snapshot": PlaceSnapshot,
             //'sl-tooltip': SlTooltip,
-            //'sl-badge': SlBadge,
         };
     }
 

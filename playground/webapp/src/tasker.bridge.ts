@@ -52,6 +52,10 @@ export class TaskerBridge {
   }
 
 
+  async isListLocked(listEh: EntryHash): Promise<boolean> {
+    return this.callZome("tasker",'is_list_locked', listEh);
+  }
+
   /** Membranes */
 
   async getMyRoleClaimsDetails(): Promise<[EntryHash, RoleClaimEntry][]> {

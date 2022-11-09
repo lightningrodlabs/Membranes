@@ -16,7 +16,7 @@ use hdk::prelude::holo_hash::ActionHashB64;
 #[hdk_extern]
 pub fn get_task_item(eh: EntryHash) -> ExternResult<Option<(TaskItem, bool)>> {
    std::panic::set_hook(Box::new(zome_utils::zome_panic_hook));
-   debug!("get_task_item() called !");
+   //debug!("get_task_item() called! - {}", eh);
    /// Get TaskItem
    let Ok(task_item) = zome_utils::get_typed_from_eh::<TaskItem>(eh.clone().into()) // FIXME should get latest and not content
    else {
@@ -24,6 +24,7 @@ pub fn get_task_item(eh: EntryHash) -> ExternResult<Option<(TaskItem, bool)>> {
    };
    /// Lookup "Completed" link
    let links = get_links(eh, TaskerLinkType::Completed, None)?;
+   //debug!("get_task_item() Completed.links.len = {}", links.len());
    /// Done
    Ok(Some((task_item, links.len() > 0)))
 }
@@ -33,10 +34,10 @@ pub fn get_task_item(eh: EntryHash) -> ExternResult<Option<(TaskItem, bool)>> {
 #[hdk_extern]
 pub fn get_list_items(list_eh: EntryHash) -> ExternResult<Vec<(EntryHash, TaskItem, bool)>> {
    std::panic::set_hook(Box::new(zome_utils::zome_panic_hook));
-   debug!("get_list_items() called !");
+   //debug!("get_list_items() called !");
    //let list: TaskList = zome_utils::get_typed_from_eh(list_eh)?;
    let item_links = get_links(list_eh.clone(), TaskerLinkType::Item, None)?;
-   debug!("item_links() item_links.len = {}", item_links.len());
+   //debug!("item_links() item_links.len = {}", item_links.len());
    let mut result = Vec::new();
    for link in item_links.into_iter() {
       let item_eh: EntryHash = link.target.into();
@@ -46,7 +47,7 @@ pub fn get_list_items(list_eh: EntryHash) -> ExternResult<Vec<(EntryHash, TaskIt
       };
       result.push((item_eh.clone(), item, is_complete));
    }
-   debug!("item_links() result = {:?}", result);
+   //debug!("item_links() result = {:?}", result);
    Ok(result)
 }
 

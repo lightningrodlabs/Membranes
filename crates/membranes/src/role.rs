@@ -20,6 +20,7 @@ pub fn get_role_with_name(name: String) -> ExternResult<Option<(EntryHash, Membr
       return Ok(None);
    };
    let eh = hash_entry(role.clone())?;
+   debug!("get_role_with_name() {:?}", eh);
    Ok(Some((eh, role)))
 }
 

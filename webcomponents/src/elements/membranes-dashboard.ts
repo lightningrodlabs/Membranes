@@ -1,38 +1,13 @@
 import {css, html, LitElement} from "lit";
-import {property} from "lit/decorators.js";
-
-
-//import {contextProvided} from "@holochain-open-dev/context";
-import { contextProvided } from '@lit-labs/context';
-
-//import {SlBadge, SlTooltip} from '@scoped-elements/shoelace';
+import {property, state} from "lit/decorators.js";
+import {contextProvided} from '@lit-labs/context';
+import {get} from 'svelte/store';
 import {ScopedElementsMixin} from "@open-wc/scoped-elements";
-import {ActionHashB64, Dictionary} from "@holochain-open-dev/core-types";
+
+import {Dictionary} from "@holochain-open-dev/core-types";
+
 import {MembranesViewModel, membranesContext} from "../membranes.vm";
-import {EntryHash} from "@holochain/client";
-import {
-  CreateEntryCountThreshold,
-  describe_threshold,
-  isCreateThreshold,
-  isVouchThreshold,
-  VouchThreshold
-} from "../membranes.types";
-//import {IMAGE_SCALE} from "../constants";
-
-
-const delay = (ms:number) => new Promise(r => setTimeout(r, ms))
-
-const toHHMMSS = function (str: string) {
-  var sec_num = parseInt(str, 10); // don't forget the second param
-  var hours:any   = Math.floor(sec_num / 3600);
-  var minutes:any = Math.floor((sec_num - (hours * 3600)) / 60);
-  var seconds:any = sec_num - (hours * 3600) - (minutes * 60);
-
-  if (hours   < 10) {hours   = "0"+hours;}
-  if (minutes < 10) {minutes = "0"+minutes;}
-  if (seconds < 10) {seconds = "0"+seconds;}
-  return hours+':'+minutes+':'+seconds;
-}
+import {describe_threshold} from "../membranes.types";
 
 
 /**
@@ -43,23 +18,17 @@ export class MembranesDashboard extends ScopedElementsMixin(LitElement) {
     super();
   }
 
-  /** Public attributes */
-  @property({ type: Boolean, attribute: 'debug' })
-  debugMode: boolean = false;
 
+  /** -- Fields -- */
+  @state() initialized = false;
   @property()
   appEntryTypeStore: Dictionary<[string, boolean][]> = {};
 
-  /** Dependencies */
   @contextProvided({ context: membranesContext })
   _viewModel!: MembranesViewModel;
 
 
-  /** Private properties */
-  _pullCount: number = 0
-
-
-  /** Getters */
+  /** -- Methods -- */
 
   /** After first render only */
   async firstUpdated() {
@@ -74,42 +43,54 @@ export class MembranesDashboard extends ScopedElementsMixin(LitElement) {
   }
 
 
-  /**
-   * Called after first update
-   * Get local snapshots and latest from DHT
-   */
+  /** Called after first update */
   private async init() {
     console.log("membranes-dashboard.init() - START!");
-    /** Done */
+    this._viewModel.subscribe(this);
+    await this.refresh();
+    this.initialized = true;
     console.log("membranes-dashboard.init() - DONE");
   }
 
 
   /** */
-  async refresh(_e: any) {
-    console.log("refresh(): Pulling data from DHT")
+  async refresh(_e?: any) {
+    console.log("membranes-dashboard.refresh(): Pulling data from DHT")
     await this._viewModel.pullAllFromDht();
-    await this._viewModel.pullMyClaims();
-    this._pullCount += 1;
-    this.requestUpdate();
+  }
+
+
+  /** */
+  async claimAll(_e?:any) {
+     await this._viewModel.claimAll();
   }
 
 
   /** */
   render() {
-    console.log("membranes-dashboard render() START");
+    console.log("membranes-dashboard.render() START");
+      if (!this.initialized) {
+          return html`<span>Loading...</span>`;
+      }
+    /* Grab data */
     const allZomeTypes: [string, boolean][][] = Object.entries(this.appEntryTypeStore)
         .map(([_name, types]) => {return types;})
-    /* Roles */
-    const rolesLi = Object.entries(this._viewModel.roleStore).map(
+    const thresholds = get(this._viewModel.thresholdStore);
+    const membranes = get(this._viewModel.membraneStore);
+    const roles = get(this._viewModel.roleStore)
+    const myRoleClaims = get(this._viewModel.myRoleClaimsStore)
+    const myMembraneClaims = get(this._viewModel.myMembraneClaimsStore);
+    //console.log(roles)
+    /* Roles Li */
+    const rolesLi = Object.entries(roles).map(
         ([ehB64, role]) => {
-            console.log("Role", role)
-          const MembraneLi = Object.entries(role.enteringMembranes).map(
-              ([_index, membrane]) => {
+          //console.log("Role", role)
+          const MembraneLi = Object.values(role.enteringMembranes).map(
+              (membrane) => {
                 return html `<li>${this._viewModel.findMembrane(membrane)}</li>`
               }
           )
-            console.log("MembraneLi", MembraneLi)
+          //console.log("MembraneLi", MembraneLi)
           return html `<li style="margin-top:10px;" title=${ehB64}>
             <abbr><b>${role.name}</b></abbr>
               <br/>
@@ -121,9 +102,9 @@ export class MembranesDashboard extends ScopedElementsMixin(LitElement) {
         }
     )
     /* Membranes */
-    const membranesLi = Object.entries(this._viewModel.membraneStore).map(
+    const membranesLi = Object.entries(membranes).map(
         ([ehB64, membrane]) => {
-          console.log("membrane:", membrane)
+          //console.log("membrane:", membrane)
           const thresholdLi = Object.entries(membrane.thresholds).map(
               ([_index, th]) => {
                 return html `<li>${describe_threshold(th, allZomeTypes)}</li>`
@@ -141,33 +122,30 @@ export class MembranesDashboard extends ScopedElementsMixin(LitElement) {
         }
     )
     /* Thresholds */
-    const thresholdsLi = Object.entries(this._viewModel.thresholdStore).map(
+    const thresholdsLi = Object.entries(thresholds).map(
         ([ehB64, threshold]) => {
-          console.log({threshold})
+          //console.log({threshold})
           let desc = describe_threshold(threshold, allZomeTypes);
           return html `<li title=${ehB64}><abbr>${desc}</abbr></li>`
         }
     )
     /* My Role Claims */
-    const myRoleClaimsLi = Object.entries(this._viewModel.myRoleClaimsStore).map(
+    const myRoleClaimsLi = Object.entries(myRoleClaims).map(
         ([ehB64, claim]) => {
           //console.log("membrane:", ehB64)
           return html `<li title=${ehB64}><abbr>${claim.role.name} - (crossed membrane index:${claim.membraneIndex})</abbr></li>`
         }
     )
     /* My Membrane Claims */
-    const myMembraneClaimsLi = Object.entries(this._viewModel.myMembraneClaimsStore).map(
+    const myMembraneClaimsLi = Object.entries(myMembraneClaims).map(
         ([ehB64, claim]) => {
-          console.log("membrane claim:", ehB64, claim)
+          //console.log("membrane claim:", ehB64, claim)
           return html `<li title="proofs: ${JSON.stringify(claim.proofs)}"><abbr>${this._viewModel.findMembrane(claim.membrane)}</abbr></li>`
         }
     )
     /** render all */
     return html`
       <div>
-        <button type="button" @click=${this.refresh}>Refresh</button>        
-        <span>${this._viewModel.myAgentPubKey}</span>
-        <hr class="solid">
         <h1>Membranes Dashboard</h1>
         <h2>Roles</h2>
         <ul>${rolesLi}</ul>        
@@ -184,11 +162,6 @@ export class MembranesDashboard extends ScopedElementsMixin(LitElement) {
       </div>
     `;
   }
-
-    async claimAll(e:any) {
-      await this._viewModel.claimAll();
-      await this.refresh(undefined)
-    }
 
 
   /** */

@@ -76,14 +76,16 @@ use crate::holo_hash::{AgentPubKeyB64, EntryHashB64};
 // }
 
 
+
 pub fn am_i_editor() -> ExternResult<bool> {
    let me = agent_info()?.agent_initial_pubkey;
-   let Ok(pair): ExternResult<(EntryHash, MembraneRole)> = call_membranes_zome("get_role_with_name", "editor")?
+   let Some(pair): Option<(EntryHash, MembraneRole)> = call_membranes_zome("get_role_with_name", "editor".to_string())?
    else {
+      warn!("'editor' role not found");
       return zome_error!("'editor' role not found");
    };
    let maybe_signed_role_claim: Option<SignedActionHashed> = call_membranes_zome("has_role", HasRoleInput {subject: me, role_eh: pair.0})?;
-   //debug!("am_i_editor() maybe_signed_role_claim: {:?}", maybe_signed_role_claim);
+   debug!("am_i_editor() maybe_signed_role_claim: {:?}", maybe_signed_role_claim);
    Ok(maybe_signed_role_claim.is_some())
 }
 

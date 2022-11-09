@@ -38,17 +38,15 @@ export class TaskerApp extends ScopedElementsMixin(LitElement) {
   private _membranesViewModel: MembranesViewModel | null = null;
   private _agentDirectoryViewModel: AgentDirectoryViewModel | null = null;
 
-  private _taskerCellId: CellId | null = null;
-
   private _pageDisplayIndex: number = 0;
 
   myAgentPubKey = ""
 
-  //private _cells: InstalledCell[] = []
-
   /** ZomeName -> (AppEntryDefName, isPublic) */
   appEntryTypeStore: Dictionary<[string, boolean][]> = {};
 
+
+  /** */
   async getEntryDefs(hcClient: HolochainClient, cellId: CellId, zomeName: string): Promise<[string, boolean][]> {
     try {
       const entryDefs = await hcClient.callZome(cellId, zomeName, "entry_defs", null, 10 * 1000);
@@ -68,6 +66,7 @@ export class TaskerApp extends ScopedElementsMixin(LitElement) {
     return [];
   }
 
+  /** */
   async getDnaInfo(hcClient: HolochainClient, cellId: CellId, zomeName: string): Promise<string[]> {
     console.debug("getDnaInfo() for " + zomeName + " ...")
     const dnaInfo = await hcClient.callZome(cellId, zomeName, "dna_info_hack", null, 10 * 1000);
@@ -85,6 +84,10 @@ export class TaskerApp extends ScopedElementsMixin(LitElement) {
 
   /** */
   async firstUpdated() {
+    await this.init();
+  }
+
+  async init() {
     const wsUrl = `ws://localhost:${HC_PORT}`
     const installed_app_id = NETWORK_ID == null || NETWORK_ID == ''
       ? APP_ID
@@ -96,12 +99,12 @@ export class TaskerApp extends ScopedElementsMixin(LitElement) {
     const hcClient = new HolochainClient(appWebsocket)
     /** Setup Tasker */
     const appInfo = await hcClient.appWebsocket.appInfo({installed_app_id});
-    this._taskerCellId  = appInfo.cell_data[0].cell_id;
-    this._taskerViewModel = new TaskerViewModel(hcClient, this._taskerCellId);
+    const taskerCellId  = appInfo.cell_data[0].cell_id;
+    this._taskerViewModel = new TaskerViewModel(hcClient, taskerCellId);
     new ContextProvider(this, taskerContext, this._taskerViewModel);
-    this._agentDirectoryViewModel = new AgentDirectoryViewModel(hcClient, this._taskerCellId);
+    this._agentDirectoryViewModel = new AgentDirectoryViewModel(hcClient, taskerCellId);
     new ContextProvider(this, agentDirectoryContext, this._agentDirectoryViewModel);
-    this._membranesViewModel = new MembranesViewModel(hcClient, this._taskerCellId);
+    this._membranesViewModel = new MembranesViewModel(hcClient, taskerCellId);
     new ContextProvider(this, membranesContext, this._membranesViewModel);
     /** */
     const cells = Object.values(appInfo.cell_data);
@@ -119,7 +122,9 @@ export class TaskerApp extends ScopedElementsMixin(LitElement) {
 
   /** */
   async refresh(_e?: any) {
-    // FIXME
+    await this._taskerViewModel!.pullAllFromDht();
+    await this._agentDirectoryViewModel!.pullAllFromDht();
+    await this._membranesViewModel!.pullAllFromDht();
   }
 
 
@@ -134,8 +139,8 @@ export class TaskerApp extends ScopedElementsMixin(LitElement) {
       case 0: page = html`<tasker-page style="flex: 1;"></tasker-page>` ; break;
       case 1: page = html`<membranes-dashboard .appEntryTypeStore=${this.appEntryTypeStore} style="flex: 1;"></membranes-dashboard>`; break;
       case 2: page = html`<membranes-creator-page .appEntryTypeStore=${this.appEntryTypeStore} style="flex: 1;"></membranes-creator-page>`; break;
-      case 3: page = html`<vouch-dashboard .knownAgents=${this._agentDirectoryViewModel?.agentStore} style="flex: 1;"></vouch-dashboard>`; break;
-      case 4: page = html`<create-entry-dashboard .appEntryTypeStore=${this.appEntryTypeStore} style="flex: 1;"></create-entry-dashboard>`; break;
+      case 3: page = html`<vouch-dashboard .knownAgents=${this._agentDirectoryViewModel?.agents()} style="flex: 1;"></vouch-dashboard>`; break;
+      case 4: page = html`<create-entry-dashboard .knownAgents=${this._agentDirectoryViewModel?.agents()} .appEntryTypeStore=${this.appEntryTypeStore} style="flex: 1;"></create-entry-dashboard>`; break;
       case 5: page = html`<agent-directory-list style="flex: 1;"></agent-directory-list>`; break;
 
       default: page = html`unknown page index`;
@@ -151,7 +156,7 @@ export class TaskerApp extends ScopedElementsMixin(LitElement) {
         <input type="button" value="Agent Directory" @click=${() => {this._pageDisplayIndex = 5; this.requestUpdate()}} >
       </div>
       <button type="button" @click=${this.refresh}>Refresh</button>
-      <span>${this.myAgentPubKey}</span>
+      <span><b>Agent:</b> ${this.myAgentPubKey}</span>
       <hr class="solid">      
       ${page}
     `

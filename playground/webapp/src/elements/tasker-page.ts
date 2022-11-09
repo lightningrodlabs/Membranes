@@ -111,12 +111,13 @@ export class TaskerPage extends ScopedElementsMixin(LitElement) {
 
   /** */
   async onLockList(e: any) {
-    //console.log("onLockList() CALLED", e)
+    console.log("onLockList() CALLED", this.selectedListEh)
     if (!this.selectedListEh) {
       return;
     }
     try {
       let res = await this._taskerViewModel.lockTaskList(this.selectedListEh!);
+      console.log("onLockList() res =", res)
     } catch (e:any) {
       console.warn(e);
       alert("Must be editor to lock list 😋")
@@ -142,15 +143,16 @@ export class TaskerPage extends ScopedElementsMixin(LitElement) {
     if (!selectedList) {
       return;
     }
-    Object.values(selectedList.items!).map(
-        ([ahB64, taskItem]) => {
-          const checkbox = this.shadowRoot!.getElementById(ahB64) as HTMLInputElement;
-          //console.log("" + checkbox.checked + ". checkbox " + ahB64)
-          if (checkbox.checked) {
-            this._taskerViewModel.completeTask(ahB64)
-          }
-        }
-    )
+    for (const [ehb64, taskItem] of selectedList.items) {
+      const checkbox = this.shadowRoot!.getElementById(ehb64) as HTMLInputElement;
+      //console.log("" + checkbox.checked + ". checkbox " + ehb64)
+      if (checkbox.checked) {
+        await this._taskerViewModel.completeTask(ehb64)
+      }
+    }
+
+    this._taskerViewModel.pullAllFromDht();
+    this.requestUpdate();
   }
 
 
@@ -239,17 +241,12 @@ export class TaskerPage extends ScopedElementsMixin(LitElement) {
     }
     return html`
       <div>
-        <button type="button" @click=${this.refresh}>Refresh</button>        
-        <span>${this._taskerViewModel.myAgentPubKey}</span>
-        <hr class="solid">
         <h1>Tasker: Membranes playground</h1>
         <span id="responseSpan"><b>My Roles:</b> ${myRolesStr}</span>
         <ul>${listEntryLi}</ul>
-        <form>
           <label for="listTitleInput">New list:</label>
           <input type="text" id="listTitleInput" name="title">
           <input type="button" value="create" @click=${this.onCreateList}>
-        </form>
         <h2>
           Selected List:
           <select name="listSelector" id="listSelector" @click=${this.onListSelect}>

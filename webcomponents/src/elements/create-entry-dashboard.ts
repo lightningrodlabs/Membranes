@@ -1,23 +1,12 @@
 import {css, html, LitElement} from "lit";
-import {property} from "lit/decorators.js";
-
-
-//import {contextProvided} from "@holochain-open-dev/context";
-import { contextProvided } from '@lit-labs/context';
-
-//import {SlBadge, SlTooltip} from '@scoped-elements/shoelace';
+import {property, state} from "lit/decorators.js";
+import {contextProvided} from '@lit-labs/context';
 import {ScopedElementsMixin} from "@open-wc/scoped-elements";
-import {ActionHashB64, AgentPubKeyB64, Dictionary} from "@holochain-open-dev/core-types";
+
+import {AgentPubKeyB64, Dictionary} from "@holochain-open-dev/core-types";
+
 import {MembranesViewModel, membranesContext} from "../membranes.vm";
-import {EntryHash} from "@holochain/client";
-import {
-  CreateEntryCountThreshold,
-  describe_threshold,
-  isCreateThreshold,
-  isVouchThreshold, MyAppEntryType,
-  VouchThreshold
-} from "../membranes.types";
-//import {IMAGE_SCALE} from "../constants";
+import {MyAppEntryType} from "../membranes.types";
 
 
 
@@ -29,29 +18,23 @@ export class CreateEntryDashboard extends ScopedElementsMixin(LitElement) {
     super();
   }
 
-  /** Public attributes */
-  @property({ type: Boolean, attribute: 'debug' })
-  debugMode: boolean = false;
+
+  /** -- Fields -- */
+  @state() initialized = false;
+  @state() selectedZomeName = ""
+  @state() queryResult = 0
 
   @property()
-  agentStore: AgentPubKeyB64[] = []
-
+  knownAgents: AgentPubKeyB64[] = []
   @property()
   appEntryTypeStore: Dictionary<[string, boolean][]> = {};
 
-  /** Dependencies */
   @contextProvided({ context: membranesContext })
   _viewModel!: MembranesViewModel;
 
 
-  private _selectedZomeName = ""
-  private _queryResult = 0
-
-  /** Private properties */
-  _pullCount: number = 0
 
 
-  /** Getters */
 
   /** After first render only */
   async firstUpdated() {
@@ -72,26 +55,16 @@ export class CreateEntryDashboard extends ScopedElementsMixin(LitElement) {
    */
   private async init() {
     console.log("create-entry-dashboard.init() - START!");
-    /** Done */
+    this.initialized = true;
     console.log("create-entry-dashboard.init() - DONE");
   }
 
 
   /** */
-  async refresh(_e: any) {
-    console.log("refresh(): Pulling data from DHT")
-    await this._viewModel.pullAllFromDht();
-    await this._viewModel.pullMyClaims();
-    this._pullCount += 1;
-    this.requestUpdate();
-  }
-
-  /** */
   async onZomeSelect(e: any) {
     console.log("onZomeSelect() CALLED", e)
     const zomeSelector = this.shadowRoot!.getElementById("selectedZome") as HTMLSelectElement;
-    this._selectedZomeName = zomeSelector.value;
-    this.requestUpdate();
+    this.selectedZomeName = zomeSelector.value;
   }
 
 
@@ -102,16 +75,18 @@ export class CreateEntryDashboard extends ScopedElementsMixin(LitElement) {
     const zomeSelector = this.shadowRoot!.getElementById("selectedZome") as HTMLSelectElement;
     const entrySelector = this.shadowRoot!.getElementById("selectedEntryType") as HTMLSelectElement;
     const entryType: MyAppEntryType = {id: entrySelector.selectedIndex, zomeId: zomeSelector.selectedIndex, isPublic: true};  // FIXME
-    this._queryResult = await this._viewModel.getCreateCount(agentSelector.value, entryType);
-    this.requestUpdate();
+    this.queryResult = await this._viewModel.getCreateCount(agentSelector.value, entryType);
   }
 
 
   /** */
   render() {
     console.log("create-entry-dashboard render() START");
+    if (!this.initialized) {
+      return html`<span>Loading...</span>`;
+    }
     /* Agents */
-    const agentOptions = Object.entries(this.agentStore).map(
+    const agentOptions = Object.entries(this.knownAgents).map(
         ([index, agentIdB64]) => {
           //console.log("" + index + ". " + agentIdB64)
           return html `<option value="${agentIdB64}">${agentIdB64.substring(0, 12)}</option>`
@@ -123,7 +98,7 @@ export class CreateEntryDashboard extends ScopedElementsMixin(LitElement) {
         }
     )
     let zomeTypes = Object.entries(this.appEntryTypeStore)
-        .filter((item) => {return item[0] == this._selectedZomeName;})
+        .filter((item) => {return item[0] == this.selectedZomeName;})
         .map((item) => {return item[1]});
     console.log({zomeTypes})
 
@@ -139,9 +114,6 @@ export class CreateEntryDashboard extends ScopedElementsMixin(LitElement) {
     /** render all */
     return html`
       <div>
-        <button type="button" @click=${this.refresh}>Refresh</button>        
-        <span>${this._viewModel.myAgentPubKey}</span>
-        <hr class="solid">
         <h1>CreateEntry Dashboard</h1>
         <span>Agent</span>
         <select id="agentSelector">
@@ -156,7 +128,7 @@ export class CreateEntryDashboard extends ScopedElementsMixin(LitElement) {
           ${entryTypeOptions}
         </select>     
         <input type="button" value="Query" @click=${this.onQuery}>
-        <h3>Entries created:<span id="queryResultSpan">&nbsp;${this._queryResult}</span></h3>
+        <h3>Entries created:<span id="queryResultSpan">&nbsp;${this.queryResult}</span></h3>
       </div>
     `;
   }

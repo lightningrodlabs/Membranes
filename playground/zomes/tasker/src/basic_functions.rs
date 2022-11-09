@@ -96,3 +96,11 @@ pub fn lock_task_list(list_eh: EntryHash) -> ExternResult<ActionHash> {
    )?;
    Ok(link_ah)
 }
+
+
+#[hdk_extern]
+fn is_list_locked(list_eh: EntryHash) -> ExternResult<bool> {
+   std::panic::set_hook(Box::new(zome_utils::zome_panic_hook));
+   let locked_links = get_links(list_eh.clone(), TaskerLinkType::Locked, None)?;
+   Ok(locked_links.len() > 0)
+}

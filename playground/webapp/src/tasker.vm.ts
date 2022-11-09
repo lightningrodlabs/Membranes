@@ -110,7 +110,7 @@ export class TaskerViewModel {
       const listEh: EntryHash = deserializeHash(listEhB64);
       const triples: [EntryHash, TaskItemEntry, boolean][] = await this.bridge.getListItems(listEh);
       //console.log({listEhB64, triples})
-      const isLocked = false; // await this.bridge.isListLocked(listEh); FIXME
+      const isLocked = await this.bridge.isListLocked(listEh);
       const items: [EntryHashB64, TaskItem][]= triples.map(([eh, entry, isCompleted]) => {
         return [serializeHash(eh), {entry, isCompleted}];
       });
@@ -172,7 +172,7 @@ export class TaskerViewModel {
 
   async completeTask(eh: EntryHashB64): Promise<ActionHashB64> {
     let res = serializeHash(await this.bridge.completeTask(deserializeHash(eh)));
-    this.pullAllFromDht();
+    //this.pullAllFromDht();
     return res;
   }
 }
