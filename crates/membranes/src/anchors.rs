@@ -43,7 +43,7 @@ pub fn get_all_roles_details(_ : ()) -> ExternResult<Vec<(EntryHash, MembraneRol
    debug!("roles found: {}", result_pairs.len());
    let mut result = Vec::new();
    for (typed, _link) in result_pairs {
-      debug!("  - {}", typed.name);
+      //debug!("  - {}", typed.name);
       let eh = hash_entry(typed.clone())?;
       result.push((eh, typed))
    }
@@ -56,7 +56,7 @@ pub fn get_all_roles_details(_ : ()) -> ExternResult<Vec<(EntryHash, MembraneRol
 pub fn get_role_by_name(requested_name: String) -> ExternResult<Option<MembraneRole>> {
    let roles = get_all_roles_details(())?;
    for (_eh, role) in roles {
-      debug!("get_role_by_name() {requested_name} == {}?", role.name);
+      //debug!("get_role_by_name() {requested_name} == {}?", role.name);
       if role.name == requested_name {
          return Ok(Some(role));
       }

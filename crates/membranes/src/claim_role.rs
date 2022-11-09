@@ -14,19 +14,19 @@ use crate::claim_membrane::claim_membrane;
 #[hdk_extern]
 pub fn claim_role_with_membrane(input: ClaimRoleInput) -> ExternResult<Option<EntryHashB64>> {
    std::panic::set_hook(Box::new(zome_utils::zome_panic_hook));
-   let agent_id: AgentPubKey = input.subject.clone().into();
-   let role_eh: EntryHash = input.role_eh.clone().into();
+   let agent_id: AgentPubKey = input.subject.clone();
+   let role_eh: EntryHash = input.role_eh.clone();
    /* Check input */
    let role: MembraneRole = zome_utils::get_typed_from_eh(role_eh.clone())?;
    if input.membrane_index >= role.entering_membrane_ehs.len() {
-      // let msg = format!("Invalid membrane index for role {:?}: {}", input.role_eh, input.membrane_index);
-      // return Err(wasm_error!(WasmErrorInner::Guest(msg)));
       return zome_error!("Invalid membrane index for role {:?}: {}", input.role_eh, input.membrane_index);
    }
    /// Check membrane claim
+   let membrane_eh = role.entering_membrane_ehs[input.membrane_index].clone();
+   debug!("Claiming role '{}' with membrane {:?}", role.name, membrane_eh);
    let args = MembraneInput {
-      subject: agent_id.clone().into(),
-      membrane_eh: role.entering_membrane_ehs[input.membrane_index].clone().into(),
+      subject: agent_id.clone(),
+      membrane_eh: membrane_eh.clone(),
    };
    let mut maybe_membrane_claim_eh = has_crossed_membrane(args.clone())?;
    /// Attempt to cross membrane if not already done
@@ -40,7 +40,7 @@ pub fn claim_role_with_membrane(input: ClaimRoleInput) -> ExternResult<Option<En
    let claim = RoleClaim {
       subject: agent_id.clone(),
       membrane_index: input.membrane_index.clone(),
-      role_eh: role_eh,
+      role_eh,
       membrane_claim_eh: maybe_membrane_claim_eh.unwrap().into(),
    };
    let eh = publish_RoleClaim(claim)?;

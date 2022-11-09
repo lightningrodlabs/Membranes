@@ -15,7 +15,7 @@ pub fn init_membranes(_: ()) -> ExternResult<()> {
    /// Thresholds
    let steererVouchThresholdEh: EntryHash = call_membranes_zome(
       "publish_vouchThreshold",
-      VouchThreshold {required_count: 3, by_role: "participant".to_string(), for_role: "steerer".to_string()},
+      VouchThreshold {required_count: 1, by_role: "participant".to_string(), for_role: "steerer".to_string()},
    )?;
    let participantVouchThresholdEh: EntryHash = call_membranes_zome(
       "publish_vouchThreshold",
@@ -31,7 +31,7 @@ pub fn init_membranes(_: ()) -> ExternResult<()> {
    )?;
 
    /// Membranes
-   let createItemsMembraneEh: EntryHash = call_membranes_zome("publish_membrane",  Membrane {threshold_ehs: vec![createItemThresholdEh]})?;
+   let createItemsMembraneEh: EntryHash = call_membranes_zome("publish_membrane",  Membrane {threshold_ehs: vec![createItemThresholdEh.clone()]})?;
    let participantVouchMembraneEh: EntryHash = call_membranes_zome("publish_membrane", Membrane {threshold_ehs: vec![participantVouchThresholdEh]})?;
    //let steererVouchMembraneEh: EntryHash = call_membranes_zome("publish_membrane", Membrane {threshold_ehs: vec![steererVouchThresholdEh]})?;
    let complexMembraneEh: EntryHash = call_membranes_zome( "publish_membrane", Membrane {threshold_ehs: vec![createManyItemThresholdEh, steererVouchThresholdEh]})?;

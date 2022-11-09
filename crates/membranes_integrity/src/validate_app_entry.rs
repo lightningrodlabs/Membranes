@@ -4,7 +4,6 @@ use membranes_types::*;
 use crate::{MembranesEntryTypes};
 use crate::get_index;
 
-
 ///
 #[allow(unreachable_patterns)]
 //pub(crate) fn validate_app_entry(entry_def_index: EntryDefIndex, entry_bytes: AppEntryBytes)
@@ -21,11 +20,35 @@ pub(crate) fn validate_app_entry(entry_def_index: EntryDefIndex, entry: Entry)
 
       },
       4 => {
-         //debug!("validate_app_entry() role_claim index = {:?}", get_index(MembranesEntryTypes::RoleClaim));
-         Ok(ValidateCallbackResult::Valid)
+         debug!("validate_app_entry() role_claim index = {:?}", get_index(MembranesEntryTypes::RoleClaim));
+         let role_claim = RoleClaim::try_from(entry)?;
+         return validate_role_claim(role_claim);
       },
       _ => Ok(ValidateCallbackResult::Valid),
    }
+}
+
+
+///
+fn validate_role_claim(role_claim: RoleClaim) -> ExternResult<ValidateCallbackResult> {
+   //debug!("validate_role_claim() membrane_claim_eh = {}", role_claim.membrane_claim_eh);
+   let membrane_claim_entry = must_get_entry(role_claim.membrane_claim_eh.clone().into())?.as_content().to_owned();
+   let membrane_claim = MembraneCrossedClaim::try_from(membrane_claim_entry)?;
+   let role_entry = must_get_entry(role_claim.role_eh.clone().into())?.as_content().to_owned();
+   let role = MembraneRole::try_from(role_entry)?;
+   /// RoleClaim subject and MembraneClaim subject must be equal
+   if role_claim.subject != membrane_claim.subject {
+      return Ok(ValidateCallbackResult::Invalid(format!("MembraneClaim and RoleClaim subject mismatch ({} != {})", role_claim.subject, membrane_claim.subject)));
+   }
+   /// MembraneClaim's membrane must be equal to Role's membrane
+   if role_claim.membrane_index >= role.entering_membrane_ehs.len() {
+      return Ok(ValidateCallbackResult::Invalid(format!("Invalid membrane_index")));
+   }
+   if role.entering_membrane_ehs[role_claim.membrane_index] != membrane_claim.membrane_eh {
+      return Ok(ValidateCallbackResult::Invalid(format!("Membrane mismatch")));
+   }
+   /// Done
+   Ok(ValidateCallbackResult::Valid)
 }
 
 
