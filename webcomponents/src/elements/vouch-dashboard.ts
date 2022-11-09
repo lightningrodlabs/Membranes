@@ -8,8 +8,8 @@ import { contextProvided } from '@lit-labs/context';
 //import {SlBadge, SlTooltip} from '@scoped-elements/shoelace';
 import {ScopedElementsMixin} from "@open-wc/scoped-elements";
 import {MembranesViewModel, membranesContext} from "../membranes.vm";
-import {agentDirectoryContext, AgentDirectoryViewModel} from "../agent_directory.vm";
 import {state} from "lit/decorators";
+import {AgentPubKeyB64} from "@holochain-open-dev/core-types";
 //import {IMAGE_SCALE} from "../constants";
 
 
@@ -32,8 +32,9 @@ export class VouchDashboard extends ScopedElementsMixin(LitElement) {
   /** Dependencies */
   @contextProvided({ context: membranesContext })
   _membranesViewModel!: MembranesViewModel;
-  @contextProvided({ context: agentDirectoryContext })
-  _agentDirectoryViewModel!: AgentDirectoryViewModel; // WARN is actually undefined at startup
+
+  @property()
+  knownAgents: AgentPubKeyB64[] = []
 
 
 
@@ -62,7 +63,6 @@ export class VouchDashboard extends ScopedElementsMixin(LitElement) {
       console.log("myVouchesStore update called");
       this.requestUpdate();
     });
-    this._agentDirectoryViewModel.subscribe(this);
     await this.refresh();
     this.initialized = true;
     /** Done */
@@ -75,7 +75,6 @@ export class VouchDashboard extends ScopedElementsMixin(LitElement) {
     console.log("refresh(): Pulling data from DHT")
     await this._membranesViewModel.pullAllFromDht();
     await this._membranesViewModel.pullMyClaims();
-    await this._agentDirectoryViewModel.pullAllFromDht();
   }
 
   /** */
@@ -96,10 +95,9 @@ export class VouchDashboard extends ScopedElementsMixin(LitElement) {
     }
 
     let myVouches = get(this._membranesViewModel.myVouchesStore);
-    let agents = this._agentDirectoryViewModel.agents();
 
     /* Agents */
-    const agentOptions = Object.values(agents).map(
+    const agentOptions = Object.values(this.knownAgents).map(
         (agentIdB64) => {
           //console.log("" + index + ". " + agentIdB64)
           return html `<option value="${agentIdB64}">${agentIdB64.substring(0, 12)}</option>`
@@ -128,12 +126,10 @@ export class VouchDashboard extends ScopedElementsMixin(LitElement) {
           return html `<li>${roleName}<ul>${lis}</ul></li>`
         }
     )
+
     /** render all */
     return html`
       <div>
-        <button type="button" @click=${this.refresh}>Refresh</button>        
-        <span>${this._membranesViewModel.myAgentPubKey}</span>
-        <hr class="solid">
         <h1>Vouch Dashboard</h1>
         <span>Vouch</span>
         <select id="agentSelector">
@@ -162,9 +158,7 @@ export class VouchDashboard extends ScopedElementsMixin(LitElement) {
   /** */
   static get scopedElements() {
     return {
-      //"place-snapshot": PlaceSnapshot,
       //'sl-tooltip': SlTooltip,
-      //'sl-badge': SlBadge,
     };
   }
 

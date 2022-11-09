@@ -9,8 +9,8 @@ import {TaskList} from "../tasker.vm";
 import {TaskerViewModel, taskerContext} from "../tasker.vm";
 //import {SlBadge, SlTooltip} from '@scoped-elements/shoelace';
 import {ScopedElementsMixin} from "@open-wc/scoped-elements";
-import {EntryHashB64} from "@holochain-open-dev/core-types";
-import {agentDirectoryContext, AgentDirectoryViewModel} from "../agent_directory.vm";
+import {AgentPubKeyB64, EntryHashB64} from "@holochain-open-dev/core-types";
+import {agentDirectoryContext, AgentDirectoryViewModel} from "@ddd-qc/agent-directory";
 import {serializeHash} from "@holochain-open-dev/utils";
 //import {IMAGE_SCALE} from "../constants";
 
@@ -163,7 +163,7 @@ export class TaskerPage extends ScopedElementsMixin(LitElement) {
     }
 
     let taskListEntries = this._taskerViewModel.taskListEntries();
-    let agents = this._agentDirectoryViewModel.agents();
+    let agents: AgentPubKeyB64[] = this._agentDirectoryViewModel.agents();
     let myRoles = this._taskerViewModel.myRoles();
     let selectedList: TaskList | null = null;
     if (this.selectedListEh) {
