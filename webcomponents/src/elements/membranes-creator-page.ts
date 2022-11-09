@@ -6,8 +6,8 @@ import {ScopedElementsMixin} from "@open-wc/scoped-elements";
 
 import {ActionHashB64, Dictionary, EntryHashB64} from "@holochain-open-dev/core-types";
 
-import {MembranesViewModel, membranesContext} from "../membranes.vm";
-import {describe_threshold, MembraneThresholdKind, MyAppEntryType} from "../membranes.types";
+import {describe_threshold, MembranesViewModel, membranesContext} from "../membranes.vm";
+import {MembraneThresholdKind, MyAppEntryType} from "../membranes.types";
 
 
 /**
@@ -27,7 +27,7 @@ export class MembranesCreatorPage extends ScopedElementsMixin(LitElement) {
     @state() selectedKind = ""
 
     @property()
-    appEntryTypeStore: Dictionary<[string, boolean][]> = {};
+    allAppEntryTypes: Dictionary<[string, boolean][]> = {};
 
     @contextProvided({ context: membranesContext })
     _viewModel!: MembranesViewModel;
@@ -166,13 +166,13 @@ export class MembranesCreatorPage extends ScopedElementsMixin(LitElement) {
     renderThresholdForm() {
         switch(this.selectedKind) {
             case "CreateEntryCountThreshold": {
-                const zomeOptions = Object.entries(this.appEntryTypeStore).map(
+                const zomeOptions = Object.entries(this.allAppEntryTypes).map(
                     ([zomeName, _entryDef]) => {
                         return html`
                             <option>${zomeName}</option>`
                     }
                 )
-                let zomeTypes = Object.entries(this.appEntryTypeStore)
+                let zomeTypes = Object.entries(this.allAppEntryTypes)
                     .filter((item) => {return item[0] == this.selectedZomeName;})
                     .map((item) => {return item[1]});
                 console.log({zomeTypes})
@@ -224,7 +224,7 @@ export class MembranesCreatorPage extends ScopedElementsMixin(LitElement) {
         /* grab data */
         const thresholds = get(this._viewModel.thresholdStore);
         const membranes = get(this._viewModel.membraneStore);
-        const allZomeTypes: [string, boolean][][] = Object.entries(this.appEntryTypeStore)
+        const allZomeTypes: [string, boolean][][] = Object.entries(this.allAppEntryTypes)
             .map(([_name, types]) => {return types;})
 
         /* Elements */

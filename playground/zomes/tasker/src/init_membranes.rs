@@ -6,16 +6,6 @@ use membranes_types::*;
 
 use crate::call_membranes_zome;
 
-// /// Setup
-// #[hdk_extern]
-// fn init(_: ()) -> ExternResult<InitCallbackResult> {
-//    debug!("*** init() callback START");
-//    init_caps(())?;
-//    init_anchors(())?;
-//    /// Done
-//    debug!("*** init() callback DONE");
-//    Ok(InitCallbackResult::Pass)
-// }
 
 /// Setup pre-defined membranes
 pub fn init_membranes(_: ()) -> ExternResult<()> {

@@ -6,8 +6,7 @@ import {ScopedElementsMixin} from "@open-wc/scoped-elements";
 
 import {Dictionary} from "@holochain-open-dev/core-types";
 
-import {MembranesViewModel, membranesContext} from "../membranes.vm";
-import {describe_threshold} from "../membranes.types";
+import {describe_threshold, MembranesViewModel, membranesContext} from "../membranes.vm";
 
 
 /**
@@ -22,7 +21,7 @@ export class MembranesDashboard extends ScopedElementsMixin(LitElement) {
   /** -- Fields -- */
   @state() initialized = false;
   @property()
-  appEntryTypeStore: Dictionary<[string, boolean][]> = {};
+  allAppEntryTypes: Dictionary<[string, boolean][]> = {};
 
   @contextProvided({ context: membranesContext })
   _viewModel!: MembranesViewModel;
@@ -73,7 +72,7 @@ export class MembranesDashboard extends ScopedElementsMixin(LitElement) {
           return html`<span>Loading...</span>`;
       }
     /* Grab data */
-    const allZomeTypes: [string, boolean][][] = Object.entries(this.appEntryTypeStore)
+    const allZomeTypes: [string, boolean][][] = Object.entries(this.allAppEntryTypes)
         .map(([_name, types]) => {return types;})
     const thresholds = get(this._viewModel.thresholdStore);
     const membranes = get(this._viewModel.membraneStore);

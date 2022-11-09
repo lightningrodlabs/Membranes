@@ -111,13 +111,13 @@ export class TaskerPage extends ScopedElementsMixin(LitElement) {
 
   /** */
   async onLockList(e: any) {
-    console.log("onLockList() CALLED", this.selectedListEh)
+    //console.log("onLockList() CALLED", this.selectedListEh)
     if (!this.selectedListEh) {
       return;
     }
     try {
       let res = await this._taskerViewModel.lockTaskList(this.selectedListEh!);
-      console.log("onLockList() res =", res)
+      //console.log("onLockList() res =", res)
     } catch (e:any) {
       console.warn(e);
       alert("Must be editor to lock list 😋")

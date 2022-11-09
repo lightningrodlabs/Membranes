@@ -7,7 +7,7 @@
 
 mod get;
 mod basic_callbacks;
-mod membraned_callbacks;
+mod init_membranes;
 
 #[macro_use]
 extern crate zome_utils;
@@ -25,8 +25,8 @@ where
    I: serde::Serialize + std::fmt::Debug,
    O: serde::de::DeserializeOwned + std::fmt::Debug
 {
-   debug!("call_membranes_zome() - {}()", fn_name);
+   //debug!("call_membranes_zome() - {}()", fn_name);
    let res = call_self_cell(membranes_types::MEMBRANES_ZOME_NAME, fn_name, payload);
-   debug!("call_membranes_zome() - {}() res = {:?}", fn_name, res);
+   //debug!("call_membranes_zome() - {}() res = {:?}", fn_name, res);
    res
 }

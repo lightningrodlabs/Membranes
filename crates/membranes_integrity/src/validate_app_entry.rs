@@ -12,26 +12,20 @@ pub(crate) fn validate_app_entry(entry_def_index: EntryDefIndex, entry: Entry)
    -> ExternResult<ValidateCallbackResult>
 {
    debug!("*** validate_app_entry() callback called!");
-   //let sb = entry_bytes.into_sb();
-   //let entry_kind = EntryKind::from_index(&entry_type_id);
-
    return match entry_def_index.into() {
-      0 => {
-         //let typed = MembraneThreshold::try_from(entry)?;
-         //debug!("validate_app_entry() Threshold = {:?}", typed);
-         Ok(ValidateCallbackResult::Valid)
-      },
       2 => {
          //assert_eq!(2, get_index(MembranesEntryTypes::MembraneCrossedClaim));
+         //debug!("validate_app_entry() membrane_claim index = {:?}", get_index(MembranesEntryTypes::MembraneCrossedClaim));
          let membrane_claim = MembraneCrossedClaim::try_from(entry)?;
-         debug!("validate_app_entry() membrane_claim index = {:?}", get_index(MembranesEntryTypes::MembraneCrossedClaim));
          return validate_membrane_claim(membrane_claim);
 
       },
-      _ => Ok(ValidateCallbackResult::Valid), // FIXME
-   };
-
-   //return Ok(ValidateCallbackResult::Valid);
+      4 => {
+         //debug!("validate_app_entry() role_claim index = {:?}", get_index(MembranesEntryTypes::RoleClaim));
+         Ok(ValidateCallbackResult::Valid)
+      },
+      _ => Ok(ValidateCallbackResult::Valid),
+   }
 }
 
 

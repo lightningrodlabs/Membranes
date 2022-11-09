@@ -1,7 +1,6 @@
 import {AgnosticClient} from '@holochain-open-dev/cell-client';
 import { EntryHashB64, AgentPubKeyB64 } from '@holochain-open-dev/core-types';
 import {CellId, SignedActionHashed, EntryHash, AppEntryType, AgentPubKey} from "@holochain/client";
-import {createContext} from "@lit-labs/context";
 import {
   CreateEntryCountThreshold, GetCreateCountInput,
   MembraneCrossedClaimEntry,
@@ -11,15 +10,31 @@ import {
   RoleClaimEntry, VouchEntry, VouchThreshold
 } from "./membranes.types";
 
+
 /** */
 export class MembranesBridge {
 
   /** Ctor */
-  constructor(public agnosticClient: AgnosticClient, public cellId: CellId /*, protected roleId: string*/) {}
+  constructor(public agnosticClient: AgnosticClient, public cellId: CellId) {}
+
+  /** */
+  private callZome(fn_name: string, payload: any): Promise<any> {
+    //console.log("callZome: membranes." + fn_name + "() ", payload)
+    //console.info({payload})
+    try {
+      const result = this.agnosticClient.callZome(this.cellId, "membranes", fn_name, payload, 10 * 1000);
+      //console.log("callZome: membranes." + fn_name + "() result")
+      //console.info({result})
+      return result;
+    } catch (e) {
+      console.error("Calling zome membranes." + fn_name + "() failed: ")
+      console.error({e})
+    }
+    return Promise.reject("callZome failed")
+  }
 
 
-  /** Zome API */
-
+  /** -- Zome API -- */
 
   /** Indexes */
 
@@ -145,25 +160,5 @@ export class MembranesBridge {
   async getMyReceivedVouches(maybeRole: string | null): Promise<[EntryHash, AgentPubKey][]> {
     return this.callZome('get_my_received_vouches', maybeRole);
   }
-
-  /** Private */
-
-  /** */
-  private callZome(fn_name: string, payload: any): Promise<any> {
-    //console.log("callZome: membranes." + fn_name + "() ", payload)
-    //console.info({payload})
-    try {
-      const result = this.agnosticClient.callZome(this.cellId, "membranes", fn_name, payload, 10 * 1000);
-      //console.log("callZome: membranes." + fn_name + "() result")
-      //console.info({result})
-      return result;
-    } catch (e) {
-      console.error("Calling zome membranes." + fn_name + "() failed: ")
-      console.error({e})
-    }
-    return Promise.reject("callZome failed")
-  }
-
-
 
 }

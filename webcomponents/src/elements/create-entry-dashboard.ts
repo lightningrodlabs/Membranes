@@ -27,7 +27,7 @@ export class CreateEntryDashboard extends ScopedElementsMixin(LitElement) {
   @property()
   knownAgents: AgentPubKeyB64[] = []
   @property()
-  appEntryTypeStore: Dictionary<[string, boolean][]> = {};
+  allAppEntryTypes: Dictionary<[string, boolean][]> = {};
 
   @contextProvided({ context: membranesContext })
   _viewModel!: MembranesViewModel;
@@ -92,12 +92,12 @@ export class CreateEntryDashboard extends ScopedElementsMixin(LitElement) {
           return html `<option value="${agentIdB64}">${agentIdB64.substring(0, 12)}</option>`
         }
     )
-    const zomeOptions = Object.entries(this.appEntryTypeStore).map(
+    const zomeOptions = Object.entries(this.allAppEntryTypes).map(
         ([zomeName, _entryDef]) => {
           return html`<option>${zomeName}</option>`
         }
     )
-    let zomeTypes = Object.entries(this.appEntryTypeStore)
+    let zomeTypes = Object.entries(this.allAppEntryTypes)
         .filter((item) => {return item[0] == this.selectedZomeName;})
         .map((item) => {return item[1]});
     console.log({zomeTypes})
@@ -137,9 +137,7 @@ export class CreateEntryDashboard extends ScopedElementsMixin(LitElement) {
   /** */
   static get scopedElements() {
     return {
-      //"place-snapshot": PlaceSnapshot,
       //'sl-tooltip': SlTooltip,
-      //'sl-badge': SlBadge,
     };
   }
 

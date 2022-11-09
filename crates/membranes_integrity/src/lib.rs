@@ -24,15 +24,12 @@ pub enum MembranesEntry {
    Role(MembraneRole),
    #[entry_def(required_validations = 3, visibility = "public")]
    RoleClaim(RoleClaim),
-   // #[entry_def(required_validations = 3, visibility = "public")]
-   // VouchThreshold(VouchThreshold),
-   // #[entry_def(required_validations = 3, visibility = "public")]
-   // CreateEntryCountThreshold(CreateEntryCountThreshold),
    #[entry_def(required_validations = 3, visibility = "public")]
    Vouch(Vouch),
 }
 
 
+/// Get EntryDefIndex from a unit_enum
 pub fn get_index(wtf: MembranesEntryTypes) -> ExternResult<u8> {
    let mut i = 0;
    for variant in MembranesEntry::unit_iter() {

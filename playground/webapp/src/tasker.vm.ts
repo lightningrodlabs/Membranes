@@ -25,23 +25,6 @@ export interface TaskList {
 }
 
 
-
-// /** Convert hash (Uint8Array) to/from base64 string */
-// export function htos(u8array: Uint8Array): string {
-//   if (!u8array) {
-//     console.error("htos() argument is undefined")
-//   }
-//   return base64.bytesToBase64(u8array)
-// }
-// export function stoh(str: string): Uint8Array {
-//   if (!str) {
-//     console.error("stoh() argument is undefined")
-//   }
-//   return base64.base64ToBytes(str)
-// }
-
-
-
 /**
  *
  */

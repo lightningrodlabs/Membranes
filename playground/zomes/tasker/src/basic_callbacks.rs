@@ -2,7 +2,7 @@ use hdk::prelude::*;
 #[allow(unused_imports)]
 use tasker_model::*;
 
-use crate::membraned_callbacks::*;
+use crate::init_membranes::*;
 
 /// Setup initial capabilities
 #[hdk_extern]

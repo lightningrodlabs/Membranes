@@ -48,13 +48,15 @@ pub fn create_task_item(input: CreateTaskItemInput) -> ExternResult<ActionHash> 
 }
 
 
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct ReassignTaskInput {
-   pub task_eh: EntryHash,
-   pub assignee: AgentPubKey,
-}
-
+// TODO
+//
+// #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+// #[serde(rename_all = "camelCase")]
+// pub struct ReassignTaskInput {
+//    pub task_eh: EntryHash,
+//    pub assignee: AgentPubKey,
+// }
+//
 // #[hdk_extern]
 // pub fn reassign_task(input: ReassignTaskInput) -> ExternResult<ActionHash> {
 //    std::panic::set_hook(Box::new(zome_utils::zome_panic_hook));
