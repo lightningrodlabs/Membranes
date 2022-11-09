@@ -102,7 +102,7 @@ export class MembranesViewModel {
   myMembraneClaimsStore: Dictionary<MembraneCrossedClaim> = {};
 
   /** RoleName -> [[emitted],[[received,author]]] */
-  myVouchesStore: Dictionary<[Vouch[], [Vouch, AgentPubKeyB64][]]> = {};
+  myVouchesStore: Writable<Dictionary<[Vouch[], [Vouch, AgentPubKeyB64][]]>> = writable({});
 
 
   /** Methods */
@@ -280,7 +280,7 @@ export class MembranesViewModel {
       const emittedEhs = await this._bridge.getMyEmittedVouches(roleEntry.name);
       const receivedPairs: [EntryHash, AgentPubKey][] = await this._bridge.getMyReceivedVouches(roleEntry.name);
       /* */
-      let emitted = [];
+      let emitted: Vouch[] = [];
       for (const eh of emittedEhs) {
         const vouch = await this._bridge.getVouch(eh);
         if (vouch) {
@@ -297,7 +297,10 @@ export class MembranesViewModel {
         }
       }
       /* */
-      this.myVouchesStore[roleEntry.name] = [emitted, received];
+      this.myVouchesStore.update(store => {
+        store[roleEntry.name] = [emitted, received];
+        return store;
+      });
     }
   }
 

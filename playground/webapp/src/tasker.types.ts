@@ -1,8 +1,5 @@
 import {EntryHash, AgentPubKey} from "@holochain/client";
 
-import * as base64 from "byte-base64";
-
-
 // export interface HoloHashed<T> {
 //   hash: HoloHashB64;
 //   content: T;

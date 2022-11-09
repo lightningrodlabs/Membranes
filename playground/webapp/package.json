@@ -50,7 +50,6 @@
     "@lit-labs/context": "^0.1.2",
     "@holochain-open-dev/utils": "0.4.0",
     "@holochain-open-dev/core-types": "^0.5.0",
-    "byte-base64": "^1.1.0",
     "lit": "^2.1.1",
     "svelte": "^3.42.4"
   }

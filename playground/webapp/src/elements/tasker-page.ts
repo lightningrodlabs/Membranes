@@ -26,9 +26,8 @@ export class TaskerPage extends ScopedElementsMixin(LitElement) {
     super();
   }
 
+  /** state */
   @state() initialized = false;
-
-
   @state() selectedListEh?: EntryHashB64;
 
 
@@ -65,35 +64,13 @@ export class TaskerPage extends ScopedElementsMixin(LitElement) {
    */
   private async init() {
     console.log("tasker-page.init() - START!");
-
     this._taskerViewModel.subscribe(this);
     this._agentDirectoryViewModel.subscribe(this);
-    // this._viewModel.taskListEntryStore.subscribe((value) => {
-    //   console.log("localTaskListStore update called");
-    //   this.requestUpdate();
-    // });
-
-    /** Wait a second for startup? */
-    //await delay(1 * 1000);
-
     await this.refresh();
-
     this.initialized = true;
-
     /** Done */
     console.log("tasker-page.init() - DONE");
   }
-
-
-
-  /** */
-  // async checkMyRoles(_e: any) {
-  //   let roles = await this._viewModel.myRoles();
-  //   console.log("checkMyRoles()", roles)
-  //   let span = this.shadowRoot!.getElementById("responseSpan") as HTMLSpanElement;
-  //   span.innerText = "" + roles;
-  //   this.requestUpdate();
-  // }
 
 
   /** */
