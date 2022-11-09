@@ -1,13 +1,12 @@
 [package]
-name = "agent_directory"
-version = "0.1.0-hdk.154"
-rust-version = "1.65.0"
 edition = "2021"
+name = "agent_directory_zome"
+version = "0.0.1"
 
 [lib]
-crate-type = [ "cdylib", "rlib" ]
+crate-type = ["cdylib", "rlib"]
+
 
 [dependencies]
-serde = { version = "1.0", default-features = false }
-hdk = { version = "0.0.154", default-features = false }
-agent_directory_integrity = { path = "../agent_directory_integrity" }
+agent_directory_zome = {git = "https://github.com/ddd-mtl/agent-directory-zome", package = "agent_directory"}
+hdk.workspace = true
