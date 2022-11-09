@@ -8,6 +8,7 @@ use crate::{
 };
 use crate::anchors::{get_all_membranes_details, get_all_roles_details, get_role_by_name};
 use crate::claim_membrane::claim_membrane;
+use crate::get::get_my_role_claims_details;
 
 
 ///
@@ -43,6 +44,7 @@ pub fn claim_role_with_membrane(input: ClaimRoleInput) -> ExternResult<Option<En
       role_eh,
       membrane_claim_eh: maybe_membrane_claim_eh.unwrap().into(),
    };
+   /// Publish
    let eh = publish_RoleClaim(claim)?;
    /// Done
    Ok(Some(eh.into()))

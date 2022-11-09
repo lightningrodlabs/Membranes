@@ -20,7 +20,7 @@ pub(crate) fn validate_app_entry(entry_def_index: EntryDefIndex, entry: Entry)
 
       },
       4 => {
-         debug!("validate_app_entry() role_claim index = {:?}", get_index(MembranesEntryTypes::RoleClaim));
+         //debug!("validate_app_entry() role_claim index = {:?}", get_index(MembranesEntryTypes::RoleClaim));
          let role_claim = RoleClaim::try_from(entry)?;
          return validate_role_claim(role_claim);
       },
@@ -32,6 +32,7 @@ pub(crate) fn validate_app_entry(entry_def_index: EntryDefIndex, entry: Entry)
 ///
 fn validate_role_claim(role_claim: RoleClaim) -> ExternResult<ValidateCallbackResult> {
    //debug!("validate_role_claim() membrane_claim_eh = {}", role_claim.membrane_claim_eh);
+   ///
    let membrane_claim_entry = must_get_entry(role_claim.membrane_claim_eh.clone().into())?.as_content().to_owned();
    let membrane_claim = MembraneCrossedClaim::try_from(membrane_claim_entry)?;
    let role_entry = must_get_entry(role_claim.role_eh.clone().into())?.as_content().to_owned();

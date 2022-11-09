@@ -7,7 +7,7 @@ use membranes_integrity::*;
 
 use crate::{constants::*, anchors};
 use crate::anchors::get_role_by_name;
-
+use crate::get::{get_my_membrane_claims_details, get_my_role_claims_details};
 
 
 //#[hdk_extern]
@@ -109,30 +109,43 @@ pub fn publish_role(role: MembraneRole) -> ExternResult<EntryHash> {
 ///
 #[hdk_extern]
 pub fn publish_RoleClaim(claim: RoleClaim) -> ExternResult<EntryHash> {
-   /* Input Checks */
+   /* Check input */
    let _role: MembraneRole = zome_utils::get_typed_from_eh(claim.role_eh.clone())?;
    let _membrane_claim: MembraneCrossedClaim = zome_utils::get_typed_from_eh(claim.membrane_claim_eh.clone())?;
-   /// Create Entry
+   /// Must not already have Claimed Role
+   let new_eh = hash_entry(claim.clone())?;
+   let my_role_claims = get_my_role_claims_details(())?;
+   for (eh, _role_claim) in my_role_claims {
+      if new_eh == eh {
+         return Ok(eh);
+      }
+   }
+   /// Publish Entry
    let _ah = create_entry(MembranesEntry::RoleClaim(claim.clone()))?;
-   let eh = hash_entry(claim.clone())?;
-   //let eh = hash_entry(claim.clone())?;
    /// Create Link from subject
-   let _lah = create_link(claim.subject, eh.clone(), MembranesLinkType::RolePassport, LinkTag::from(()))?;
+   let _lah = create_link(claim.subject, new_eh.clone(), MembranesLinkType::RolePassport, LinkTag::from(()))?;
    /// Done
-   Ok(eh)
+   Ok(new_eh)
 }
 
 
 ///
 #[hdk_extern]
 pub fn publish_MembraneCrossedClaim(claim: MembraneCrossedClaim) -> ExternResult<EntryHash> {
-   /* Checks */
+   /* Check input */
    let _membrane: Membrane = zome_utils::get_typed_from_eh(claim.membrane_eh.clone())?;
-   /// Create Entry
+   /// Must not already have Claimed Role
+   let new_eh = hash_entry(claim.clone())?;
+   let my_claims = get_my_membrane_claims_details(())?;
+   for (eh, _role_claim) in my_claims {
+      if new_eh == eh {
+         return Ok(eh);
+      }
+   }
+   /// Publish Entry
    let _ah = create_entry(MembranesEntry::MembraneCrossedClaim(claim.clone()))?;
-   let eh = hash_entry(claim.clone())?;
    /// Create Link from subject
-   let _lah = create_link(claim.subject, eh.clone(), MembranesLinkType::MembranePassport, LinkTag::from(()))?;
+   let _lah = create_link(claim.subject, new_eh.clone(), MembranesLinkType::MembranePassport, LinkTag::from(()))?;
    /// Done
-   Ok(eh)
+   Ok(new_eh)
 }
