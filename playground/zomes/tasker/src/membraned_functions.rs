@@ -76,7 +76,7 @@ use crate::holo_hash::{AgentPubKeyB64, EntryHashB64};
 // }
 
 
-
+///
 pub fn am_i_editor() -> ExternResult<bool> {
    let me = agent_info()?.agent_initial_pubkey;
    let Some(pair): Option<(EntryHash, MembraneRole)> = call_membranes_zome("get_role_with_name", "editor".to_string())?

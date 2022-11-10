@@ -9,11 +9,11 @@ pub fn create_task_list(title: String) -> ExternResult<ActionHash> {
    let entry =TaskerEntry::TaskList(TaskList {title});
    let eh = hash_entry(entry.clone())?;
    let ah = create_entry(entry)?;
-   let anchor = Path::from("lists")
+   let anchor_eh = Path::from("lists")
       .path_entry_hash()
       .expect("TaskLists Path should hash");
    let link_ah = create_link(
-      anchor,
+      anchor_eh,
       eh.clone(),
       TaskerLinkType::TaskLists,
       LinkTag::from(()),
@@ -70,12 +70,12 @@ pub fn create_task_item(input: CreateTaskItemInput) -> ExternResult<ActionHash> 
 #[hdk_extern]
 pub fn complete_task(task_eh: EntryHash) -> ExternResult<ActionHash> {
    std::panic::set_hook(Box::new(zome_utils::zome_panic_hook));
-   let directory_address = Path::from("completed")
+   let anchor_eh = Path::from("completed")
       .path_entry_hash()
       .expect("completed path should hash");
    let link_ah = create_link(
       task_eh,
-      directory_address,
+      anchor_eh,
       TaskerLinkType::Completed,
       LinkTag::from(()),
    )?;
@@ -87,12 +87,12 @@ pub fn complete_task(task_eh: EntryHash) -> ExternResult<ActionHash> {
 pub fn lock_task_list(list_eh: EntryHash) -> ExternResult<ActionHash> {
    std::panic::set_hook(Box::new(zome_utils::zome_panic_hook));
    debug!("lock_task_list() CALLED");
-   let directory_address = Path::from("locked")
+   let anchor_eh = Path::from("locked")
       .path_entry_hash()
       .expect("completed path should hash");
    let link_ah = create_link(
       list_eh,
-      directory_address,
+      anchor_eh,
       TaskerLinkType::Locked,
       LinkTag::from(()),
    )?;

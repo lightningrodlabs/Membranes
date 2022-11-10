@@ -20,9 +20,9 @@ export class CreateEntryDashboard extends ScopedElementsMixin(LitElement) {
 
 
   /** -- Fields -- */
-  @state() initialized = false;
-  @state() selectedZomeName = ""
-  @state() queryResult = 0
+  @state() private _initialized = false;
+  @state() private _selectedZomeName = ""
+  @state() private _queryResult = 0
 
   @property()
   knownAgents: AgentPubKeyB64[] = []
@@ -55,7 +55,7 @@ export class CreateEntryDashboard extends ScopedElementsMixin(LitElement) {
    */
   private async init() {
     console.log("create-entry-dashboard.init() - START!");
-    this.initialized = true;
+    this._initialized = true;
     console.log("create-entry-dashboard.init() - DONE");
   }
 
@@ -64,7 +64,7 @@ export class CreateEntryDashboard extends ScopedElementsMixin(LitElement) {
   async onZomeSelect(e: any) {
     console.log("onZomeSelect() CALLED", e)
     const zomeSelector = this.shadowRoot!.getElementById("selectedZome") as HTMLSelectElement;
-    this.selectedZomeName = zomeSelector.value;
+    this._selectedZomeName = zomeSelector.value;
   }
 
 
@@ -75,14 +75,14 @@ export class CreateEntryDashboard extends ScopedElementsMixin(LitElement) {
     const zomeSelector = this.shadowRoot!.getElementById("selectedZome") as HTMLSelectElement;
     const entrySelector = this.shadowRoot!.getElementById("selectedEntryType") as HTMLSelectElement;
     const entryType: MyAppEntryType = {id: entrySelector.selectedIndex, zomeId: zomeSelector.selectedIndex, isPublic: true};  // FIXME
-    this.queryResult = await this._viewModel.getCreateCount(agentSelector.value, entryType);
+    this._queryResult = await this._viewModel.getCreateCount(agentSelector.value, entryType);
   }
 
 
   /** */
   render() {
     console.log("create-entry-dashboard render() START");
-    if (!this.initialized) {
+    if (!this._initialized) {
       return html`<span>Loading...</span>`;
     }
     /* Agents */
@@ -98,7 +98,7 @@ export class CreateEntryDashboard extends ScopedElementsMixin(LitElement) {
         }
     )
     let zomeTypes = Object.entries(this.allAppEntryTypes)
-        .filter((item) => {return item[0] == this.selectedZomeName;})
+        .filter((item) => {return item[0] == this._selectedZomeName;})
         .map((item) => {return item[1]});
     console.log({zomeTypes})
 
@@ -128,7 +128,7 @@ export class CreateEntryDashboard extends ScopedElementsMixin(LitElement) {
           ${entryTypeOptions}
         </select>     
         <input type="button" value="Query" @click=${this.onQuery}>
-        <h3>Entries created:<span id="queryResultSpan">&nbsp;${this.queryResult}</span></h3>
+        <h3>Entries created:<span id="queryResultSpan">&nbsp;${this._queryResult}</span></h3>
       </div>
     `;
   }

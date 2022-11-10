@@ -19,7 +19,8 @@ export class MembranesDashboard extends ScopedElementsMixin(LitElement) {
 
 
   /** -- Fields -- */
-  @state() initialized = false;
+  @state() private _initialized = false;
+
   @property()
   allAppEntryTypes: Dictionary<[string, boolean][]> = {};
 
@@ -47,7 +48,7 @@ export class MembranesDashboard extends ScopedElementsMixin(LitElement) {
     console.log("membranes-dashboard.init() - START!");
     this._viewModel.subscribe(this);
     await this.refresh();
-    this.initialized = true;
+    this._initialized = true;
     console.log("membranes-dashboard.init() - DONE");
   }
 
@@ -68,7 +69,7 @@ export class MembranesDashboard extends ScopedElementsMixin(LitElement) {
   /** */
   render() {
     console.log("membranes-dashboard.render() START");
-      if (!this.initialized) {
+      if (!this._initialized) {
           return html`<span>Loading...</span>`;
       }
     /* Grab data */

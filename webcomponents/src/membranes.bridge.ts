@@ -1,12 +1,12 @@
 import {AgnosticClient} from '@holochain-open-dev/cell-client';
 import { EntryHashB64, AgentPubKeyB64 } from '@holochain-open-dev/core-types';
-import {CellId, SignedActionHashed, EntryHash, AppEntryType, AgentPubKey} from "@holochain/client";
+import {CellId, SignedActionHashed, EntryHash, AgentPubKey} from "@holochain/client";
 import {
   CreateEntryCountThreshold, GetCreateCountInput,
   MembraneCrossedClaimEntry,
   MembraneEntry,
   MembraneRoleEntry,
-  MembraneThresholdEntry, MyAppEntryType,
+  MembraneThresholdEntry,
   RoleClaimEntry, VouchEntry, VouchThreshold
 } from "./membranes.types";
 

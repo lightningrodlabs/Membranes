@@ -16,7 +16,7 @@ import {MembranesViewModel, membranesContext} from "../membranes.vm";
 export class VouchDashboard extends ScopedElementsMixin(LitElement) {
 
   /** -- Fields -- */
-  @state() initialized = false;
+  @state() private _initialized = false;
 
   @contextProvided({ context: membranesContext })
   _membranesViewModel!: MembranesViewModel;
@@ -46,7 +46,7 @@ export class VouchDashboard extends ScopedElementsMixin(LitElement) {
       this.requestUpdate();
     });
     await this.refresh();
-    this.initialized = true;
+    this._initialized = true;
     /** Done */
     console.log("vouch-dashboard.init() - DONE");
   }
@@ -76,7 +76,7 @@ export class VouchDashboard extends ScopedElementsMixin(LitElement) {
   /** */
   render() {
     console.log("vouch-dashboard render() START");
-    if (!this.initialized) {
+    if (!this._initialized) {
       return html`<span>Loading...</span>`;
     }
 

@@ -26,23 +26,20 @@ export class TaskerPage extends ScopedElementsMixin(LitElement) {
     super();
   }
 
-  /** state */
-  @state() initialized = false;
-  @state() selectedListEh?: EntryHashB64;
+  /** -- Fields -- */
+  @state() private _initialized = false;
+  @state() private _selectedListEh?: EntryHashB64;
 
-
-  /** Public attributes */
   @property({ type: Boolean, attribute: 'debug' })
   debugMode: boolean = false;
 
-  /** Dependencies */
   @contextProvided({ context: taskerContext })
   _taskerViewModel!: TaskerViewModel; // WARN is actually undefined at startup
   @contextProvided({ context: agentDirectoryContext })
   _agentDirectoryViewModel!: AgentDirectoryViewModel; // WARN is actually undefined at startup
 
 
-  /** -- */
+  /** -- Methods -- */
 
   /** After first render only */
   firstUpdated() {
@@ -67,7 +64,7 @@ export class TaskerPage extends ScopedElementsMixin(LitElement) {
     this._taskerViewModel.subscribe(this);
     this._agentDirectoryViewModel.subscribe(this);
     await this.refresh();
-    this.initialized = true;
+    this._initialized = true;
     /** Done */
     console.log("tasker-page.init() - DONE");
   }
@@ -93,7 +90,7 @@ export class TaskerPage extends ScopedElementsMixin(LitElement) {
   /** */
   async onCreateTask(e: any) {
     //console.log("onCreateTask() CALLED", e)
-    if (!this.selectedListEh) {
+    if (!this._selectedListEh) {
       return;
     }
     /* Assignee */
@@ -103,7 +100,7 @@ export class TaskerPage extends ScopedElementsMixin(LitElement) {
     /* Title */
     const input = this.shadowRoot!.getElementById("itemTitleInput") as HTMLInputElement;
     //console.log(input)
-    let res = this._taskerViewModel.createTaskItem(input.value, assignee, this.selectedListEh!);
+    let res = this._taskerViewModel.createTaskItem(input.value, assignee, this._selectedListEh!);
     //console.log("onCreateList res:", res)
     input.value = "";
   }
@@ -112,11 +109,11 @@ export class TaskerPage extends ScopedElementsMixin(LitElement) {
   /** */
   async onLockList(e: any) {
     //console.log("onLockList() CALLED", this.selectedListEh)
-    if (!this.selectedListEh) {
+    if (!this._selectedListEh) {
       return;
     }
     try {
-      let res = await this._taskerViewModel.lockTaskList(this.selectedListEh!);
+      let res = await this._taskerViewModel.lockTaskList(this._selectedListEh!);
       //console.log("onLockList() res =", res)
     } catch (e:any) {
       console.warn(e);
@@ -133,7 +130,7 @@ export class TaskerPage extends ScopedElementsMixin(LitElement) {
       console.warn("No list selector value", selector);
       return;
     }
-    this.selectedListEh = selector.value;
+    this._selectedListEh = selector.value;
   }
 
 
@@ -160,7 +157,7 @@ export class TaskerPage extends ScopedElementsMixin(LitElement) {
   render() {
     console.log("tasker-page.render() START");
 
-    if (!this.initialized) {
+    if (!this._initialized) {
       return html`<span>Loading...</span>`;
     }
 
@@ -168,10 +165,10 @@ export class TaskerPage extends ScopedElementsMixin(LitElement) {
     let agents: AgentPubKeyB64[] = this._agentDirectoryViewModel.agents();
     let myRoles = this._taskerViewModel.myRoles();
     let selectedList: TaskList | null = null;
-    if (this.selectedListEh) {
-      selectedList = this._taskerViewModel.taskLists()[this.selectedListEh];
+    if (this._selectedListEh) {
+      selectedList = this._taskerViewModel.taskLists()[this._selectedListEh];
       if (!selectedList) {
-        console.warn("No list found for selectedListEh", this.selectedListEh);
+        console.warn("No list found for selectedListEh", this._selectedListEh);
         this.refresh();
         return html`<span>Loading...</span>`;
       }
@@ -220,7 +217,7 @@ export class TaskerPage extends ScopedElementsMixin(LitElement) {
           <br/>
           <label for="itemTitleInput">Add task:</label>
           <input type="text" id="itemTitleInput" name="title" .disabled=${selectedList.isLocked}>
-          <select name="selectedAgent" id="selectedAgent">
+          <select name="selectedAgent" id="selectedAgent" .disabled=${selectedList.isLocked}>
             ${AgentOptions}
           </select>
         <input type="button" value="Add" @click=${this.onCreateTask} .disabled=${selectedList.isLocked}>
