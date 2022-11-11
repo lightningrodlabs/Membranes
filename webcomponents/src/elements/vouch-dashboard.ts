@@ -1,12 +1,11 @@
 import {css, html, LitElement} from "lit";
 import {property, state} from "lit/decorators.js";
-import { writable, Writable, derived, Readable, get, readable } from 'svelte/store';
 import { contextProvided } from '@lit-labs/context';
 import {ScopedElementsMixin} from "@open-wc/scoped-elements";
 
 import {AgentPubKeyB64} from "@holochain-open-dev/core-types";
 
-import {MembranesViewModel, membranesContext} from "../membranes.vm";
+import {MembranesViewModel, membranesContext, MembranesPerspective} from "../membranes.vm";
 
 
 
@@ -25,6 +24,9 @@ export class VouchDashboard extends ScopedElementsMixin(LitElement) {
   knownAgents: AgentPubKeyB64[] = []
 
 
+  @property({type: Object, attribute: false, hasChanged: (_v, _old) => true})
+  perspective!: MembranesPerspective;
+
   /** After first render only */
   async firstUpdated() {
     console.log("vouch-dashboard first update done!")
@@ -38,14 +40,8 @@ export class VouchDashboard extends ScopedElementsMixin(LitElement) {
    */
   private async init() {
     console.log("vouch-dashboard.init() - START!");
-    this._membranesViewModel.myVouchesStore.subscribe((_value) => {
-      console.log("myVouchesStore update called");
-      this.requestUpdate();
-    });
-    this._membranesViewModel.roleStore.subscribe((_value) => {
-      this.requestUpdate();
-    });
-    await this.refresh();
+    this._membranesViewModel.subscribe(this, 'perspective');
+    this.refresh();
     this._initialized = true;
     /** Done */
     console.log("vouch-dashboard.init() - DONE");
@@ -61,7 +57,7 @@ export class VouchDashboard extends ScopedElementsMixin(LitElement) {
   /** */
   async refresh(_e?: any) {
     console.log("refresh(): Pulling data from DHT")
-    await this._membranesViewModel.pullAllFromDht();
+    await this._membranesViewModel.probeDht();
   }
 
   /** */
@@ -80,10 +76,6 @@ export class VouchDashboard extends ScopedElementsMixin(LitElement) {
       return html`<span>Loading...</span>`;
     }
 
-    /* Grab data */
-    let myVouches = get(this._membranesViewModel.myVouchesStore);
-    let roles = get(this._membranesViewModel.roleStore);
-
     /* Agents */
     const agentOptions = Object.values(this.knownAgents).map(
         (agentIdB64) => {
@@ -92,21 +84,21 @@ export class VouchDashboard extends ScopedElementsMixin(LitElement) {
         }
     )
     /* Roles */
-    const roleOptions = Object.entries(roles).map(
+    const roleOptions = Object.entries(this.perspective.roles).map(
         ([index, role]) => {
           //console.log("" + index + ". " + agentIdB64)
           return html `<option value="${role.name}">${role.name}</option>`
         }
     )
     /* My Emitted Vouches */
-    const myEmittedLi = Object.entries(myVouches).map(
+    const myEmittedLi = Object.entries(this.perspective.myVouches).map(
         ([roleName, [emitted, received]]) => {
           const emittedLi = Object.values(emitted).map((vouch) => { return html`<li>${vouch.subject}</li>`})
           return html `<li>${roleName}<ul>${emittedLi}</ul></li>`
         }
     )
     /* My Emitted Vouches */
-    const myReceivedLi = Object.entries(myVouches).map(
+    const myReceivedLi = Object.entries(this.perspective.myVouches).map(
         ([roleName, [emitted, received]]) => {
           const lis = Object.values(received).map(([vouch, author]) => {
             return html`<li>${author}</li>`;

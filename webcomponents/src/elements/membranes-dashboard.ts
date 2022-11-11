@@ -1,12 +1,11 @@
 import {css, html, LitElement} from "lit";
 import {property, state} from "lit/decorators.js";
 import {contextProvided} from '@lit-labs/context';
-import {get} from 'svelte/store';
 import {ScopedElementsMixin} from "@open-wc/scoped-elements";
 
 import {Dictionary} from "@holochain-open-dev/core-types";
 
-import {describe_threshold, MembranesViewModel, membranesContext} from "../membranes.vm";
+import {describe_threshold, MembranesViewModel, membranesContext, MembranesPerspective} from "../membranes.vm";
 
 
 /**
@@ -27,6 +26,8 @@ export class MembranesDashboard extends ScopedElementsMixin(LitElement) {
   @contextProvided({ context: membranesContext })
   _viewModel!: MembranesViewModel;
 
+  @property({type: Object, attribute: false, hasChanged: (_v, _old) => true})
+  perspective!: MembranesPerspective;
 
   /** -- Methods -- */
 
@@ -46,8 +47,8 @@ export class MembranesDashboard extends ScopedElementsMixin(LitElement) {
   /** Called after first update */
   private async init() {
     console.log("membranes-dashboard.init() - START!");
-    this._viewModel.subscribe(this);
-    await this.refresh();
+    this._viewModel.subscribe(this, 'perspective');
+    this.refresh();
     this._initialized = true;
     console.log("membranes-dashboard.init() - DONE");
   }
@@ -56,7 +57,7 @@ export class MembranesDashboard extends ScopedElementsMixin(LitElement) {
   /** */
   async refresh(_e?: any) {
     console.log("membranes-dashboard.refresh(): Pulling data from DHT")
-    await this._viewModel.pullAllFromDht();
+    await this._viewModel.probeDht();
   }
 
 
@@ -75,14 +76,9 @@ export class MembranesDashboard extends ScopedElementsMixin(LitElement) {
     /* Grab data */
     const allZomeTypes: [string, boolean][][] = Object.entries(this.allAppEntryTypes)
         .map(([_name, types]) => {return types;})
-    const thresholds = get(this._viewModel.thresholdStore);
-    const membranes = get(this._viewModel.membraneStore);
-    const roles = get(this._viewModel.roleStore)
-    const myRoleClaims = get(this._viewModel.myRoleClaimsStore)
-    const myMembraneClaims = get(this._viewModel.myMembraneClaimsStore);
     //console.log(roles)
     /* Roles Li */
-    const rolesLi = Object.entries(roles).map(
+    const rolesLi = Object.entries(this.perspective.roles).map(
         ([ehB64, role]) => {
           //console.log("Role", role)
           const MembraneLi = Object.values(role.enteringMembranes).map(
@@ -102,7 +98,7 @@ export class MembranesDashboard extends ScopedElementsMixin(LitElement) {
         }
     )
     /* Membranes */
-    const membranesLi = Object.entries(membranes).map(
+    const membranesLi = Object.entries(this.perspective.membranes).map(
         ([ehB64, membrane]) => {
           //console.log("membrane:", membrane)
           const thresholdLi = Object.entries(membrane.thresholds).map(
@@ -122,7 +118,7 @@ export class MembranesDashboard extends ScopedElementsMixin(LitElement) {
         }
     )
     /* Thresholds */
-    const thresholdsLi = Object.entries(thresholds).map(
+    const thresholdsLi = Object.entries(this.perspective.thresholds).map(
         ([ehB64, threshold]) => {
           //console.log({threshold})
           let desc = describe_threshold(threshold, allZomeTypes);
@@ -130,14 +126,14 @@ export class MembranesDashboard extends ScopedElementsMixin(LitElement) {
         }
     )
     /* My Role Claims */
-    const myRoleClaimsLi = Object.entries(myRoleClaims).map(
+    const myRoleClaimsLi = Object.entries(this.perspective.myRoleClaims).map(
         ([ehB64, claim]) => {
           //console.log("membrane:", ehB64)
           return html `<li title=${ehB64}><abbr>${claim.role.name} - (crossed membrane index:${claim.membraneIndex})</abbr></li>`
         }
     )
     /* My Membrane Claims */
-    const myMembraneClaimsLi = Object.entries(myMembraneClaims).map(
+    const myMembraneClaimsLi = Object.entries(this.perspective.myMembraneClaims).map(
         ([ehB64, claim]) => {
           //console.log("membrane claim:", ehB64, claim)
           return html `<li title="proofs: ${JSON.stringify(claim.proofs)}"><abbr>${this._viewModel.findMembrane(claim.membrane)}</abbr></li>`

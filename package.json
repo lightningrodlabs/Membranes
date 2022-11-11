@@ -31,7 +31,7 @@
 
     "hc-playground"          : "run-singleton \"holochain-playground\"",
 
-    "clean:hc"               : "rm -rf .hc*",
+    "clean:hc"               : "rm .hc*",
     "clean"                  : "bash scripts/clean.sh",
     "clean:npm"              : "bash scripts/clean-npm.sh",
     "clean:all"              : "npm run clean:hc && npm run clean && npm run clean:npm"

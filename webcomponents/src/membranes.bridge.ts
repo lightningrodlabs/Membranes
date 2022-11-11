@@ -1,6 +1,6 @@
-import {AgnosticClient} from '@holochain-open-dev/cell-client';
+import {DnaClient} from "@ddd-qc/dna-client";
 import { EntryHashB64, AgentPubKeyB64 } from '@holochain-open-dev/core-types';
-import {CellId, SignedActionHashed, EntryHash, AgentPubKey} from "@holochain/client";
+import { SignedActionHashed, EntryHash, AgentPubKey} from "@holochain/client";
 import {
   CreateEntryCountThreshold, GetCreateCountInput,
   MembraneCrossedClaimEntry,
@@ -15,22 +15,13 @@ import {
 export class MembranesBridge {
 
   /** Ctor */
-  constructor(public agnosticClient: AgnosticClient, public cellId: CellId) {}
+  constructor(protected dnaClient: DnaClient){}
+
+  private _zomeName = "membranes"
 
   /** */
-  private callZome(fn_name: string, payload: any): Promise<any> {
-    //console.log("callZome: membranes." + fn_name + "() ", payload)
-    //console.info({payload})
-    try {
-      const result = this.agnosticClient.callZome(this.cellId, "membranes", fn_name, payload, 10 * 1000);
-      //console.log("callZome: membranes." + fn_name + "() result")
-      //console.info({result})
-      return result;
-    } catch (e) {
-      console.error("Calling zome membranes." + fn_name + "() failed: ")
-      console.error({e})
-    }
-    return Promise.reject("callZome failed")
+  private async callZome(fn_name: string, payload: any): Promise<any> {
+    return this.dnaClient.callZome(this._zomeName, fn_name, payload);
   }
 
 

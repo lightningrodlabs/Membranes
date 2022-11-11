@@ -5,12 +5,12 @@ import {property, state} from "lit/decorators.js";
 //import {contextProvided} from "@holochain-open-dev/context";
 import { contextProvided } from '@lit-labs/context';
 
-import {TaskList} from "../tasker.vm";
+import {TaskerPerspective, TaskList} from "../tasker.vm";
 import {TaskerViewModel, taskerContext} from "../tasker.vm";
 //import {SlBadge, SlTooltip} from '@scoped-elements/shoelace';
 import {ScopedElementsMixin} from "@open-wc/scoped-elements";
 import {AgentPubKeyB64, EntryHashB64} from "@holochain-open-dev/core-types";
-import {agentDirectoryContext, AgentDirectoryViewModel} from "@ddd-qc/agent-directory";
+import {agentDirectoryContext, AgentDirectoryViewModel, AgentDirectoryPerspective} from "@ddd-qc/agent-directory";
 import {serializeHash} from "@holochain-open-dev/utils";
 //import {IMAGE_SCALE} from "../constants";
 
@@ -38,6 +38,12 @@ export class TaskerPage extends ScopedElementsMixin(LitElement) {
   @contextProvided({ context: agentDirectoryContext })
   _agentDirectoryViewModel!: AgentDirectoryViewModel; // WARN is actually undefined at startup
 
+  @property({type: Object, attribute: false, hasChanged: (_v, _old) => true})
+  taskerPerspective!: TaskerPerspective;
+
+  @property({type: Object, attribute: false, hasChanged: (_v, _old) => true})
+  agentDirectoryPerspective!: AgentDirectoryPerspective;
+
 
   /** -- Methods -- */
 
@@ -50,8 +56,7 @@ export class TaskerPage extends ScopedElementsMixin(LitElement) {
 
   /** After each render */
   async updated(changedProperties: any) {
-    console.log("*** tasker-page.updated() called !")
-    //console.log(this.localTaskListStore)
+    //console.log("*** tasker-page.updated() called !")
   }
 
 
@@ -61,9 +66,9 @@ export class TaskerPage extends ScopedElementsMixin(LitElement) {
    */
   private async init() {
     console.log("tasker-page.init() - START!");
-    this._taskerViewModel.subscribe(this);
-    this._agentDirectoryViewModel.subscribe(this);
-    await this.refresh();
+    this._taskerViewModel.subscribe(this, 'taskerPerspective');
+    this._agentDirectoryViewModel.subscribe(this, 'agentDirectoryPerspective');
+    this.refresh();
     this._initialized = true;
     /** Done */
     console.log("tasker-page.init() - DONE");
@@ -72,9 +77,9 @@ export class TaskerPage extends ScopedElementsMixin(LitElement) {
 
   /** */
   async refresh(_e?: any) {
-    console.log("refresh(): Pulling data from DHT")
-    await this._taskerViewModel.pullAllFromDht();
-    await this._agentDirectoryViewModel.pullAllFromDht();
+    console.log("tasker-page.refresh() called")
+    await this._taskerViewModel.probeDht();
+    await this._agentDirectoryViewModel.probeDht();
   }
 
 
@@ -148,7 +153,7 @@ export class TaskerPage extends ScopedElementsMixin(LitElement) {
       }
     }
 
-    this._taskerViewModel.pullAllFromDht();
+    this._taskerViewModel.probeDht();
     this.requestUpdate();
   }
 
@@ -156,17 +161,15 @@ export class TaskerPage extends ScopedElementsMixin(LitElement) {
   /** */
   render() {
     console.log("tasker-page.render() START");
-
     if (!this._initialized) {
       return html`<span>Loading...</span>`;
     }
-
-    let taskListEntries = this._taskerViewModel.taskListEntries();
-    let agents: AgentPubKeyB64[] = this._agentDirectoryViewModel.agents();
-    let myRoles = this._taskerViewModel.myRoles();
+    let taskListEntries = this.taskerPerspective.taskListEntries;
+    let agents: AgentPubKeyB64[] = this.agentDirectoryPerspective.agents;
+    let myRoles = this.taskerPerspective.myRoles;
     let selectedList: TaskList | null = null;
     if (this._selectedListEh) {
-      selectedList = this._taskerViewModel.taskLists()[this._selectedListEh];
+      selectedList = this.taskerPerspective.taskLists[this._selectedListEh];
       if (!selectedList) {
         console.warn("No list found for selectedListEh", this._selectedListEh);
         this.refresh();

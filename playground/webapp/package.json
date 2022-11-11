@@ -38,7 +38,8 @@
     "typescript": "4.3.5"
   },
   "dependencies": {
-    "@ddd-qc/agent-directory": "^1.165.3",
+    "@ddd-qc/dna-client": "^0.1.9",
+    "@ddd-qc/agent-directory": "^2.165.1",
     "@holochain-open-dev/cell-client": "^0.7.3",
     "@holochain-open-dev/core-types": "^0.5.0",
     "@holochain-open-dev/utils": "0.4.0",
@@ -46,7 +47,6 @@
     "@lit-labs/context": "^0.1.2",
     "@membranes/elements": "file:../../webcomponents",
     "@open-wc/scoped-elements": "^2.1.1",
-    "lit": "^2.1.1",
-    "svelte": "^3.42.4"
+    "lit": "^2.2.0"
   }
 }

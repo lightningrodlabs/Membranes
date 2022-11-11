@@ -1,12 +1,19 @@
-import { writable, Writable, derived, Readable, get, readable } from 'svelte/store';
 import {createContext} from "@lit-labs/context";
-import {CellId, EntryHash} from "@holochain/client";
+import { EntryHash} from "@holochain/client";
 import {EntryHashB64, ActionHashB64, AgentPubKeyB64, Dictionary} from '@holochain-open-dev/core-types';
-import {AgnosticClient} from '@holochain-open-dev/cell-client';
 import {deserializeHash, serializeHash} from "@holochain-open-dev/utils";
 import {TaskerBridge} from './tasker.bridge';
 import {TaskItemEntry, TaskListEntry} from './tasker.types';
 import {LitElement} from "lit";
+import {DnaClient, ZomeViewModel} from "@ddd-qc/dna-client";
+import {
+  Membrane,
+  MembraneCrossedClaim,
+  MembraneRole,
+  MembraneThresholdEntry,
+  RoleClaim,
+  Vouch
+} from "@membranes/elements";
 
 
 export const taskerContext = createContext<TaskerViewModel>('tasker/service');
@@ -25,75 +32,68 @@ export interface TaskList {
 }
 
 
+/** */
+export interface TaskerPerspective {
+  /** EntryHash -> TaskList */
+  taskLists: Dictionary<TaskList>,
+  taskListEntries: Dictionary<TaskListEntry>,
+  /** EntryHash -> TaskItem */
+  taskItems: Dictionary<TaskItem>,
+  myRoles: string[]
+}
+
+const emptyPerspective: TaskerPerspective = {
+  taskLists: {},
+  taskListEntries: {},
+  taskItems: {},
+  myRoles: [],
+}
+
+
 /**
  *
  */
-export class TaskerViewModel {
+export class TaskerViewModel extends ZomeViewModel<TaskerPerspective>  {
   /** Ctor */
-  constructor(protected client: AgnosticClient, cellId: CellId) {
-    this.bridge = new TaskerBridge(client, cellId);
-    this.myAgentPubKey = serializeHash(cellId[1]);
+  constructor(protected dnaClient: DnaClient) {
+    super();
+    this._bridge = new TaskerBridge(dnaClient);
   }
 
-  /** Static info */
-  myAgentPubKey: AgentPubKeyB64;
   /** Private */
-  private bridge : TaskerBridge
+  private _bridge : TaskerBridge
 
-  /** Stores */
-  /** EntryHash -> TaskList */
-  private _taskListStore: Writable<Dictionary<TaskList>> = writable({});
-  private _taskListEntryStore: Writable<Dictionary<TaskListEntry>> = writable({});
-  /** EntryHash -> TaskItem */
-  private _taskItemStore: Writable<Dictionary<TaskItem>> = writable({});
-  private _myRoles: Writable<string[]> = writable([]);
+  private _perspective: TaskerPerspective = emptyPerspective;
 
 
-  /** Get stores */
-  taskListEntries(): Dictionary<TaskListEntry> { return get(this._taskListEntryStore) }
-  taskLists(): Dictionary<TaskList> { return get(this._taskListStore) }
-  taskItems(): Dictionary<TaskItem> { return get(this._taskItemStore) }
-  myRoles(): string[] { return get(this._myRoles) }
-
-
-  /** */
-  subscribe(parent: LitElement) {
-    this._taskListEntryStore.subscribe((_value) => {
-      //console.log("localTaskListStore update called");
-      parent.requestUpdate();
-    });
-    this._taskListStore.subscribe((_value) => {parent.requestUpdate();});
-    this._myRoles.subscribe((_value) => {parent.requestUpdate();});
+  get perspective(): TaskerPerspective {
+    return this._perspective;
   }
-
-
 
   async pullAllLists() {
-    const lists = await this.bridge.getAllLists();
+    const lists = await this._bridge.getAllLists();
     //console.log("pullAllLists() lists:", lists);
     //console.log("pullAllLists() taskListEntryStore:", this.taskListEntryStore);
-    this._taskListEntryStore.update(store => {
-      for (const pair of lists) {
-        const ehB64 = serializeHash(pair[0])
-        store[ehB64] = pair[1];
-      }
-      //console.log("pullAllLists() update:", store)
-      return store;
-    });
+    for (const pair of lists) {
+      const ehB64 = serializeHash(pair[0])
+      this._perspective.taskListEntries[ehB64] = pair[1];
+    }
+    this.notify()
   }
 
 
   /** */
-  async pullAllFromDht() {
+  async probeDht() {
+    console.log("taskerViewModel.probeDht() called")
     /** Get Lists */
     await this.pullAllLists();
-    const listEntries = this.taskListEntries()
+    const listEntries = this._perspective.taskListEntries;
     //console.log({listEntries})
     let pr = Object.entries(listEntries).map(async ([listEhB64, listEntry]) => {
       const listEh: EntryHash = deserializeHash(listEhB64);
-      const triples: [EntryHash, TaskItemEntry, boolean][] = await this.bridge.getListItems(listEh);
+      const triples: [EntryHash, TaskItemEntry, boolean][] = await this._bridge.getListItems(listEh);
       //console.log({listEhB64, triples})
-      const isLocked = await this.bridge.isListLocked(listEh);
+      const isLocked = await this._bridge.isListLocked(listEh);
       const items: [EntryHashB64, TaskItem][]= triples.map(([eh, entry, isCompleted]) => {
         return [serializeHash(eh), {entry, isCompleted}];
       });
@@ -105,56 +105,51 @@ export class TaskerViewModel {
       return {eh: listEhB64, list};
     })
     Promise.all(pr).then((results) => {
-      this._taskListStore.update(store => {
         for (const obj of results) {
-          //const str: string = ehb64;
-          store[obj.eh] = obj.list;
+          this._perspective.taskLists[obj.eh] = obj.list;
         }
-        return store;
-      })
+      this.notify()
     })
 
 
     /** Get My Roles */
-    let res = await this.bridge.getMyRoleClaimsDetails();
+    let res = await this._bridge.getMyRoleClaimsDetails();
     let p = Object.values(res).map(async ([_claim_eh, roleClaim]) => {
-      let role = await this.bridge.getRole(roleClaim.roleEh);
+      let role = await this._bridge.getRole(roleClaim.roleEh);
       return role? role.name : "";
     })
     Promise.all(p).then((v) => {
-      this._myRoles.update(store => {
-        store = v;
-        return store;
-      })
+      this._perspective.myRoles = v;
+      this.notify()
     })
+    this.notify()
   }
 
 
   /** Perform methods */
 
-
   /** */
   async createTaskItem(title: string, assignee: AgentPubKeyB64, listEh: EntryHashB64): Promise<ActionHashB64> {
-    let res = serializeHash(await this.bridge.createTaskItem(title, deserializeHash(assignee), deserializeHash(listEh)));
-    this.pullAllFromDht();
+    let res = serializeHash(await this._bridge.createTaskItem(title, deserializeHash(assignee), deserializeHash(listEh)));
+    this.probeDht();
     return res;
   }
 
   /** */
   async createTaskList(title: string): Promise<ActionHashB64> {
-    let newList = serializeHash(await this.bridge.createTaskList(title));
+    let newList = serializeHash(await this._bridge.createTaskList(title));
     this.pullAllLists();
     return newList;
   }
 
   async lockTaskList(eh: EntryHashB64): Promise<ActionHashB64> {
-    let res = serializeHash(await this.bridge.lockTaskList(deserializeHash(eh)));
-    this.pullAllFromDht();
+    let res = serializeHash(await this._bridge.lockTaskList(deserializeHash(eh)));
+    this.probeDht();
     return res;
   }
 
   async completeTask(eh: EntryHashB64): Promise<ActionHashB64> {
-    let res = serializeHash(await this.bridge.completeTask(deserializeHash(eh)));
+    let res = serializeHash(await this._bridge.completeTask(deserializeHash(eh)));
     //this.pullAllFromDht();
     return res;
   }

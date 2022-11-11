@@ -21,6 +21,7 @@ import {
 import {Dictionary} from "@holochain-open-dev/core-types";
 import {agentDirectoryContext, AgentDirectoryViewModel, AgentDirectoryList} from "@ddd-qc/agent-directory";
 import {serializeHash} from "@holochain-open-dev/utils";
+import {DnaClient} from "@ddd-qc/dna-client";
 
 let APP_ID = 'tasker'
 let HC_PORT:any = process.env.HC_PORT;
@@ -34,9 +35,11 @@ console.log("HC_PORT = " + HC_PORT + " || " + process.env.HC_PORT);
  */
 export class TaskerApp extends ScopedElementsMixin(LitElement) {
 
-  @state() loaded = false;
+  @state() private _loaded = false;
 
-  myAgentPubKey = ""
+  private _dnaClient?: DnaClient;
+
+  //myAgentPubKey = ""
 
   private _taskerViewModel: TaskerViewModel | null = null;
   private _membranesViewModel: MembranesViewModel | null = null;
@@ -104,38 +107,40 @@ export class TaskerApp extends ScopedElementsMixin(LitElement) {
     /** Setup Tasker */
     const appInfo = await hcClient.appWebsocket.appInfo({installed_app_id});
     const taskerCellId  = appInfo.cell_data[0].cell_id;
-    this._taskerViewModel = new TaskerViewModel(hcClient, taskerCellId);
+    this._dnaClient = new DnaClient(hcClient, taskerCellId);
+    this._taskerViewModel = new TaskerViewModel(this._dnaClient);
     new ContextProvider(this, taskerContext, this._taskerViewModel);
-    this._agentDirectoryViewModel = new AgentDirectoryViewModel(hcClient, taskerCellId);
+    this._agentDirectoryViewModel = new AgentDirectoryViewModel(this._dnaClient);
     new ContextProvider(this, agentDirectoryContext, this._agentDirectoryViewModel);
-    this._membranesViewModel = new MembranesViewModel(hcClient, taskerCellId);
+    this._membranesViewModel = new MembranesViewModel(this._dnaClient);
     new ContextProvider(this, membranesContext, this._membranesViewModel);
     /** Get all EntryDefs for each zome of each DNA */
     const cells = Object.values(appInfo.cell_data);
     for (const cell of cells) {
-      this.myAgentPubKey = serializeHash(cell.cell_id[1]);
+      //this.myAgentPubKey = serializeHash(cell.cell_id[1]);
       let dnaInfo = await this.getDnaInfo(hcClient, cell.cell_id, "membranes");
       for (const zomeName of dnaInfo) {
         this._allAppEntryTypes[zomeName] = await this.getEntryDefs(hcClient, cell.cell_id, zomeName);
       }
     }
     /** Done */
-    this.loaded = true;
+    this._loaded = true;
   }
 
 
   /** */
   async refresh(_e?: any) {
-    await this._taskerViewModel!.pullAllFromDht();
-    await this._agentDirectoryViewModel!.pullAllFromDht();
-    await this._membranesViewModel!.pullAllFromDht();
+    console.log("tasker-app.refresh() called")
+    await this._agentDirectoryViewModel!.probeDht();
+    await this._membranesViewModel!.probeDht();
+    await this._taskerViewModel!.probeDht();
   }
 
 
   /** */
   render() {
     console.log("tasker-app render() called!")
-    if (!this.loaded) {
+    if (!this._loaded) {
       return html`<span>Loading...</span>`;
     }
 
@@ -144,8 +149,8 @@ export class TaskerApp extends ScopedElementsMixin(LitElement) {
       case 0: page = html`<tasker-page style="flex: 1;"></tasker-page>` ; break;
       case 1: page = html`<membranes-dashboard .allAppEntryTypes=${this._allAppEntryTypes} style="flex: 1;"></membranes-dashboard>`; break;
       case 2: page = html`<membranes-creator-page .allAppEntryTypes=${this._allAppEntryTypes} style="flex: 1;"></membranes-creator-page>`; break;
-      case 3: page = html`<vouch-dashboard .knownAgents=${this._agentDirectoryViewModel?.agents()} style="flex: 1;"></vouch-dashboard>`; break;
-      case 4: page = html`<create-entry-dashboard .knownAgents=${this._agentDirectoryViewModel?.agents()} .allAppEntryTypes=${this._allAppEntryTypes} style="flex: 1;"></create-entry-dashboard>`; break;
+      case 3: page = html`<vouch-dashboard .knownAgents=${this._agentDirectoryViewModel?.perspective.agents} style="flex: 1;"></vouch-dashboard>`; break;
+      case 4: page = html`<create-entry-dashboard .knownAgents=${this._agentDirectoryViewModel?.perspective.agents} .allAppEntryTypes=${this._allAppEntryTypes} style="flex: 1;"></create-entry-dashboard>`; break;
       case 5: page = html`<agent-directory-list style="flex: 1;"></agent-directory-list>`; break;
 
       default: page = html`unknown page index`;
@@ -162,7 +167,7 @@ export class TaskerApp extends ScopedElementsMixin(LitElement) {
         <input type="button" value="Agent Directory" @click=${() => {this._pageDisplayIndex = 5; this.requestUpdate()}} >
       </div>
       <button type="button" @click=${this.refresh}>Refresh</button>
-      <span><b>Agent:</b> ${this.myAgentPubKey}</span>
+      <span><b>Agent:</b> ${this._dnaClient!.myAgentPubKey}</span>
       <hr class="solid">      
       ${page}
     `

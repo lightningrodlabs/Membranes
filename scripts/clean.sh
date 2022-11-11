@@ -1,6 +1,8 @@
 #!/bin/bash
 # TOP LEVEL
+rm .running
 rm .hc_live*
+rm Cargo.lock
 # WEBCOMPONENTS
 rm -rf webcomponents/dist
 rm webcomponents/tsconfig.tsbuildinfo

@@ -1,12 +1,11 @@
 import {css, html, LitElement} from "lit";
 import {property, state} from "lit/decorators.js";
-import { writable, Writable, derived, Readable, get, readable } from 'svelte/store';
 import {contextProvided} from '@lit-labs/context';
 import {ScopedElementsMixin} from "@open-wc/scoped-elements";
 
 import {ActionHashB64, Dictionary, EntryHashB64} from "@holochain-open-dev/core-types";
 
-import {describe_threshold, MembranesViewModel, membranesContext} from "../membranes.vm";
+import {describe_threshold, MembranesViewModel, membranesContext, MembranesPerspective} from "../membranes.vm";
 import {MembraneThresholdKind, MyAppEntryType} from "../membranes.types";
 
 
@@ -22,8 +21,8 @@ export class MembranesCreatorPage extends ScopedElementsMixin(LitElement) {
     /** -- Fields -- */
     @state() private _initialized = false;
     @state() private _selectedZomeName = ""
-    @state() private _membranesForRole: EntryHashB64[] = [];
-    @state() private _thresholdsForMembrane: EntryHashB64[] = [];
+    @state() private _membranesForCurrentRole: EntryHashB64[] = [];
+    @state() private _thresholdsForCurrentMembrane: EntryHashB64[] = [];
     @state() private _selectedKind = ""
 
     @property()
@@ -32,6 +31,8 @@ export class MembranesCreatorPage extends ScopedElementsMixin(LitElement) {
     @contextProvided({ context: membranesContext })
     _viewModel!: MembranesViewModel;
 
+    @property({type: Object, attribute: false, hasChanged: (_v, _old) => true})
+    perspective!: MembranesPerspective;
 
     /** -- Methods -- */
 
@@ -54,9 +55,8 @@ export class MembranesCreatorPage extends ScopedElementsMixin(LitElement) {
      */
     private async init() {
         console.log("membranes-creator-page.init() - START!");
-        this._viewModel.thresholdStore.subscribe((_v) => {this.requestUpdate()});
-        this._viewModel.membraneStore.subscribe((_v) => {this.requestUpdate()});
-        await this.refresh();
+        this._viewModel.subscribe(this, 'perspective');
+        this.refresh();
         this._initialized = true;
         console.log("membranes-creator-page.init() - DONE");
     }
@@ -65,7 +65,7 @@ export class MembranesCreatorPage extends ScopedElementsMixin(LitElement) {
     /** */
     async refresh(_e?: any) {
         console.log("membranes-creator-page.refresh(): Pulling data from DHT")
-        await this._viewModel.pullAllFromDht();
+        await this._viewModel.probeDht();
     }
 
 
@@ -73,10 +73,10 @@ export class MembranesCreatorPage extends ScopedElementsMixin(LitElement) {
     onCreateRole(e: any) {
         console.log("onCreateRole() CALLED", e)
         const input = this.shadowRoot!.getElementById("roleNameInput") as HTMLInputElement;
-        let res = this._viewModel.createRole(input.value, this._membranesForRole);
+        let res = this._viewModel.createRole(input.value, this._membranesForCurrentRole);
         console.log("onCreateRole res:", res)
         input.value = "";
-        this._membranesForRole = [];
+        this._membranesForCurrentRole = [];
     }
 
 
@@ -86,7 +86,7 @@ export class MembranesCreatorPage extends ScopedElementsMixin(LitElement) {
         const membraneSelect = this.shadowRoot!.getElementById("membraneSelectedList") as HTMLSelectElement;
         const membraneEh = membraneSelect.value;
         console.log("membrane eh:", membraneEh);
-        this._membranesForRole.push(membraneEh);
+        this._membranesForCurrentRole.push(membraneEh);
         this.requestUpdate();
     }
 
@@ -95,9 +95,9 @@ export class MembranesCreatorPage extends ScopedElementsMixin(LitElement) {
     /** */
     onCreateMembrane(e: any) {
         console.log("onCreateMembrane() CALLED", e)
-        let res = this._viewModel.createMembrane(this._thresholdsForMembrane);
+        let res = this._viewModel.createMembrane(this._thresholdsForCurrentMembrane);
         console.log("onCreateMembrane res:", res)
-        this._thresholdsForMembrane = [];
+        this._thresholdsForCurrentMembrane = [];
     }
 
 
@@ -107,7 +107,7 @@ export class MembranesCreatorPage extends ScopedElementsMixin(LitElement) {
         const thresholdSelect = this.shadowRoot!.getElementById("thresholdSelectedList") as HTMLSelectElement;
         const eh = thresholdSelect.value;
         console.log("thresholdSelect eh:", eh);
-        this._thresholdsForMembrane.push(eh);
+        this._thresholdsForCurrentMembrane.push(eh);
         this.requestUpdate();
     }
 
@@ -222,13 +222,13 @@ export class MembranesCreatorPage extends ScopedElementsMixin(LitElement) {
             return html`<span>Loading...</span>`;
         }
         /* grab data */
-        const thresholds = get(this._viewModel.thresholdStore);
-        const membranes = get(this._viewModel.membraneStore);
+        const thresholds = this.perspective.thresholds;
+        const membranes = this.perspective.membranes;
         const allZomeTypes: [string, boolean][][] = Object.entries(this.allAppEntryTypes)
             .map(([_name, types]) => {return types;})
 
         /* Elements */
-        const membranesForRoleLi = Object.entries(this._membranesForRole).map(
+        const membranesForRoleLi = Object.entries(this._membranesForCurrentRole).map(
             ([_index, ehB64]) => {
                 return html `<li>${ehB64}</li>`
             }
@@ -239,7 +239,7 @@ export class MembranesCreatorPage extends ScopedElementsMixin(LitElement) {
             }
         )
 
-        const thresholdsLi = Object.entries(this._thresholdsForMembrane).map(
+        const thresholdsLi = Object.entries(this._thresholdsForCurrentMembrane).map(
             ([_index, ehB64]) => {
                 return html `<li>${describe_threshold(thresholds[ehB64], allZomeTypes)}</li>`
             }
