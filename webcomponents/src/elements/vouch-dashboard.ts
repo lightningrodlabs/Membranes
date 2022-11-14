@@ -5,7 +5,7 @@ import {ScopedElementsMixin} from "@open-wc/scoped-elements";
 
 import {AgentPubKeyB64} from "@holochain-open-dev/core-types";
 
-import {MembranesViewModel, membranesContext, MembranesPerspective} from "../membranes.vm";
+import {MembranesViewModel, MembranesPerspective} from "../membranes.vm";
 
 
 
@@ -17,7 +17,7 @@ export class VouchDashboard extends ScopedElementsMixin(LitElement) {
   /** -- Fields -- */
   @state() private _initialized = false;
 
-  @contextProvided({ context: membranesContext })
+  @contextProvided({ context: MembranesViewModel.context })
   _membranesViewModel!: MembranesViewModel;
 
   @property()

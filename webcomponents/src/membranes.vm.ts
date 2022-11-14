@@ -1,4 +1,3 @@
-import {createContext} from "@lit-labs/context";
 import {EntryHashB64, ActionHashB64, AgentPubKeyB64, Dictionary} from '@holochain-open-dev/core-types';
 import {AgentPubKey, EntryHash} from "@holochain/client";
 import {deserializeHash, serializeHash} from "@holochain-open-dev/utils";
@@ -13,6 +12,7 @@ import {
   Privilege,
   RoleClaimEntry, ThresholdReachedProof, VouchEntry, VouchThreshold
 } from "./membranes.types";
+import {createContext} from "@lit-labs/context";
 
 
 /** Output a human-readable phrase out of a Threshold */
@@ -92,10 +92,6 @@ export interface RoleClaim {
 }
 
 
-export const membranesContext = createContext<MembranesViewModel>('membranes/service');
-
-
-
 /** */
 export interface MembranesPerspective {
   /** EntryHashB64 -> <typed> */
@@ -122,23 +118,28 @@ const emptyPerspective: MembranesPerspective = {
 /**
  *
  */
-export class MembranesViewModel extends ZomeViewModel<MembranesPerspective> {
+export class MembranesViewModel extends ZomeViewModel<MembranesPerspective, MembranesBridge> {
   /** Ctor */
   constructor(protected dnaClient: DnaClient) {
-    super();
-    this._bridge = new MembranesBridge(dnaClient);
+    super(new MembranesBridge(dnaClient));
   }
 
+  static context = createContext<MembranesViewModel>('zome_view_model/agent_directory');
+  getContext(): any {return MembranesViewModel.context}
 
-  /** -- Fields -- */
-  private _bridge : MembranesBridge
 
+  /** -- ZomeViewModel -- */
   private _perspective: MembranesPerspective = emptyPerspective
-
 
   /* */
   get perspective(): MembranesPerspective {
     return this._perspective;
+  }
+
+  /* */
+  protected hasChanged(): boolean {
+    // TODO
+    return true;
   }
 
 
@@ -158,6 +159,7 @@ export class MembranesViewModel extends ZomeViewModel<MembranesPerspective> {
   private convertVouchEntry(entry: VouchEntry): Vouch {
     return {subject: serializeHash(entry.subject), forRole: entry.forRole};
   }
+
 
   /** */
   private async convertMembraneEntry(membraneEntry: MembraneEntry): Promise<Membrane> {

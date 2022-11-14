@@ -1,18 +1,13 @@
 import {css, html, LitElement} from "lit";
 import {property, state} from "lit/decorators.js";
-
-
-//import {contextProvided} from "@holochain-open-dev/context";
 import { contextProvided } from '@lit-labs/context';
-
-import {TaskerPerspective, TaskList} from "../tasker.vm";
-import {TaskerViewModel, taskerContext} from "../tasker.vm";
-//import {SlBadge, SlTooltip} from '@scoped-elements/shoelace';
 import {ScopedElementsMixin} from "@open-wc/scoped-elements";
 import {AgentPubKeyB64, EntryHashB64} from "@holochain-open-dev/core-types";
-import {agentDirectoryContext, AgentDirectoryViewModel, AgentDirectoryPerspective} from "@ddd-qc/agent-directory";
 import {serializeHash} from "@holochain-open-dev/utils";
-//import {IMAGE_SCALE} from "../constants";
+import {AgentDirectoryViewModel, AgentDirectoryPerspective} from "@ddd-qc/agent-directory";
+import {TaskerPerspective, TaskList} from "../tasker.vm";
+import {TaskerViewModel} from "../tasker.vm";
+
 
 
 export const delay = (ms:number) => new Promise(r => setTimeout(r, ms))
@@ -33,10 +28,10 @@ export class TaskerPage extends ScopedElementsMixin(LitElement) {
   @property({ type: Boolean, attribute: 'debug' })
   debugMode: boolean = false;
 
-  @contextProvided({ context: taskerContext })
-  _taskerViewModel!: TaskerViewModel; // WARN is actually undefined at startup
-  @contextProvided({ context: agentDirectoryContext })
-  _agentDirectoryViewModel!: AgentDirectoryViewModel; // WARN is actually undefined at startup
+  @contextProvided({ context: TaskerViewModel.context })
+  _taskerViewModel!: TaskerViewModel;
+  @contextProvided({ context: AgentDirectoryViewModel.context })
+  _agentDirectoryViewModel!: AgentDirectoryViewModel;
 
   @property({type: Object, attribute: false, hasChanged: (_v, _old) => true})
   taskerPerspective!: TaskerPerspective;
@@ -50,25 +45,10 @@ export class TaskerPage extends ScopedElementsMixin(LitElement) {
   /** After first render only */
   firstUpdated() {
     //console.log("first update done!")
-    this.init();
-  }
-
-
-  /** After each render */
-  async updated(changedProperties: any) {
-    //console.log("*** tasker-page.updated() called !")
-  }
-
-
-  /**
-   * Called after first update
-   * Get local snapshots and latest from DHT
-   */
-  private async init() {
     console.log("tasker-page.init() - START!");
     this._taskerViewModel.subscribe(this, 'taskerPerspective');
     this._agentDirectoryViewModel.subscribe(this, 'agentDirectoryPerspective');
-    this.refresh();
+    //this.refresh();
     this._initialized = true;
     /** Done */
     console.log("tasker-page.init() - DONE");
@@ -77,7 +57,7 @@ export class TaskerPage extends ScopedElementsMixin(LitElement) {
 
   /** */
   async refresh(_e?: any) {
-    console.log("tasker-page.refresh() called")
+    //console.log("tasker-page.refresh() called")
     await this._taskerViewModel.probeDht();
     await this._agentDirectoryViewModel.probeDht();
   }

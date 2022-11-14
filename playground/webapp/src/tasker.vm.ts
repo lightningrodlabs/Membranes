@@ -4,19 +4,10 @@ import {EntryHashB64, ActionHashB64, AgentPubKeyB64, Dictionary} from '@holochai
 import {deserializeHash, serializeHash} from "@holochain-open-dev/utils";
 import {TaskerBridge} from './tasker.bridge';
 import {TaskItemEntry, TaskListEntry} from './tasker.types';
-import {LitElement} from "lit";
 import {DnaClient, ZomeViewModel} from "@ddd-qc/dna-client";
-import {
-  Membrane,
-  MembraneCrossedClaim,
-  MembraneRole,
-  MembraneThresholdEntry,
-  RoleClaim,
-  Vouch
-} from "@membranes/elements";
 
 
-export const taskerContext = createContext<TaskerViewModel>('tasker/service');
+//export const taskerContext = createContext<TaskerViewModel>('tasker/service');
 
 
 /** */
@@ -53,23 +44,33 @@ const emptyPerspective: TaskerPerspective = {
 /**
  *
  */
-export class TaskerViewModel extends ZomeViewModel<TaskerPerspective>  {
+export class TaskerViewModel extends ZomeViewModel<TaskerPerspective, TaskerBridge>  {
   /** Ctor */
   constructor(protected dnaClient: DnaClient) {
-    super();
-    this._bridge = new TaskerBridge(dnaClient);
+    super(new TaskerBridge(dnaClient));
   }
 
+  /** -- ZomeViewModel -- */
+  static context = createContext<TaskerViewModel>('zome_view_model/tasker');
+  getContext(): any {return TaskerViewModel.context}
+
   /** Private */
-  private _bridge : TaskerBridge
-
   private _perspective: TaskerPerspective = emptyPerspective;
-
 
   get perspective(): TaskerPerspective {
     return this._perspective;
   }
 
+  /* */
+  protected hasChanged(): boolean {
+    // TODO
+    return true;
+  }
+
+
+  /** -- Methods -- */
+
+  /** */
   async pullAllLists() {
     const lists = await this._bridge.getAllLists();
     //console.log("pullAllLists() lists:", lists);

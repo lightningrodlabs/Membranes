@@ -5,7 +5,7 @@ import {ScopedElementsMixin} from "@open-wc/scoped-elements";
 
 import {AgentPubKeyB64, Dictionary} from "@holochain-open-dev/core-types";
 
-import {MembranesViewModel, membranesContext} from "../membranes.vm";
+import {MembranesViewModel} from "../membranes.vm";
 import {MyAppEntryType} from "../membranes.types";
 
 
@@ -29,7 +29,7 @@ export class CreateEntryDashboard extends ScopedElementsMixin(LitElement) {
   @property()
   allAppEntryTypes: Dictionary<[string, boolean][]> = {};
 
-  @contextProvided({ context: membranesContext })
+  @contextProvided({ context: MembranesViewModel.context })
   _viewModel!: MembranesViewModel;
 
 

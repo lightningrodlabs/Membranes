@@ -5,7 +5,7 @@ import {ScopedElementsMixin} from "@open-wc/scoped-elements";
 
 import {ActionHashB64, Dictionary, EntryHashB64} from "@holochain-open-dev/core-types";
 
-import {describe_threshold, MembranesViewModel, membranesContext, MembranesPerspective} from "../membranes.vm";
+import {describe_threshold, MembranesViewModel, MembranesPerspective} from "../membranes.vm";
 import {MembraneThresholdKind, MyAppEntryType} from "../membranes.types";
 
 
@@ -28,7 +28,7 @@ export class MembranesCreatorPage extends ScopedElementsMixin(LitElement) {
     @property()
     allAppEntryTypes: Dictionary<[string, boolean][]> = {};
 
-    @contextProvided({ context: membranesContext })
+    @contextProvided({ context: MembranesViewModel.context })
     _viewModel!: MembranesViewModel;
 
     @property({type: Object, attribute: false, hasChanged: (_v, _old) => true})
