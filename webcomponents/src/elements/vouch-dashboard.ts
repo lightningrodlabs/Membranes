@@ -5,7 +5,8 @@ import {ScopedElementsMixin} from "@open-wc/scoped-elements";
 
 import {AgentPubKeyB64} from "@holochain-open-dev/core-types";
 
-import {MembranesViewModel, MembranesPerspective} from "../membranes.vm";
+import {MembranesViewModel} from "../membranes.vm";
+import {MembranesPerspective} from "../membranes.perspective";
 
 
 

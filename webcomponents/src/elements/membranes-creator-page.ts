@@ -5,8 +5,9 @@ import {ScopedElementsMixin} from "@open-wc/scoped-elements";
 
 import {ActionHashB64, Dictionary, EntryHashB64} from "@holochain-open-dev/core-types";
 
-import {describe_threshold, MembranesViewModel, MembranesPerspective} from "../membranes.vm";
-import {MembraneThresholdKind, MyAppEntryType} from "../membranes.types";
+import {describe_threshold, MembranesViewModel} from "../membranes.vm";
+import {MembraneThresholdKind, MyAppEntryType} from "../membranes.bindings";
+import {MembranesPerspective} from "../membranes.perspective";
 
 
 /**

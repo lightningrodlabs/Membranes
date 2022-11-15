@@ -1,4 +1,4 @@
-import {ActionHash, AgentPubKey, AppEntryType, EntryHash, SignedActionHashed} from "@holochain/client";
+import {AgentPubKey, AppEntryType, EntryHash, SignedActionHashed} from "@holochain/client";
 
 
 export interface VouchEntry {

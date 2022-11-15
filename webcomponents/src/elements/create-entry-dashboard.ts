@@ -6,7 +6,7 @@ import {ScopedElementsMixin} from "@open-wc/scoped-elements";
 import {AgentPubKeyB64, Dictionary} from "@holochain-open-dev/core-types";
 
 import {MembranesViewModel} from "../membranes.vm";
-import {MyAppEntryType} from "../membranes.types";
+import {MyAppEntryType} from "../membranes.bindings";
 
 
 

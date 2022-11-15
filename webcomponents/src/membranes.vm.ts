@@ -9,10 +9,17 @@ import {
   MembraneEntry,
   MembraneRoleEntry,
   MembraneThresholdEntry, MyAppEntryType,
-  Privilege,
-  RoleClaimEntry, ThresholdReachedProof, VouchEntry, VouchThreshold
-} from "./membranes.types";
+  RoleClaimEntry,VouchEntry, VouchThreshold
+} from "./membranes.bindings";
 import {createContext} from "@lit-labs/context";
+import {
+  emptyPerspective,
+  Membrane,
+  MembraneCrossedClaim,
+  MembraneRole,
+  MembranesPerspective, RoleClaim,
+  Vouch
+} from "./membranes.perspective";
 
 
 /** Output a human-readable phrase out of a Threshold */
@@ -48,6 +55,7 @@ export function areThresholdEqual(first: MembraneThresholdEntry, second: Membran
   return firstVouch == secondVouch;
 }
 
+/** */
 export function areMembraneEqual(first: Membrane, second: Membrane) : Boolean {
   if (first.thresholds.length !== second.thresholds.length) return false;
   for(let i = 0; i< first.thresholds.length; i++) {
@@ -58,60 +66,6 @@ export function areMembraneEqual(first: Membrane, second: Membrane) : Boolean {
   return true;
 }
 
-
-/** ViewModel */
-
-export interface Vouch {
-  subject: AgentPubKeyB64,
-  forRole: string,
-}
-
-
-export interface Membrane {
-  thresholds: MembraneThresholdEntry[]
-}
-
-export interface MembraneRole {
-  name: string,
-  privileges: Privilege[],
-  enteringMembranes: Membrane[],
-}
-
-
-export interface MembraneCrossedClaim {
-  proofs: ThresholdReachedProof[], // TODO a B64 type of SignedActionHashed
-  membrane: Membrane,
-  subject: AgentPubKeyB64,
-}
-
-export interface RoleClaim {
-  subject: AgentPubKeyB64,
-  membraneIndex: number,
-  role: MembraneRole,
-  membraneClaim: MembraneCrossedClaim,
-}
-
-
-/** */
-export interface MembranesPerspective {
-  /** EntryHashB64 -> <typed> */
-  thresholds: Dictionary<MembraneThresholdEntry>,
-  membranes: Dictionary<Membrane>,
-  roles: Dictionary<MembraneRole>,
-  myRoleClaims: Dictionary<RoleClaim>,
-  myMembraneClaims: Dictionary<MembraneCrossedClaim>,
-  /** RoleName -> [[emitted],[[received,author]]] */
-  myVouches: Dictionary<[Vouch[], [Vouch, AgentPubKeyB64][]]>
-}
-
-const emptyPerspective: MembranesPerspective = {
-  thresholds: {},
-  membranes: {},
-  roles: {},
-  myRoleClaims: {},
-  myMembraneClaims: {},
-  myVouches: {},
-}
 
 
 
@@ -124,12 +78,11 @@ export class MembranesViewModel extends ZomeViewModel<MembranesPerspective, Memb
     super(new MembranesBridge(dnaClient));
   }
 
+  /** -- ZomeViewModel -- */
+
   static context = createContext<MembranesViewModel>('zome_view_model/agent_directory');
   getContext(): any {return MembranesViewModel.context}
 
-
-  /** -- ZomeViewModel -- */
-  private _perspective: MembranesPerspective = emptyPerspective
 
   /* */
   get perspective(): MembranesPerspective {
@@ -141,6 +94,11 @@ export class MembranesViewModel extends ZomeViewModel<MembranesPerspective, Memb
     // TODO
     return true;
   }
+
+
+  /** -- Perspective -- */
+
+  private _perspective: MembranesPerspective = emptyPerspective
 
 
   /** -- Methods -- */

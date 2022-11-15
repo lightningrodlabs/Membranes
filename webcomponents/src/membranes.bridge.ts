@@ -8,7 +8,7 @@ import {
   MembraneRoleEntry,
   MembraneThresholdEntry,
   RoleClaimEntry, VouchEntry, VouchThreshold
-} from "./membranes.types";
+} from "./membranes.bindings";
 
 
 /** */
