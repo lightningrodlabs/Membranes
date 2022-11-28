@@ -1,8 +1,8 @@
 import {EntryHashB64, ActionHashB64, AgentPubKeyB64, Dictionary} from '@holochain-open-dev/core-types';
 import {AgentPubKey, EntryHash} from "@holochain/client";
 import {deserializeHash, serializeHash} from "@holochain-open-dev/utils";
-import {DnaClient, ZomeViewModel} from "@ddd-qc/dna-client";
-import {MembranesBridge} from "./membranes.bridge";
+import {ZomeViewModel} from "@ddd-qc/dna-client";
+import {MembranesProxy} from "./membranes.proxy";
 import {
   CreateEntryCountThreshold,
   MembraneCrossedClaimEntry,
@@ -11,7 +11,6 @@ import {
   MembraneThresholdEntry, MyAppEntryType,
   RoleClaimEntry,VouchEntry, VouchThreshold
 } from "./membranes.bindings";
-import {createContext} from "@lit-labs/context";
 import {
   emptyPerspective,
   Membrane,
@@ -70,17 +69,13 @@ export function areMembraneEqual(first: Membrane, second: Membrane) : Boolean {
 /**
  *
  */
-export class MembranesViewModel extends ZomeViewModel<MembranesPerspective, MembranesBridge> {
-  /** Ctor */
-  constructor(protected dnaClient: DnaClient) {
-    super(new MembranesBridge(dnaClient));
-  }
+export class MembranesZvm extends ZomeViewModel {
 
-  /** -- ZomeViewModel -- */
+  static readonly ZOME_PROXY = MembranesProxy;
+  get zomeProxy(): MembranesProxy {return this._zomeProxy as MembranesProxy;}
 
-  static context = createContext<MembranesViewModel>('zome_view_model/agent_directory');
-  getContext(): any {return MembranesViewModel.context}
 
+  /** -- ViewModel -- */
 
   /* */
   get perspective(): MembranesPerspective {
@@ -95,7 +90,7 @@ export class MembranesViewModel extends ZomeViewModel<MembranesPerspective, Memb
 
 
   /** */
-  async probeDht() {
+  async probeAll() {
     await this.probeThresholds();
     await this.probeMembranes();
     const roleEntries = await this.probeRoles();
@@ -191,7 +186,7 @@ export class MembranesViewModel extends ZomeViewModel<MembranesPerspective, Memb
   private async pullThreshold(eh: EntryHash): Promise<MembraneThresholdEntry> {
     //console.log("pullThreshold() called", eh)
     let thB64 = serializeHash(eh)
-    const maybeThreshold = await this._bridge.getThreshold(eh)
+    const maybeThreshold = await this.zomeProxy.getThreshold(eh)
     if (!maybeThreshold) {
       console.warn("pullThreshold() Failed. Can't find Threshold at " + thB64)
       return Promise.reject("pullThreshold() Failed. Can't find Threshold at " + thB64);
@@ -205,7 +200,7 @@ export class MembranesViewModel extends ZomeViewModel<MembranesPerspective, Memb
   private async pullMembrane(eh: EntryHash): Promise<Membrane> {
     //console.log("pullMembrane() called", eh)
     let b64 = serializeHash(eh)
-    const maybeEntry = await this._bridge.getMembrane(eh)
+    const maybeEntry = await this.zomeProxy.getMembrane(eh)
     if (!maybeEntry) {
       console.warn("pullMembrane() Failed. Can't find Membrane at " + b64)
       return Promise.reject("pullMembrane() Failed. Can't find Membrane at " + b64);
@@ -220,7 +215,7 @@ export class MembranesViewModel extends ZomeViewModel<MembranesPerspective, Memb
   private async pullMembraneCrossedClaim(eh: EntryHash): Promise<MembraneCrossedClaim> {
     //console.log("pullMembraneCrossedClaim() called", eh)
     let b64 = serializeHash(eh)
-    const maybeEntry = await this._bridge.getMembraneCrossedClaim(eh)
+    const maybeEntry = await this.zomeProxy.getMembraneCrossedClaim(eh)
     if (!maybeEntry) {
       console.warn("pullMembraneCrossedClaim() Failed. Can't find Membrane at " + b64)
       return Promise.reject("pullMembraneCrossedClaim() Failed. Can't find Membrane at " + b64);
@@ -234,7 +229,7 @@ export class MembranesViewModel extends ZomeViewModel<MembranesPerspective, Memb
   private async pullRole(eh: EntryHash): Promise<MembraneRole> {
     //console.log("pullRole() called", eh)
     let b64 = serializeHash(eh)
-    const maybeEntry = await this._bridge.getRole(eh)
+    const maybeEntry = await this.zomeProxy.getRole(eh)
     if (!maybeEntry) {
       console.warn("pullRole() Failed. Can't find Role at " + b64)
       return Promise.reject("pullRole() Failed. Can't find Role at " + b64);
@@ -247,21 +242,21 @@ export class MembranesViewModel extends ZomeViewModel<MembranesPerspective, Memb
 
   /** */
   async probeThresholds() {
-    const thresholdEntries = await this._bridge.getAllThresholds();
+    const thresholdEntries = await this.zomeProxy.getAllThresholds();
     let thStore: Dictionary<MembraneThresholdEntry> = {};
     for (const [eh, typed] of thresholdEntries) {
       const b64 = serializeHash(eh);
       thStore[b64] = typed;
     }
     this._perspective.thresholds = thStore!;
-    this.notify();
+    this.notifySubscribers();
     //console.log({allThresholds: this._perspective.thresholds})
   }
 
 
   /** */
   async probeMembranes() {
-    const membraneEntries = await this._bridge.getAllMembranes();
+    const membraneEntries = await this.zomeProxy.getAllMembranes();
     //console.log("membraneEntries:", membraneEntries)
     let membraneStore: Dictionary<Membrane> = {};
     for (const [eh, membraneEntry] of membraneEntries) {
@@ -270,14 +265,14 @@ export class MembranesViewModel extends ZomeViewModel<MembranesPerspective, Memb
       membraneStore[b64] = membrane;
     }
     this._perspective.membranes = membraneStore!;
-    this.notify();
+    this.notifySubscribers();
     //console.log({allMembranes: this._perspective.membranes})
   }
 
 
   /** */
   async probeRoles(): Promise<[EntryHash, MembraneRoleEntry][]> {
-    const roleEntries = await this._bridge.getAllRoles();
+    const roleEntries = await this.zomeProxy.getAllRoles();
     //console.log("roleEntries:", roleEntries)
     let roleStore: Dictionary<MembraneRole> = {};
     for (const [eh, roleEntry] of roleEntries) {
@@ -286,7 +281,7 @@ export class MembranesViewModel extends ZomeViewModel<MembranesPerspective, Memb
       roleStore[b64] = role;
     }
     this._perspective.roles = roleStore!;
-    this.notify();
+    this.notifySubscribers();
     //console.log({allRoles: this._perspective.roles})
     return roleEntries;
   }
@@ -295,12 +290,12 @@ export class MembranesViewModel extends ZomeViewModel<MembranesPerspective, Memb
   /** */
   async probeMyVouches(roleEntries: [EntryHash, MembraneRoleEntry][]) {
     for (const [eh, roleEntry] of roleEntries) {
-      const emittedEhs = await this._bridge.getMyEmittedVouches(roleEntry.name);
-      const receivedPairs: [EntryHash, AgentPubKey][] = await this._bridge.getMyReceivedVouches(roleEntry.name);
+      const emittedEhs = await this.zomeProxy.getMyEmittedVouches(roleEntry.name);
+      const receivedPairs: [EntryHash, AgentPubKey][] = await this.zomeProxy.getMyReceivedVouches(roleEntry.name);
       /* */
       let emitted: Vouch[] = [];
       for (const eh of emittedEhs) {
-        const vouch = await this._bridge.getVouch(eh);
+        const vouch = await this.zomeProxy.getVouch(eh);
         if (vouch) {
           emitted.push(this.convertVouchEntry(vouch))
         }
@@ -308,7 +303,7 @@ export class MembranesViewModel extends ZomeViewModel<MembranesPerspective, Memb
       /* */
       let received: [Vouch, AgentPubKeyB64][] = [];
       for (const [eh, author] of receivedPairs) {
-        const vouch = await this._bridge.getVouch(eh);
+        const vouch = await this.zomeProxy.getVouch(eh);
         if (vouch) {
           const pair: [Vouch, AgentPubKeyB64] = [this.convertVouchEntry(vouch), serializeHash(author)]
           received.push(pair)
@@ -317,13 +312,13 @@ export class MembranesViewModel extends ZomeViewModel<MembranesPerspective, Memb
       /* */
       this._perspective.myVouches[roleEntry.name] = [emitted, received];
     }
-    this.notify();
+    this.notifySubscribers();
   }
 
 
   /** */
   async claimAll() {
-    await this._bridge.claimAllRoles();
+    await this.zomeProxy.claimAllRoles();
     this.probeMyClaims();
   }
 
@@ -331,7 +326,7 @@ export class MembranesViewModel extends ZomeViewModel<MembranesPerspective, Memb
   /** */
   async probeMyClaims() {
     /** Role Claims */
-    const myRoleClaims = await this._bridge.myClaimedRoles();
+    const myRoleClaims = await this.zomeProxy.myClaimedRoles();
     let store: Dictionary<RoleClaim> = {}
     for (const [eh, entry] of myRoleClaims) {
       const b64 = serializeHash(eh);
@@ -341,7 +336,7 @@ export class MembranesViewModel extends ZomeViewModel<MembranesPerspective, Memb
     this._perspective.myRoleClaims = store;
     //console.log("pullMyClaims() myRoleClaims:", store)
     /** Membrane Claims */
-    const myMembraneClaims = await this._bridge.myClaimedMembranes();
+    const myMembraneClaims = await this.zomeProxy.myClaimedMembranes();
     let membraneClaimStore: Dictionary<MembraneCrossedClaim> = {}
     for (const [eh, entry] of myMembraneClaims) {
       const b64 = serializeHash(eh);
@@ -349,7 +344,7 @@ export class MembranesViewModel extends ZomeViewModel<MembranesPerspective, Memb
       membraneClaimStore[b64] = claim
     }
     this._perspective.myMembraneClaims = membraneClaimStore;
-    this.notify();
+    this.notifySubscribers();
     //console.log("pullMyClaims() myMembraneClaims:", membraneClaimStore)
   }
 
@@ -362,7 +357,7 @@ export class MembranesViewModel extends ZomeViewModel<MembranesPerspective, Memb
       privileges: [],
       enteringMembraneEhs,
     };
-    const res = await this._bridge.publishRole(role);
+    const res = await this.zomeProxy.publishRole(role);
     this.probeRoles();
     return res;
   }
@@ -374,7 +369,7 @@ export class MembranesViewModel extends ZomeViewModel<MembranesPerspective, Memb
     const membrane: MembraneEntry = {
       thresholdEhs,
     };
-    let res = await this._bridge.publishMembrane(membrane);
+    let res = await this.zomeProxy.publishMembrane(membrane);
     this.probeMembranes();
     return res;
   }
@@ -385,7 +380,7 @@ export class MembranesViewModel extends ZomeViewModel<MembranesPerspective, Memb
     const typed: VouchThreshold = {
       requiredCount, byRole, forRole
     };
-    let res = await this._bridge.publishVouchThreshold(typed);
+    let res = await this.zomeProxy.publishVouchThreshold(typed);
     this.probeThresholds();
     return res;
   }
@@ -397,15 +392,15 @@ export class MembranesViewModel extends ZomeViewModel<MembranesPerspective, Memb
       entryType: entryType,
       requiredCount: requiredCount,
     };
-    let res = await this._bridge.publishCreateEntryCountThreshold(typed);
+    let res = await this.zomeProxy.publishCreateEntryCountThreshold(typed);
     this.probeThresholds();
     return res;
   }
 
 
   async vouchAgent(agent: AgentPubKeyB64, forRole: string): Promise<EntryHash> {
-    const res = await this._bridge.publishVouch({subject: deserializeHash(agent), forRole});
-    this.probeDht();
+    const res = await this.zomeProxy.publishVouch({subject: deserializeHash(agent), forRole});
+    this.probeAll();
     return res;
   }
 
@@ -413,14 +408,14 @@ export class MembranesViewModel extends ZomeViewModel<MembranesPerspective, Memb
   /* */
   async getVouchAuthor(vouch: Vouch): Promise<AgentPubKeyB64> {
     let entry: VouchEntry = {subject: deserializeHash(vouch.subject), forRole: vouch.forRole};
-    let res = await this._bridge.getVouchAuthor(entry);
+    let res = await this.zomeProxy.getVouchAuthor(entry);
     return serializeHash(res);
   }
 
 
   /** */
   async getCreateCount(agent: AgentPubKeyB64, entryType: MyAppEntryType): Promise<number> {
-    return this._bridge.getCreateCount({subject: deserializeHash(agent), entryType});
+    return this.zomeProxy.getCreateCount({subject: deserializeHash(agent), entryType});
   }
 
 }

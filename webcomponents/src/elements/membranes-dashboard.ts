@@ -1,20 +1,18 @@
 import {css, html, LitElement} from "lit";
 import {property, state} from "lit/decorators.js";
-import {contextProvided} from '@lit-labs/context';
-import {ScopedElementsMixin} from "@open-wc/scoped-elements";
-
 import {Dictionary} from "@holochain-open-dev/core-types";
-
-import {describe_threshold, MembranesViewModel} from "../membranes.vm";
+import {describe_threshold, MembranesZvm} from "../membranes.zvm";
 import {MembranesPerspective} from "../membranes.perspective";
+import { ZomeElement } from "@ddd-qc/dna-client";
 
 
 /**
  * @element membranes-dashboard
  */
-export class MembranesDashboard extends ScopedElementsMixin(LitElement) {
+export class MembranesDashboard extends ZomeElement<MembranesPerspective, MembranesZvm>  {
+  /** */
   constructor() {
-    super();
+    super(MembranesZvm.DEFAULT_ZOME_NAME)
   }
 
 
@@ -24,32 +22,13 @@ export class MembranesDashboard extends ScopedElementsMixin(LitElement) {
   @property()
   allAppEntryTypes: Dictionary<[string, boolean][]> = {};
 
-  @contextProvided({ context: MembranesViewModel.context })
-  _viewModel!: MembranesViewModel;
-
-  @property({type: Object, attribute: false, hasChanged: (_v, _old) => true})
-  perspective!: MembranesPerspective;
 
   /** -- Methods -- */
 
   /** After first render only */
   async firstUpdated() {
     console.log("membranes-dashboard first update done!")
-    await this.init();
-  }
-
-
-  /** After each render */
-  async updated(changedProperties: any) {
-    //console.log("*** updated() called !")
-  }
-
-
-  /** Called after first update */
-  private async init() {
-    console.log("membranes-dashboard.init() - START!");
-    this._viewModel.subscribe(this, 'perspective');
-    this.refresh();
+    await this.refresh();
     this._initialized = true;
     console.log("membranes-dashboard.init() - DONE");
   }
@@ -58,13 +37,13 @@ export class MembranesDashboard extends ScopedElementsMixin(LitElement) {
   /** */
   async refresh(_e?: any) {
     console.log("membranes-dashboard.refresh(): Pulling data from DHT")
-    await this._viewModel.probeDht();
+    await this._zvm.probeAll();
   }
 
 
   /** */
   async claimAll(_e?:any) {
-     await this._viewModel.claimAll();
+     await this._zvm.claimAll();
   }
 
 
@@ -84,7 +63,7 @@ export class MembranesDashboard extends ScopedElementsMixin(LitElement) {
           //console.log("Role", role)
           const MembraneLi = Object.values(role.enteringMembranes).map(
               (membrane) => {
-                return html `<li>${this._viewModel.findMembrane(membrane)}</li>`
+                return html `<li>${this._zvm.findMembrane(membrane)}</li>`
               }
           )
           //console.log("MembraneLi", MembraneLi)
@@ -137,7 +116,7 @@ export class MembranesDashboard extends ScopedElementsMixin(LitElement) {
     const myMembraneClaimsLi = Object.entries(this.perspective.myMembraneClaims).map(
         ([ehB64, claim]) => {
           //console.log("membrane claim:", ehB64, claim)
-          return html `<li title="proofs: ${JSON.stringify(claim.proofs)}"><abbr>${this._viewModel.findMembrane(claim.membrane)}</abbr></li>`
+          return html `<li title="proofs: ${JSON.stringify(claim.proofs)}"><abbr>${this._zvm.findMembrane(claim.membrane)}</abbr></li>`
         }
     )
     /** render all */

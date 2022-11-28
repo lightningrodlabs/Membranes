@@ -1,22 +1,20 @@
-import {css, html, LitElement} from "lit";
+import {css, html} from "lit";
 import {property, state} from "lit/decorators.js";
-import {contextProvided} from '@lit-labs/context';
-import {ScopedElementsMixin} from "@open-wc/scoped-elements";
-
 import {ActionHashB64, Dictionary, EntryHashB64} from "@holochain-open-dev/core-types";
-
-import {describe_threshold, MembranesViewModel} from "../membranes.vm";
+import {describe_threshold, MembranesZvm} from "../membranes.zvm";
 import {MembraneThresholdKind, MyAppEntryType} from "../membranes.bindings";
 import {MembranesPerspective} from "../membranes.perspective";
+import { ZomeElement } from "@ddd-qc/dna-client";
 
 
 /**
  * @element membranes-creator-page
  */
-export class MembranesCreatorPage extends ScopedElementsMixin(LitElement) {
-    constructor() {
-        super();
-    }
+export class MembranesCreatorPage extends ZomeElement<MembranesPerspective, MembranesZvm> {
+  /** */
+  constructor() {
+    super(MembranesZvm.DEFAULT_ZOME_NAME)
+  }
 
 
     /** -- Fields -- */
@@ -29,44 +27,22 @@ export class MembranesCreatorPage extends ScopedElementsMixin(LitElement) {
     @property()
     allAppEntryTypes: Dictionary<[string, boolean][]> = {};
 
-    @contextProvided({ context: MembranesViewModel.context })
-    _viewModel!: MembranesViewModel;
-
-    @property({type: Object, attribute: false, hasChanged: (_v, _old) => true})
-    perspective!: MembranesPerspective;
 
     /** -- Methods -- */
 
     /** After first render only */
     async firstUpdated() {
-        console.log("membranes-creator-page first update done!")
-        await this.init();
-    }
-
-
-    /** After each render */
-    async updated(changedProperties: any) {
-        //console.log("*** updated() called !")
-    }
-
-
-    /**
-     * Called after first update
-     * Get local snapshots and latest from DHT
-     */
-    private async init() {
-        console.log("membranes-creator-page.init() - START!");
-        this._viewModel.subscribe(this, 'perspective');
-        this.refresh();
+        //console.log("membranes-creator-page first update done!")
+        await this._zvm.probeAll();
         this._initialized = true;
-        console.log("membranes-creator-page.init() - DONE");
+        //console.log("membranes-creator-page.init() - DONE");
     }
 
 
     /** */
     async refresh(_e?: any) {
-        console.log("membranes-creator-page.refresh(): Pulling data from DHT")
-        await this._viewModel.probeDht();
+        //console.log("membranes-creator-page.refresh(): Pulling data from DHT")
+        await this._zvm.probeAll();
     }
 
 
@@ -74,7 +50,7 @@ export class MembranesCreatorPage extends ScopedElementsMixin(LitElement) {
     onCreateRole(e: any) {
         console.log("onCreateRole() CALLED", e)
         const input = this.shadowRoot!.getElementById("roleNameInput") as HTMLInputElement;
-        let res = this._viewModel.createRole(input.value, this._membranesForCurrentRole);
+        let res = this._zvm.createRole(input.value, this._membranesForCurrentRole);
         console.log("onCreateRole res:", res)
         input.value = "";
         this._membranesForCurrentRole = [];
@@ -96,7 +72,7 @@ export class MembranesCreatorPage extends ScopedElementsMixin(LitElement) {
     /** */
     onCreateMembrane(e: any) {
         console.log("onCreateMembrane() CALLED", e)
-        let res = this._viewModel.createMembrane(this._thresholdsForCurrentMembrane);
+        let res = this._zvm.createMembrane(this._thresholdsForCurrentMembrane);
         console.log("onCreateMembrane res:", res)
         this._thresholdsForCurrentMembrane = [];
     }
@@ -143,7 +119,7 @@ export class MembranesCreatorPage extends ScopedElementsMixin(LitElement) {
                 const entryType: MyAppEntryType = {id: entrySelector.selectedIndex, zomeId: zomeSelector.selectedIndex, isPublic: true};  // FIXME
                 const input = this.shadowRoot!.getElementById("createEntryCountNumber") as HTMLInputElement;
                 const count = Number(input.value);
-                const _res = this._viewModel.createCreateEntryCountThreshold(entryType, count);
+                const _res = this._zvm.createCreateEntryCountThreshold(entryType, count);
                 break;
             }
             case "VouchThreshold": {
@@ -153,7 +129,7 @@ export class MembranesCreatorPage extends ScopedElementsMixin(LitElement) {
                 const forRole = input2.value;
                 const input3 = this.shadowRoot!.getElementById("byRoleInput") as HTMLInputElement;
                 const byRole = input3.value;
-                let _res = this._viewModel.createVouchThreshold(count, byRole, forRole);
+                let _res = this._zvm.createVouchThreshold(count, byRole, forRole);
                 break;
             }
             default:

@@ -1,6 +1,6 @@
 ---
 manifest_version: "1"
-name: tasker
+name: dTasker
 integrity:
   origin_time: 2022-09-25T13:55:49.200Z
   zomes:
@@ -12,15 +12,15 @@ integrity:
       bundled: ../../target/wasm32-unknown-unknown/release/agent_directory_integrity.wasm
 coordinator:
   zomes:
-    - name: tasker
+    - name: zTasker
       bundled: ../../target/wasm32-unknown-unknown/release/tasker.wasm
       dependencies:
         - name: tasker_model
-    - name: membranes
+    - name: zMembranes
       bundled: ../../target/wasm32-unknown-unknown/release/membranes.wasm
       dependencies:
         - name: membranes_integrity
-    - name: agent_directory
+    - name: zAgentDirectory
       bundled: ../../target/wasm32-unknown-unknown/release/agent_directory.wasm
       dependencies:
         - name: agent_directory_integrity

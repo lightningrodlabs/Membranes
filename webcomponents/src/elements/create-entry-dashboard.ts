@@ -5,19 +5,22 @@ import {ScopedElementsMixin} from "@open-wc/scoped-elements";
 
 import {AgentPubKeyB64, Dictionary} from "@holochain-open-dev/core-types";
 
-import {MembranesViewModel} from "../membranes.vm";
+import {MembranesZvm} from "../membranes.zvm";
 import {MyAppEntryType} from "../membranes.bindings";
+import { ZomeElement } from "@ddd-qc/dna-client";
+import { MembranesPerspective } from "../membranes.perspective";
 
 
 
 /**
  * @element create-entry-dashboard
  */
-export class CreateEntryDashboard extends ScopedElementsMixin(LitElement) {
-  constructor() {
-    super();
-  }
+export class CreateEntryDashboard extends ZomeElement<MembranesPerspective, MembranesZvm> {
 
+  /** */
+  constructor() {
+    super(MembranesZvm.DEFAULT_ZOME_NAME)
+  }
 
   /** -- Fields -- */
   @state() private _initialized = false;
@@ -29,35 +32,7 @@ export class CreateEntryDashboard extends ScopedElementsMixin(LitElement) {
   @property()
   allAppEntryTypes: Dictionary<[string, boolean][]> = {};
 
-  @contextProvided({ context: MembranesViewModel.context })
-  _viewModel!: MembranesViewModel;
 
-
-
-
-
-  /** After first render only */
-  async firstUpdated() {
-    console.log("create-entry-dashboard first update done!")
-    await this.init();
-  }
-
-
-  /** After each render */
-  async updated(changedProperties: any) {
-    //console.log("*** updated() called !")
-  }
-
-
-  /**
-   * Called after first update
-   * Get local snapshots and latest from DHT
-   */
-  private async init() {
-    console.log("create-entry-dashboard.init() - START!");
-    this._initialized = true;
-    console.log("create-entry-dashboard.init() - DONE");
-  }
 
 
   /** */
@@ -75,7 +50,7 @@ export class CreateEntryDashboard extends ScopedElementsMixin(LitElement) {
     const zomeSelector = this.shadowRoot!.getElementById("selectedZome") as HTMLSelectElement;
     const entrySelector = this.shadowRoot!.getElementById("selectedEntryType") as HTMLSelectElement;
     const entryType: MyAppEntryType = {id: entrySelector.selectedIndex, zomeId: zomeSelector.selectedIndex, isPublic: true};  // FIXME
-    this._queryResult = await this._viewModel.getCreateCount(agentSelector.value, entryType);
+    this._queryResult = await this._zvm.getCreateCount(agentSelector.value, entryType);
   }
 
 
@@ -133,18 +108,4 @@ export class CreateEntryDashboard extends ScopedElementsMixin(LitElement) {
     `;
   }
 
-
-  /** */
-  static get scopedElements() {
-    return {
-      //'sl-tooltip': SlTooltip,
-    };
-  }
-
-
-  static get styles() {
-    return [
-      css``,
-    ];
-  }
 }

@@ -1,13 +1,11 @@
-import {css, html, LitElement} from "lit";
+import {css, html} from "lit";
 import {property, state} from "lit/decorators.js";
-import { contextProvided } from '@lit-labs/context';
-import {ScopedElementsMixin} from "@open-wc/scoped-elements";
 import {AgentPubKeyB64, EntryHashB64} from "@holochain-open-dev/core-types";
 import {serializeHash} from "@holochain-open-dev/utils";
 import {AgentDirectoryViewModel, AgentDirectoryPerspective} from "@ddd-qc/agent-directory";
-import {TaskerPerspective, TaskList} from "../tasker.vm";
-import {TaskerViewModel} from "../tasker.vm";
-
+import {TaskList} from "../tasker.zvm";
+import { DnaElement } from "@ddd-qc/dna-client";
+import { TaskerDvm } from "../tasker.dvm";
 
 
 export const delay = (ms:number) => new Promise(r => setTimeout(r, ms))
@@ -16,9 +14,10 @@ export const delay = (ms:number) => new Promise(r => setTimeout(r, ms))
 /**
  * @element tasker-page
  */
-export class TaskerPage extends ScopedElementsMixin(LitElement) {
+export class TaskerPage extends DnaElement<unknown, TaskerDvm> {
+
   constructor() {
-    super();
+    super(TaskerDvm.DEFAULT_ROLE_ID)
   }
 
   /** -- Fields -- */
@@ -28,45 +27,31 @@ export class TaskerPage extends ScopedElementsMixin(LitElement) {
   @property({ type: Boolean, attribute: 'debug' })
   debugMode: boolean = false;
 
-  @contextProvided({ context: TaskerViewModel.context })
-  _taskerViewModel!: TaskerViewModel;
-  @contextProvided({ context: AgentDirectoryViewModel.context })
-  _agentDirectoryViewModel!: AgentDirectoryViewModel;
-
-  @property({type: Object, attribute: false, hasChanged: (_v, _old) => true})
-  taskerPerspective!: TaskerPerspective;
-
-  @property({type: Object, attribute: false, hasChanged: (_v, _old) => true})
-  agentDirectoryPerspective!: AgentDirectoryPerspective;
-
 
   /** -- Methods -- */
 
   /** After first render only */
-  firstUpdated() {
+  async firstUpdated() {
     //console.log("first update done!")
-    console.log("tasker-page.init() - START!");
-    this._taskerViewModel.subscribe(this, 'taskerPerspective');
-    this._agentDirectoryViewModel.subscribe(this, 'agentDirectoryPerspective');
-    //this.refresh();
+    console.log("<tasker-page> firstUpdated() - START!");
+    await this.refresh();
     this._initialized = true;
     /** Done */
-    console.log("tasker-page.init() - DONE");
+    console.log("<tasker-page> firstUpdated() - DONE");
   }
 
 
   /** */
   async refresh(_e?: any) {
     //console.log("tasker-page.refresh() called")
-    await this._taskerViewModel.probeDht();
-    await this._agentDirectoryViewModel.probeDht();
+    await this._dvm.probeAll();
   }
 
 
   /** */
   async onCreateList(e: any) {
     const input = this.shadowRoot!.getElementById("listTitleInput") as HTMLInputElement;
-    let res = await this._taskerViewModel.createTaskList(input.value);
+    let res = await this._dvm.taskerZvm.createTaskList(input.value);
     //console.log("onCreateList() res:", res)
     input.value = "";
   }
@@ -85,7 +70,7 @@ export class TaskerPage extends ScopedElementsMixin(LitElement) {
     /* Title */
     const input = this.shadowRoot!.getElementById("itemTitleInput") as HTMLInputElement;
     //console.log(input)
-    let res = this._taskerViewModel.createTaskItem(input.value, assignee, this._selectedListEh!);
+    let res = this._dvm.taskerZvm.createTaskItem(input.value, assignee, this._selectedListEh!);
     //console.log("onCreateList res:", res)
     input.value = "";
   }
@@ -98,7 +83,7 @@ export class TaskerPage extends ScopedElementsMixin(LitElement) {
       return;
     }
     try {
-      let res = await this._taskerViewModel.lockTaskList(this._selectedListEh!);
+      let res = await this._dvm.taskerZvm.lockTaskList(this._selectedListEh!);
       //console.log("onLockList() res =", res)
     } catch (e:any) {
       console.warn(e);
@@ -129,12 +114,12 @@ export class TaskerPage extends ScopedElementsMixin(LitElement) {
       const checkbox = this.shadowRoot!.getElementById(ehb64) as HTMLInputElement;
       //console.log("" + checkbox.checked + ". checkbox " + ehb64)
       if (checkbox.checked) {
-        await this._taskerViewModel.completeTask(ehb64)
+        await this._dvm.taskerZvm.completeTask(ehb64)
       }
     }
 
-    this._taskerViewModel.probeDht();
-    this.requestUpdate();
+    this._dvm.taskerZvm.probeAll();
+    //this.requestUpdate();
   }
 
 
@@ -144,12 +129,12 @@ export class TaskerPage extends ScopedElementsMixin(LitElement) {
     if (!this._initialized) {
       return html`<span>Loading...</span>`;
     }
-    let taskListEntries = this.taskerPerspective.taskListEntries;
-    let agents: AgentPubKeyB64[] = this.agentDirectoryPerspective.agents;
-    let myRoles = this.taskerPerspective.myRoles;
+    let taskListEntries = this._dvm.taskerZvm.perspective.taskListEntries;
+    let agents: AgentPubKeyB64[] = this._dvm.AgentDirectoryZvm.perspective.agents;
+    let myRoles = this._dvm.taskerZvm.perspective.myRoles;
     let selectedList: TaskList | null = null;
     if (this._selectedListEh) {
-      selectedList = this.taskerPerspective.taskLists[this._selectedListEh];
+      selectedList = this._dvm.taskerZvm.perspective.taskLists[this._selectedListEh];
       if (!selectedList) {
         console.warn("No list found for selectedListEh", this._selectedListEh);
         this.refresh();
@@ -238,20 +223,4 @@ export class TaskerPage extends ScopedElementsMixin(LitElement) {
     `;
   }
 
-
-  /** */
-  static get scopedElements() {
-    return {
-      //"place-snapshot": PlaceSnapshot,
-      //'sl-tooltip': SlTooltip,
-      //'sl-badge': SlBadge,
-    };
-  }
-
-
-  static get styles() {
-    return [
-      css``,
-    ];
-  }
 }

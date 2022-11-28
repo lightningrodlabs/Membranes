@@ -2,12 +2,9 @@ import {createContext} from "@lit-labs/context";
 import { EntryHash} from "@holochain/client";
 import {EntryHashB64, ActionHashB64, AgentPubKeyB64, Dictionary} from '@holochain-open-dev/core-types';
 import {deserializeHash, serializeHash} from "@holochain-open-dev/utils";
-import {TaskerBridge} from './tasker.bridge';
+import {TaskerProxy} from './tasker.proxy';
 import {TaskItemEntry, TaskListEntry} from './tasker.types';
-import {DnaClient, ZomeViewModel} from "@ddd-qc/dna-client";
-
-
-//export const taskerContext = createContext<TaskerViewModel>('tasker/service');
+import {ZomeViewModel} from "@ddd-qc/dna-client";
 
 
 /** */
@@ -44,22 +41,18 @@ const emptyPerspective: TaskerPerspective = {
 /**
  *
  */
-export class TaskerViewModel extends ZomeViewModel<TaskerPerspective, TaskerBridge>  {
-  /** Ctor */
-  constructor(protected dnaClient: DnaClient) {
-    super(new TaskerBridge(dnaClient));
-  }
+export class TaskerZvm extends ZomeViewModel {
 
-  /** -- ZomeViewModel -- */
-  static context = createContext<TaskerViewModel>('zome_view_model/tasker');
-  getContext(): any {return TaskerViewModel.context}
+  static readonly ZOME_PROXY = TaskerProxy;
+  get zomeProxy(): TaskerProxy {return this._zomeProxy as TaskerProxy;}
 
-  /** Private */
+
+  /** -- ViewModel -- */
+
   private _perspective: TaskerPerspective = emptyPerspective;
 
-  get perspective(): TaskerPerspective {
-    return this._perspective;
-  }
+  /* */
+  get perspective(): TaskerPerspective {return this._perspective}
 
   /* */
   protected hasChanged(): boolean {
@@ -72,19 +65,19 @@ export class TaskerViewModel extends ZomeViewModel<TaskerPerspective, TaskerBrid
 
   /** */
   async pullAllLists() {
-    const lists = await this._bridge.getAllLists();
+    const lists = await this.zomeProxy.getAllLists();
     //console.log("pullAllLists() lists:", lists);
     //console.log("pullAllLists() taskListEntryStore:", this.taskListEntryStore);
     for (const pair of lists) {
       const ehB64 = serializeHash(pair[0])
       this._perspective.taskListEntries[ehB64] = pair[1];
     }
-    this.notify()
+    this.notifySubscribers()
   }
 
 
   /** */
-  async probeDht() {
+  async probeAll() {
     console.log("taskerViewModel.probeDht() called")
     /** Get Lists */
     await this.pullAllLists();
@@ -92,9 +85,9 @@ export class TaskerViewModel extends ZomeViewModel<TaskerPerspective, TaskerBrid
     //console.log({listEntries})
     let pr = Object.entries(listEntries).map(async ([listEhB64, listEntry]) => {
       const listEh: EntryHash = deserializeHash(listEhB64);
-      const triples: [EntryHash, TaskItemEntry, boolean][] = await this._bridge.getListItems(listEh);
+      const triples: [EntryHash, TaskItemEntry, boolean][] = await this.zomeProxy.getListItems(listEh);
       //console.log({listEhB64, triples})
-      const isLocked = await this._bridge.isListLocked(listEh);
+      const isLocked = await this.zomeProxy.isListLocked(listEh);
       const items: [EntryHashB64, TaskItem][]= triples.map(([eh, entry, isCompleted]) => {
         return [serializeHash(eh), {entry, isCompleted}];
       });
@@ -109,21 +102,21 @@ export class TaskerViewModel extends ZomeViewModel<TaskerPerspective, TaskerBrid
         for (const obj of results) {
           this._perspective.taskLists[obj.eh] = obj.list;
         }
-      this.notify()
+      this.notifySubscribers()
     })
 
 
     /** Get My Roles */
-    let res = await this._bridge.getMyRoleClaimsDetails();
+    let res = await this.zomeProxy.getMyRoleClaimsDetails();
     let p = Object.values(res).map(async ([_claim_eh, roleClaim]) => {
-      let role = await this._bridge.getRole(roleClaim.roleEh);
+      let role = await this.zomeProxy.getRole(roleClaim.roleEh);
       return role? role.name : "";
     })
     Promise.all(p).then((v) => {
       this._perspective.myRoles = v;
-      this.notify()
+      this.notifySubscribers()
     })
-    this.notify()
+    this.notifySubscribers()
   }
 
 
@@ -131,26 +124,26 @@ export class TaskerViewModel extends ZomeViewModel<TaskerPerspective, TaskerBrid
 
   /** */
   async createTaskItem(title: string, assignee: AgentPubKeyB64, listEh: EntryHashB64): Promise<ActionHashB64> {
-    let res = serializeHash(await this._bridge.createTaskItem(title, deserializeHash(assignee), deserializeHash(listEh)));
-    this.probeDht();
+    let res = serializeHash(await this.zomeProxy.createTaskItem(title, deserializeHash(assignee), deserializeHash(listEh)));
+    this.probeAll();
     return res;
   }
 
   /** */
   async createTaskList(title: string): Promise<ActionHashB64> {
-    let newList = serializeHash(await this._bridge.createTaskList(title));
+    let newList = serializeHash(await this.zomeProxy.createTaskList(title));
     this.pullAllLists();
     return newList;
   }
 
   async lockTaskList(eh: EntryHashB64): Promise<ActionHashB64> {
-    let res = serializeHash(await this._bridge.lockTaskList(deserializeHash(eh)));
-    this.probeDht();
+    let res = serializeHash(await this.zomeProxy.lockTaskList(deserializeHash(eh)));
+    this.probeAll();
     return res;
   }
 
   async completeTask(eh: EntryHashB64): Promise<ActionHashB64> {
-    let res = serializeHash(await this._bridge.completeTask(deserializeHash(eh)));
+    let res = serializeHash(await this.zomeProxy.completeTask(deserializeHash(eh)));
     //this.pullAllFromDht();
     return res;
   }

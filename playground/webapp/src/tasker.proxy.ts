@@ -5,10 +5,13 @@ import {
 } from './tasker.types';
 import {AgentPubKey, EntryHash, ActionHash} from "@holochain/client";
 import {MembraneRoleEntry, RoleClaimEntry} from "@membranes/elements";
-import {ZomeBridge} from "@ddd-qc/dna-client";
+import {ZomeProxy} from "@ddd-qc/dna-client";
 
-export class TaskerBridge extends ZomeBridge {
-  zomeName = 'tasker';
+/**
+ * 
+ */
+export class TaskerProxy extends ZomeProxy {
+  static readonly DEFAULT_ZOME_NAME = 'zTasker';
 
   /** Tasker zome functions */
 
@@ -54,11 +57,11 @@ export class TaskerBridge extends ZomeBridge {
   /** Membranes */
 
   async getMyRoleClaimsDetails(): Promise<[EntryHash, RoleClaimEntry][]> {
-    return this._dnaClient.callZome("membranes", 'get_my_role_claims_details', null);
+    return this._cellProxy.callZome("membranes", 'get_my_role_claims_details', null, null);
   }
 
   async getRole(eh: EntryHash): Promise<MembraneRoleEntry | null> {
-    return this._dnaClient.callZome("membranes", "get_role", eh)
+    return this._cellProxy.callZome("membranes", "get_role", eh, null)
   }
 
 }

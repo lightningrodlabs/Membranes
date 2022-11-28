@@ -1,36 +1,44 @@
-import { LitElement, html } from "lit";
+import { html } from "lit";
 import { state } from "lit/decorators.js";
-import { ScopedElementsMixin } from "@open-wc/scoped-elements";
 import {CellId} from "@holochain/client";
 import {HolochainClient} from "@holochain-open-dev/cell-client";
 import {TaskerPage} from "./elements/tasker-page";
-import {TaskerViewModel} from "./tasker.vm";
+import {TaskerZvm} from "./tasker.zvm";
 import {
   VouchDashboard,
   MembranesDashboard,
-  MembranesViewModel,
   MembranesCreatorPage,
   MembraneThresholdEntry,
   CreateEntryDashboard,
 } from "@membranes/elements";
-import {AgentPubKeyB64, Dictionary} from "@holochain-open-dev/core-types";
-import {AgentDirectoryViewModel, AgentDirectoryList, AgentDirectoryPerspective} from "@ddd-qc/agent-directory";
-import {DnaViewModel} from "@ddd-qc/dna-client";
-
-let APP_ID = 'tasker'
-let HC_PORT:any = process.env.HC_PORT;
-
-console.log("HC_PORT = " + HC_PORT + " || " + process.env.HC_PORT);
+import {AgentPubKeyB64} from "@holochain-open-dev/core-types";
+import {AgentDirectoryList} from "@ddd-qc/agent-directory";
+import {HappElement, HvmDef} from "@ddd-qc/dna-client";
+import { TaskerDvm } from "./tasker.dvm";
 
 
 /**
  *
  */
-export class TaskerApp extends ScopedElementsMixin(LitElement) {
+export class TaskerApp extends HappElement {
+
+  /** Ctor */
+  constructor() {
+    super(Number(process.env.HC_PORT));
+  }
+
+  /** HvmDef */
+  static readonly HVM_DEF: HvmDef = {
+    id: "tasker-happ",
+    dvmDefs: [TaskerDvm],
+  };
+
+  /** QoL */
+  get taskerDvm(): TaskerDvm { return this.hvm.getDvm(TaskerDvm.DEFAULT_ROLE_ID)! as TaskerDvm }
 
   @state() private _loaded = false;
 
-  private _dnaViewModel!: DnaViewModel;
+  //private _dnaViewModel!: DnaViewModel;
 
 
   private _pageDisplayIndex: number = 0;
@@ -77,18 +85,7 @@ export class TaskerApp extends ScopedElementsMixin(LitElement) {
 
   /** */
   async firstUpdated() {
-    await this.init();
-  }
-
-
-  /** */
-  async init() {
-    let HC_PORT:any = process.env.HC_PORT;
-    this._dnaViewModel = await DnaViewModel.new(this, HC_PORT, APP_ID);
-    await this._dnaViewModel.addZomeViewModel(TaskerViewModel)
-    await this._dnaViewModel.addZomeViewModel(AgentDirectoryViewModel)
-    await this._dnaViewModel.addZomeViewModel(MembranesViewModel)
-    await this._dnaViewModel.probeAll();
+    await this.hvm.probeAll();
 
     /** Get all EntryDefs for each zome of each DNA */
     // const cells = Object.values(appInfo.cell_data);
@@ -102,7 +99,6 @@ export class TaskerApp extends ScopedElementsMixin(LitElement) {
 
     //this._allAppEntryTypes = this._dnaViewModel.entryTypes
 
-
     /** Done */
     this._loaded = true;
   }
@@ -111,7 +107,7 @@ export class TaskerApp extends ScopedElementsMixin(LitElement) {
   /** */
   async refresh(_e?: any) {
     console.log("tasker-app.refresh() called")
-    await this._dnaViewModel.probeAll();
+    await this.hvm.probeAll();
   }
 
 
@@ -121,12 +117,7 @@ export class TaskerApp extends ScopedElementsMixin(LitElement) {
     if (!this._loaded) {
       return html`<span>Loading...</span>`;
     }
-    let knownAgents: AgentPubKeyB64[] = [];
-    const maybeZvm = this._dnaViewModel.getViewModel("agent_directory");
-    if (maybeZvm) {
-      const zvm = maybeZvm as unknown as AgentDirectoryViewModel;
-      knownAgents = zvm.perspective.agents;
-    }
+    let knownAgents: AgentPubKeyB64[] = this.taskerDvm.AgentDirectoryZvm.perspective.agents;
 
     let page;
     switch (this._pageDisplayIndex) {
@@ -151,7 +142,7 @@ export class TaskerApp extends ScopedElementsMixin(LitElement) {
         <input type="button" value="Agent Directory" @click=${() => {this._pageDisplayIndex = 5; this.requestUpdate()}} >
       </div>
       <button type="button" @click=${this.refresh}>Refresh</button>
-      <span><b>Agent:</b> ${this._dnaViewModel!.myAgentPubKey}</span>
+      <span><b>Agent:</b> ${this.taskerDvm.agentPubKey}</span>
       <hr class="solid">      
       ${page}
     `

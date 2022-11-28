@@ -1,4 +1,4 @@
-import {ZomeBridge} from "@ddd-qc/dna-client";
+import {ZomeProxy} from "@ddd-qc/dna-client";
 import { EntryHashB64, AgentPubKeyB64 } from '@holochain-open-dev/core-types';
 import { SignedActionHashed, EntryHash, AgentPubKey} from "@holochain/client";
 import {
@@ -12,8 +12,8 @@ import {
 
 
 /** */
-export class MembranesBridge extends ZomeBridge {
-   zomeName = "membranes"
+export class MembranesProxy extends ZomeProxy {
+   static readonly DEFAULT_ZOME_NAME = "membranes"
 
   /** Indexes */
 

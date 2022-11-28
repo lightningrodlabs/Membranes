@@ -1,7 +1,7 @@
 
 export * from './tasker.types';
-export * from './tasker.bridge';
-export * from './tasker.vm';
+export * from './tasker.proxy';
+export * from './tasker.zvm';
 
 export * from './elements/tasker-page';
 

@@ -1,8 +1,8 @@
 
 export * from './membranes.bindings';
-export * from './membranes.bridge';
+export * from './membranes.proxy';
 export * from './membranes.perspective';
-export * from './membranes.vm';
+export * from './membranes.zvm';
 export * from './elements/membranes-dashboard';
 export * from './elements/membranes-creator-page';
 export * from './elements/vouch-dashboard';

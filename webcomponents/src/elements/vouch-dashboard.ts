@@ -5,60 +5,43 @@ import {ScopedElementsMixin} from "@open-wc/scoped-elements";
 
 import {AgentPubKeyB64} from "@holochain-open-dev/core-types";
 
-import {MembranesViewModel} from "../membranes.vm";
+import {MembranesZvm} from "../membranes.zvm";
 import {MembranesPerspective} from "../membranes.perspective";
+import { ZomeElement } from "@ddd-qc/dna-client";
 
 
 
 /**
  * @element vouch-dashboard
  */
-export class VouchDashboard extends ScopedElementsMixin(LitElement) {
+export class VouchDashboard extends ZomeElement<MembranesPerspective, MembranesZvm> {
+
+  /** */
+  constructor() {
+    super(MembranesZvm.DEFAULT_ZOME_NAME)
+  }
 
   /** -- Fields -- */
   @state() private _initialized = false;
-
-  @contextProvided({ context: MembranesViewModel.context })
-  _membranesViewModel!: MembranesViewModel;
 
   @property()
   knownAgents: AgentPubKeyB64[] = []
 
 
-  @property({type: Object, attribute: false, hasChanged: (_v, _old) => true})
-  perspective!: MembranesPerspective;
-
   /** After first render only */
   async firstUpdated() {
     console.log("vouch-dashboard first update done!")
-    await this.init();
-  }
-
-
-  /**
-   * Called after first update
-   * Get local snapshots and latest from DHT
-   */
-  private async init() {
-    console.log("vouch-dashboard.init() - START!");
-    this._membranesViewModel.subscribe(this, 'perspective');
-    this.refresh();
+    await this.refresh();
     this._initialized = true;
     /** Done */
     console.log("vouch-dashboard.init() - DONE");
   }
 
 
-  /** After each render */
-  async updated(changedProperties: any) {
-    //console.log("*** updated() called !")
-  }
-
-
   /** */
   async refresh(_e?: any) {
     console.log("refresh(): Pulling data from DHT")
-    await this._membranesViewModel.probeDht();
+    await this._zvm.probeAll();
   }
 
   /** */
@@ -66,7 +49,7 @@ export class VouchDashboard extends ScopedElementsMixin(LitElement) {
     console.log("onVouch() CALLED", e)
     const agentSelector = this.shadowRoot!.getElementById("agentSelector") as HTMLSelectElement;
     const roleSelector = this.shadowRoot!.getElementById("roleSelector") as HTMLSelectElement;
-    await this._membranesViewModel.vouchAgent(agentSelector.value, roleSelector.value)
+    await this._zvm.vouchAgent(agentSelector.value, roleSelector.value)
   }
 
 

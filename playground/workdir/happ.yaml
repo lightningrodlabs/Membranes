@@ -5,7 +5,7 @@ name: tasker-happ
 description: Task manager app
 
 roles:
-  - id: tasker
+  - id: rTasker
     provisioning:
       strategy: create
       deferred: false
