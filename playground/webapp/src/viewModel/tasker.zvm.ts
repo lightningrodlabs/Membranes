@@ -1,42 +1,12 @@
 import {EntryHash, ZomeName} from "@holochain/client";
-import {EntryHashB64, ActionHashB64, AgentPubKeyB64, Dictionary} from '@holochain-open-dev/core-types';
+import {EntryHashB64, ActionHashB64, AgentPubKeyB64} from '@holochain-open-dev/core-types';
 import {deserializeHash, serializeHash} from "@holochain-open-dev/utils";
 import {TaskerProxy} from './tasker.proxy';
-import {TaskItemEntry, TaskListEntry} from './tasker.types';
+import {TaskItemEntry} from './tasker.bindings';
 import {ZomeViewModel, CellProxy} from "@ddd-qc/dna-client";
 import {MembranesProxy} from "@membranes/elements";
 import {MEMBRANES_ZOME_NAME} from "./defs";
-
-
-/** */
-export interface TaskItem {
-  entry: TaskItemEntry,
-  isCompleted: boolean,
-}
-/** */
-export interface TaskList {
-  title: string,
-  isLocked: boolean,
-  items: [EntryHashB64, TaskItem][],
-}
-
-
-/** */
-export interface TaskerPerspective {
-  /** EntryHash -> TaskList */
-  taskLists: Dictionary<TaskList>,
-  taskListEntries: Dictionary<TaskListEntry>,
-  /** EntryHash -> TaskItem */
-  taskItems: Dictionary<TaskItem>,
-  myRoles: string[]
-}
-
-const emptyPerspective: TaskerPerspective = {
-  taskLists: {},
-  taskListEntries: {},
-  taskItems: {},
-  myRoles: [],
-}
+import {TaskerPerspective, TaskItem, TaskList, emptyTaskerPerspective} from "./tasker.perspective";
 
 
 
@@ -61,7 +31,7 @@ export class TaskerZvm extends ZomeViewModel {
 
   /** -- ViewModel -- */
 
-  private _perspective: TaskerPerspective = emptyPerspective;
+  private _perspective: TaskerPerspective = emptyTaskerPerspective;
 
   /* */
   get perspective(): TaskerPerspective {return this._perspective}

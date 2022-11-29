@@ -5,13 +5,12 @@ import {
   VouchDashboard,
   MembranesDashboard,
   MembranesCreatorPage,
-  MembraneThresholdEntry,
   CreateEntryDashboard,
 } from "@membranes/elements";
 import {AgentPubKeyB64, Dictionary} from "@holochain-open-dev/core-types";
 import {AgentDirectoryList} from "@ddd-qc/agent-directory";
 import {HappElement, HvmDef, cellContext} from "@ddd-qc/dna-client";
-import { TaskerDvm } from "./tasker.dvm";
+import { TaskerDvm } from "./viewModel/tasker.dvm";
 import {ContextProvider} from "@lit-labs/context";
 
 
@@ -44,59 +43,11 @@ export class TaskerApp extends HappElement {
   private _allAppEntryTypes: Dictionary<[string, boolean][]> = {};
 
 
-  // /** */
-  // async getEntryDefs(hcClient: HolochainClient, cellId: CellId, zomeName: string): Promise<[string, boolean][]> {
-  //   try {
-  //     const entryDefs = await hcClient.callZome(cellId, zomeName, "entry_defs", null, 10 * 1000);
-  //     console.debug("getEntryDefs() for " + zomeName + " result:")
-  //     console.log({entryDefs})
-  //     let result: [string, boolean][] = []
-  //     for (const def of entryDefs.Defs) {
-  //       const name = def.id.App;
-  //       result.push([name, def.visibility.hasOwnProperty('Public') ])
-  //     }
-  //     console.log({result})
-  //     return result;
-  //   } catch (e) {
-  //     console.error("Calling getEntryDefs() on " + zomeName + " failed: ")
-  //     console.error({e})
-  //   }
-  //   return [];
-  // }
-
-
-  // /** */
-  // async getDnaInfo(hcClient: HolochainClient, cellId: CellId, zomeName: string): Promise<string[]> {
-  //   console.debug("getDnaInfo() for " + zomeName + " ...")
-  //   const dnaInfo = await hcClient.callZome(cellId, zomeName, "dna_info_hack", null, 10 * 1000);
-  //   //const result = this.client.callZome(this.mainCellId, zomeName, "entry_defs", null, 10 * 1000);
-  //   console.debug("getDnaInfo() for " + zomeName + " result:")
-  //   console.debug({dnaInfo})
-  //
-  //   //const zomeInfo = await hcClient.callZome(cellId, zomeName, "zome_info", null, 10 * 1000);
-  //   //console.debug("zomeInfo() for " + zomeName + " result:")
-  //   //console.debug({zomeInfo})
-  //
-  //   return dnaInfo as string[];
-  // }
-
 
   /** */
   async firstUpdated() {
     new ContextProvider(this, cellContext, this.taskerDvm.installedCell);
     await this.hvm.probeAll();
-
-    /** Get all EntryDefs for each zome of each DNA */
-    // const cells = Object.values(appInfo.cell_data);
-    // for (const cell of cells) {
-    //   //this.myAgentPubKey = serializeHash(cell.cell_id[1]);
-    //   let dnaInfo = await this.getDnaInfo(hcClient, cell.cell_id, "membranes");
-    //   for (const zomeName of dnaInfo) {
-    //     this._allAppEntryTypes[zomeName] = await this.getEntryDefs(hcClient, cell.cell_id, zomeName);
-    //   }
-    // }
-
-    //this._allAppEntryTypes = this._dnaViewModel.entryTypes
 
     this._allAppEntryTypes = await this.taskerDvm.fetchAllEntryDefs();
 

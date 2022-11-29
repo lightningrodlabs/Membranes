@@ -1,11 +1,7 @@
-import {
-  TaskListEntry,
-  TaskItemEntry,
-  //Signal,
-} from './tasker.types';
+import {TaskListEntry, TaskItemEntry} from './tasker.bindings';
 import {AgentPubKey, EntryHash, ActionHash} from "@holochain/client";
-import {MembraneRoleEntry, RoleClaimEntry} from "@membranes/elements";
 import {ZomeProxy} from "@ddd-qc/dna-client";
+
 
 /**
  * 
@@ -53,15 +49,5 @@ export class TaskerProxy extends ZomeProxy {
   async isListLocked(listEh: EntryHash): Promise<boolean> {
     return this.call('is_list_locked', listEh);
   }
-
-  // /** Membranes */
-  //
-  // async getMyRoleClaimsDetails(): Promise<[EntryHash, RoleClaimEntry][]> {
-  //   return this._cellProxy.callZome("membranes", 'get_my_role_claims_details', null, null);
-  // }
-  //
-  // async getRole(eh: EntryHash): Promise<MembraneRoleEntry | null> {
-  //   return this._cellProxy.callZome("membranes", "get_role", eh, null)
-  // }
 
 }

@@ -2,12 +2,9 @@ import {css, html} from "lit";
 import {property, state} from "lit/decorators.js";
 import {AgentPubKeyB64, EntryHashB64} from "@holochain-open-dev/core-types";
 import {serializeHash} from "@holochain-open-dev/utils";
-import {TaskerPerspective, TaskList} from "../tasker.zvm";
 import { DnaElement } from "@ddd-qc/dna-client";
-import { TaskerDvm } from "../tasker.dvm";
-
-
-export const delay = (ms:number) => new Promise(r => setTimeout(r, ms))
+import { TaskerDvm } from "../viewModel/tasker.dvm";
+import {TaskerPerspective, TaskList} from "../viewModel/tasker.perspective";
 
 
 /**
@@ -34,13 +31,9 @@ export class TaskerPage extends DnaElement<unknown, TaskerDvm> {
 
   /** After first render only */
   async firstUpdated() {
-    //console.log("first update done!")
-    //console.log("<tasker-page> firstUpdated() - START!");
     this._dvm.taskerZvm.subscribe(this, 'taskerPerspective');
     await this.refresh();
     this._initialized = true;
-    /** Done */
-    //console.log("<tasker-page> firstUpdated() - DONE");
   }
 
 

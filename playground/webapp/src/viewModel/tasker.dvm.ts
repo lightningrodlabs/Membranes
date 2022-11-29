@@ -6,7 +6,7 @@ import {AppSignalCb} from "@holochain/client";
 import {MEMBRANES_ZOME_NAME} from "./defs";
 
 /**
- *
+ * TODO: Make a Default DVM generator in dna-client based on ZVM_DEFS
  */
  export class TaskerDvm extends DnaViewModel {
 
