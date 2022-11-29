@@ -1,10 +1,6 @@
-import {css, html, LitElement} from "lit";
+import {css, html} from "lit";
 import {property, state} from "lit/decorators.js";
-import {contextProvided} from '@lit-labs/context';
-import {ScopedElementsMixin} from "@open-wc/scoped-elements";
-
 import {AgentPubKeyB64, Dictionary} from "@holochain-open-dev/core-types";
-
 import {MembranesZvm} from "../membranes.zvm";
 import {MyAppEntryType} from "../membranes.bindings";
 import { ZomeElement } from "@ddd-qc/dna-client";
@@ -23,7 +19,6 @@ export class CreateEntryDashboard extends ZomeElement<MembranesPerspective, Memb
   }
 
   /** -- Fields -- */
-  @state() private _initialized = false;
   @state() private _selectedZomeName = ""
   @state() private _queryResult = 0
 
@@ -56,10 +51,8 @@ export class CreateEntryDashboard extends ZomeElement<MembranesPerspective, Memb
 
   /** */
   render() {
-    console.log("create-entry-dashboard render() START");
-    if (!this._initialized) {
-      return html`<span>Loading...</span>`;
-    }
+    console.log("<create-entry-dashboard> render()");
+
     /* Agents */
     const agentOptions = Object.entries(this.knownAgents).map(
         ([index, agentIdB64]) => {

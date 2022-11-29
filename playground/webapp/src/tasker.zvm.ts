@@ -1,10 +1,11 @@
-import {createContext} from "@lit-labs/context";
-import { EntryHash} from "@holochain/client";
+import {EntryHash, ZomeName} from "@holochain/client";
 import {EntryHashB64, ActionHashB64, AgentPubKeyB64, Dictionary} from '@holochain-open-dev/core-types';
 import {deserializeHash, serializeHash} from "@holochain-open-dev/utils";
 import {TaskerProxy} from './tasker.proxy';
 import {TaskItemEntry, TaskListEntry} from './tasker.types';
-import {ZomeViewModel} from "@ddd-qc/dna-client";
+import {ZomeViewModel, CellProxy} from "@ddd-qc/dna-client";
+import {MembranesProxy} from "@membranes/elements";
+import {MEMBRANES_ZOME_NAME} from "./defs";
 
 
 /** */
@@ -38,6 +39,7 @@ const emptyPerspective: TaskerPerspective = {
 }
 
 
+
 /**
  *
  */
@@ -45,6 +47,16 @@ export class TaskerZvm extends ZomeViewModel {
 
   static readonly ZOME_PROXY = TaskerProxy;
   get zomeProxy(): TaskerProxy {return this._zomeProxy as TaskerProxy;}
+
+
+  private _membranesProxy: MembranesProxy;
+
+
+  constructor(cellProxy: CellProxy, zomeName?: ZomeName) {
+    super(cellProxy, zomeName);
+    this._membranesProxy = new MembranesProxy(cellProxy, MEMBRANES_ZOME_NAME);
+
+  }
 
 
   /** -- ViewModel -- */
@@ -66,19 +78,19 @@ export class TaskerZvm extends ZomeViewModel {
   /** */
   async pullAllLists() {
     const lists = await this.zomeProxy.getAllLists();
-    //console.log("pullAllLists() lists:", lists);
+    console.log("pullAllLists() lists:", lists);
     //console.log("pullAllLists() taskListEntryStore:", this.taskListEntryStore);
     for (const pair of lists) {
       const ehB64 = serializeHash(pair[0])
       this._perspective.taskListEntries[ehB64] = pair[1];
     }
-    this.notifySubscribers()
+    this.notifySubscribers();
   }
 
 
   /** */
   async probeAll() {
-    console.log("taskerViewModel.probeDht() called")
+    console.log("taskerViewModel.probeAll() called")
     /** Get Lists */
     await this.pullAllLists();
     const listEntries = this._perspective.taskListEntries;
@@ -107,9 +119,9 @@ export class TaskerZvm extends ZomeViewModel {
 
 
     /** Get My Roles */
-    let res = await this.zomeProxy.getMyRoleClaimsDetails();
+    let res = await this._membranesProxy.getMyRoleClaimsDetails();
     let p = Object.values(res).map(async ([_claim_eh, roleClaim]) => {
-      let role = await this.zomeProxy.getRole(roleClaim.roleEh);
+      let role = await this._membranesProxy.getRole(roleClaim.roleEh);
       return role? role.name : "";
     })
     Promise.all(p).then((v) => {

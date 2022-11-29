@@ -1,7 +1,7 @@
 ---
 manifest_version: "1"
 
-name: tasker-happ
+name: hTasker
 description: Task manager app
 
 roles:

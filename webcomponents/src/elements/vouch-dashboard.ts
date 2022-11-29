@@ -1,8 +1,5 @@
-import {css, html, LitElement} from "lit";
+import {css, html} from "lit";
 import {property, state} from "lit/decorators.js";
-import { contextProvided } from '@lit-labs/context';
-import {ScopedElementsMixin} from "@open-wc/scoped-elements";
-
 import {AgentPubKeyB64} from "@holochain-open-dev/core-types";
 
 import {MembranesZvm} from "../membranes.zvm";
@@ -30,11 +27,8 @@ export class VouchDashboard extends ZomeElement<MembranesPerspective, MembranesZ
 
   /** After first render only */
   async firstUpdated() {
-    console.log("vouch-dashboard first update done!")
     await this.refresh();
     this._initialized = true;
-    /** Done */
-    console.log("vouch-dashboard.init() - DONE");
   }
 
 
@@ -55,7 +49,7 @@ export class VouchDashboard extends ZomeElement<MembranesPerspective, MembranesZ
 
   /** */
   render() {
-    console.log("vouch-dashboard render() START");
+    console.log("<vouch-dashboard> render()", this._initialized);
     if (!this._initialized) {
       return html`<span>Loading...</span>`;
     }

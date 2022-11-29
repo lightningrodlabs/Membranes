@@ -1,4 +1,4 @@
-import {css, html, LitElement} from "lit";
+import {css, html} from "lit";
 import {property, state} from "lit/decorators.js";
 import {Dictionary} from "@holochain-open-dev/core-types";
 import {describe_threshold, MembranesZvm} from "../membranes.zvm";
@@ -27,10 +27,8 @@ export class MembranesDashboard extends ZomeElement<MembranesPerspective, Membra
 
   /** After first render only */
   async firstUpdated() {
-    console.log("membranes-dashboard first update done!")
     await this.refresh();
     this._initialized = true;
-    console.log("membranes-dashboard.init() - DONE");
   }
 
 
@@ -49,7 +47,7 @@ export class MembranesDashboard extends ZomeElement<MembranesPerspective, Membra
 
   /** */
   render() {
-    console.log("membranes-dashboard.render() START");
+    console.log("<membranes-dashboard> render()", this._initialized);
       if (!this._initialized) {
           return html`<span>Loading...</span>`;
       }

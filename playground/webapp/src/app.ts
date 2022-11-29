@@ -1,9 +1,6 @@
 import { html } from "lit";
 import { state } from "lit/decorators.js";
-import {CellId} from "@holochain/client";
-import {HolochainClient} from "@holochain-open-dev/cell-client";
 import {TaskerPage} from "./elements/tasker-page";
-import {TaskerZvm} from "./tasker.zvm";
 import {
   VouchDashboard,
   MembranesDashboard,
@@ -11,10 +8,11 @@ import {
   MembraneThresholdEntry,
   CreateEntryDashboard,
 } from "@membranes/elements";
-import {AgentPubKeyB64} from "@holochain-open-dev/core-types";
+import {AgentPubKeyB64, Dictionary} from "@holochain-open-dev/core-types";
 import {AgentDirectoryList} from "@ddd-qc/agent-directory";
-import {HappElement, HvmDef} from "@ddd-qc/dna-client";
+import {HappElement, HvmDef, cellContext} from "@ddd-qc/dna-client";
 import { TaskerDvm } from "./tasker.dvm";
+import {ContextProvider} from "@lit-labs/context";
 
 
 /**
@@ -29,21 +27,21 @@ export class TaskerApp extends HappElement {
 
   /** HvmDef */
   static readonly HVM_DEF: HvmDef = {
-    id: "tasker-happ",
+    id: "hTasker",
     dvmDefs: [TaskerDvm],
   };
 
   /** QoL */
   get taskerDvm(): TaskerDvm { return this.hvm.getDvm(TaskerDvm.DEFAULT_ROLE_ID)! as TaskerDvm }
 
+
+  /** -- Fields -- */
+
   @state() private _loaded = false;
-
-  //private _dnaViewModel!: DnaViewModel;
-
 
   private _pageDisplayIndex: number = 0;
   /** ZomeName -> (AppEntryDefName, isPublic) */
-  //private _allAppEntryTypes: Dictionary<[string, boolean][]> = {};
+  private _allAppEntryTypes: Dictionary<[string, boolean][]> = {};
 
 
   // /** */
@@ -67,24 +65,25 @@ export class TaskerApp extends HappElement {
   // }
 
 
-  /** */
-  async getDnaInfo(hcClient: HolochainClient, cellId: CellId, zomeName: string): Promise<string[]> {
-    console.debug("getDnaInfo() for " + zomeName + " ...")
-    const dnaInfo = await hcClient.callZome(cellId, zomeName, "dna_info_hack", null, 10 * 1000);
-    //const result = this.client.callZome(this.mainCellId, zomeName, "entry_defs", null, 10 * 1000);
-    console.debug("getDnaInfo() for " + zomeName + " result:")
-    console.debug({dnaInfo})
-
-    //const zomeInfo = await hcClient.callZome(cellId, zomeName, "zome_info", null, 10 * 1000);
-    //console.debug("zomeInfo() for " + zomeName + " result:")
-    //console.debug({zomeInfo})
-
-    return dnaInfo as string[];
-  }
+  // /** */
+  // async getDnaInfo(hcClient: HolochainClient, cellId: CellId, zomeName: string): Promise<string[]> {
+  //   console.debug("getDnaInfo() for " + zomeName + " ...")
+  //   const dnaInfo = await hcClient.callZome(cellId, zomeName, "dna_info_hack", null, 10 * 1000);
+  //   //const result = this.client.callZome(this.mainCellId, zomeName, "entry_defs", null, 10 * 1000);
+  //   console.debug("getDnaInfo() for " + zomeName + " result:")
+  //   console.debug({dnaInfo})
+  //
+  //   //const zomeInfo = await hcClient.callZome(cellId, zomeName, "zome_info", null, 10 * 1000);
+  //   //console.debug("zomeInfo() for " + zomeName + " result:")
+  //   //console.debug({zomeInfo})
+  //
+  //   return dnaInfo as string[];
+  // }
 
 
   /** */
   async firstUpdated() {
+    new ContextProvider(this, cellContext, this.taskerDvm.installedCell);
     await this.hvm.probeAll();
 
     /** Get all EntryDefs for each zome of each DNA */
@@ -98,6 +97,8 @@ export class TaskerApp extends HappElement {
     // }
 
     //this._allAppEntryTypes = this._dnaViewModel.entryTypes
+
+    this._allAppEntryTypes = await this.taskerDvm.fetchAllEntryDefs();
 
     /** Done */
     this._loaded = true;
@@ -113,7 +114,7 @@ export class TaskerApp extends HappElement {
 
   /** */
   render() {
-    console.log("tasker-app render() called!")
+    console.log("<tasker-app> render()", this._loaded)
     if (!this._loaded) {
       return html`<span>Loading...</span>`;
     }
@@ -122,10 +123,10 @@ export class TaskerApp extends HappElement {
     let page;
     switch (this._pageDisplayIndex) {
       case 0: page = html`<tasker-page style="flex: 1;"></tasker-page>` ; break;
-      case 1: page = html`<membranes-dashboard .allAppEntryTypes=${this._dnaViewModel.entryTypes} style="flex: 1;"></membranes-dashboard>`; break;
-      case 2: page = html`<membranes-creator-page .allAppEntryTypes=${this._dnaViewModel.entryTypes} style="flex: 1;"></membranes-creator-page>`; break;
+      case 1: page = html`<membranes-dashboard .allAppEntryTypes=${this._allAppEntryTypes} style="flex: 1;"></membranes-dashboard>`; break;
+      case 2: page = html`<membranes-creator-page .allAppEntryTypes=${this._allAppEntryTypes} style="flex: 1;"></membranes-creator-page>`; break;
       case 3: page = html`<vouch-dashboard .knownAgents=${knownAgents} style="flex: 1;"></vouch-dashboard>`; break;
-      case 4: page = html`<create-entry-dashboard .knownAgents=${knownAgents} .allAppEntryTypes=${this._dnaViewModel.entryTypes} style="flex: 1;"></create-entry-dashboard>`; break;
+      case 4: page = html`<create-entry-dashboard .knownAgents=${knownAgents} .allAppEntryTypes=${this._allAppEntryTypes} style="flex: 1;"></create-entry-dashboard>`; break;
       case 5: page = html`<agent-directory-list style="flex: 1;"></agent-directory-list>`; break;
 
       default: page = html`unknown page index`;

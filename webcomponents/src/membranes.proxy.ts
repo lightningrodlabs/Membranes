@@ -13,7 +13,9 @@ import {
 
 /** */
 export class MembranesProxy extends ZomeProxy {
+
    static readonly DEFAULT_ZOME_NAME = "membranes"
+
 
   /** Indexes */
 
@@ -57,9 +59,10 @@ export class MembranesProxy extends ZomeProxy {
     return this.call('get_membrane_crossed_claim', eh);
   }
 
+
   /** Roles */
 
-  async myClaimedRoles(): Promise<[EntryHash, RoleClaimEntry][]> {
+  async getMyRoleClaimsDetails(): Promise<[EntryHash, RoleClaimEntry][]> {
     return this.call('get_my_role_claims_details', null);
   }
 

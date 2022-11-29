@@ -2,8 +2,7 @@ import {css, html} from "lit";
 import {property, state} from "lit/decorators.js";
 import {AgentPubKeyB64, EntryHashB64} from "@holochain-open-dev/core-types";
 import {serializeHash} from "@holochain-open-dev/utils";
-import {AgentDirectoryViewModel, AgentDirectoryPerspective} from "@ddd-qc/agent-directory";
-import {TaskList} from "../tasker.zvm";
+import {TaskerPerspective, TaskList} from "../tasker.zvm";
 import { DnaElement } from "@ddd-qc/dna-client";
 import { TaskerDvm } from "../tasker.dvm";
 
@@ -28,16 +27,20 @@ export class TaskerPage extends DnaElement<unknown, TaskerDvm> {
   debugMode: boolean = false;
 
 
+  @property({type: Object, attribute: false, hasChanged: (_v, _old) => true})
+  taskerPerspective!: TaskerPerspective;
+
   /** -- Methods -- */
 
   /** After first render only */
   async firstUpdated() {
     //console.log("first update done!")
-    console.log("<tasker-page> firstUpdated() - START!");
+    //console.log("<tasker-page> firstUpdated() - START!");
+    this._dvm.taskerZvm.subscribe(this, 'taskerPerspective');
     await this.refresh();
     this._initialized = true;
     /** Done */
-    console.log("<tasker-page> firstUpdated() - DONE");
+    //console.log("<tasker-page> firstUpdated() - DONE");
   }
 
 
@@ -125,7 +128,7 @@ export class TaskerPage extends DnaElement<unknown, TaskerDvm> {
 
   /** */
   render() {
-    console.log("tasker-page.render() START");
+    console.log("<tasker-page.render()> render()", this._initialized);
     if (!this._initialized) {
       return html`<span>Loading...</span>`;
     }

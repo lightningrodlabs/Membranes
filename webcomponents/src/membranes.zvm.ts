@@ -326,7 +326,7 @@ export class MembranesZvm extends ZomeViewModel {
   /** */
   async probeMyClaims() {
     /** Role Claims */
-    const myRoleClaims = await this.zomeProxy.myClaimedRoles();
+    const myRoleClaims = await this.zomeProxy.getMyRoleClaimsDetails();
     let store: Dictionary<RoleClaim> = {}
     for (const [eh, entry] of myRoleClaims) {
       const b64 = serializeHash(eh);

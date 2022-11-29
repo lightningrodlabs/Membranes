@@ -194,7 +194,7 @@ export class MembranesCreatorPage extends ZomeElement<MembranesPerspective, Memb
 
     /** */
     render() {
-        console.log("membranes-creator-page render() START");
+        console.log("<membranes-creator-page> render()", this._initialized);
         if (!this._initialized) {
             return html`<span>Loading...</span>`;
         }

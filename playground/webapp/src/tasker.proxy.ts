@@ -54,14 +54,14 @@ export class TaskerProxy extends ZomeProxy {
     return this.call('is_list_locked', listEh);
   }
 
-  /** Membranes */
-
-  async getMyRoleClaimsDetails(): Promise<[EntryHash, RoleClaimEntry][]> {
-    return this._cellProxy.callZome("membranes", 'get_my_role_claims_details', null, null);
-  }
-
-  async getRole(eh: EntryHash): Promise<MembraneRoleEntry | null> {
-    return this._cellProxy.callZome("membranes", "get_role", eh, null)
-  }
+  // /** Membranes */
+  //
+  // async getMyRoleClaimsDetails(): Promise<[EntryHash, RoleClaimEntry][]> {
+  //   return this._cellProxy.callZome("membranes", 'get_my_role_claims_details', null, null);
+  // }
+  //
+  // async getRole(eh: EntryHash): Promise<MembraneRoleEntry | null> {
+  //   return this._cellProxy.callZome("membranes", "get_role", eh, null)
+  // }
 
 }

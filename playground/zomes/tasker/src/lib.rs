@@ -26,7 +26,7 @@ where
    O: serde::de::DeserializeOwned + std::fmt::Debug
 {
    //debug!("call_membranes_zome() - {}()", fn_name);
-   let res = call_self_cell(membranes_types::MEMBRANES_ZOME_NAME, fn_name, payload);
+   let res = call_self_cell("zMembranes", fn_name, payload);
    //debug!("call_membranes_zome() - {}() res = {:?}", fn_name, res);
    res
 }
