@@ -5,6 +5,8 @@
 #![allow(unused_attributes)]
 #![allow(unused_imports)]
 
+mod validate;
+
 use hdi::prelude::*;
 
 /// List of all Entry types handled by this Zome
@@ -42,8 +44,10 @@ pub struct TaskItem {
 #[hdk_link_types]
 #[derive(Serialize, Deserialize)]
 pub enum TaskerLinkType {
+   Default,
+   Path,
    TaskLists,
-   Locked,
+   Locked,  /// RoleClaim EntryHash in Tag
    Completed,
    Item,
 }

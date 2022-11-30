@@ -48,9 +48,9 @@ fn init_inner() -> ExternResult<InitCallbackResult> {
 /// Setup Global Anchors
 fn init_anchors(_: ()) -> ExternResult<()> {
    //let typed_path = path.clone().into_typed(ScopedLinkType::try_from(LinkTypes::Tree)?);
-   let path1 = Path::from("lists").typed(TaskerLinkType::TaskLists)?;
-   let path2 = Path::from("locked").typed(TaskerLinkType::Locked)?;
-   let path3 = Path::from("completed").typed(TaskerLinkType::Completed)?;
+   let path1 = Path::from("lists").typed(TaskerLinkType::Path)?;
+   let path2 = Path::from("locked").typed(TaskerLinkType::Path)?;
+   let path3 = Path::from("completed").typed(TaskerLinkType::Path)?;
    path1.ensure()?;
    path2.ensure()?;
    path3.ensure()?;

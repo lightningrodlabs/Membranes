@@ -51,7 +51,7 @@ export default {
     commonjs({}),
     //globals(), // removed because it cause build error
     /** Minify JS */
-    terser(),
+    //terser(),
     /** Bundle assets references via import.meta.url */
     importMetaAssets(),
     /** Compile JS to a lower language target */

@@ -83,21 +83,21 @@ pub fn complete_task(task_eh: EntryHash) -> ExternResult<ActionHash> {
 }
 
 
-#[hdk_extern]
-pub fn lock_task_list(list_eh: EntryHash) -> ExternResult<ActionHash> {
-   std::panic::set_hook(Box::new(zome_utils::zome_panic_hook));
-   debug!("lock_task_list() CALLED");
-   let anchor_eh = Path::from("locked")
-      .path_entry_hash()
-      .expect("completed path should hash");
-   let link_ah = create_link(
-      list_eh,
-      anchor_eh,
-      TaskerLinkType::Locked,
-      LinkTag::from(()),
-   )?;
-   Ok(link_ah)
-}
+// #[hdk_extern]
+// pub fn lock_task_list(list_eh: EntryHash) -> ExternResult<ActionHash> {
+//    std::panic::set_hook(Box::new(zome_utils::zome_panic_hook));
+//    debug!("lock_task_list() CALLED");
+//    let anchor_eh = Path::from("locked")
+//       .path_entry_hash()
+//       .expect("completed path should hash");
+//    let link_ah = create_link(
+//       list_eh,
+//       anchor_eh,
+//       TaskerLinkType::Locked,
+//       LinkTag::from(()),
+//    )?;
+//    Ok(link_ah)
+// }
 
 
 #[hdk_extern]

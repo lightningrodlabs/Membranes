@@ -12,14 +12,14 @@ pub(crate) fn validate_app_entry(entry_def_index: EntryDefIndex, entry: Entry)
 {
    debug!("*** validate_app_entry() callback called!");
    return match entry_def_index.into() {
-      2 => {
+      2 /* MembraneCrossedClaim*/ => {
          //assert_eq!(2, get_index(MembranesEntryTypes::MembraneCrossedClaim));
          //debug!("validate_app_entry() membrane_claim index = {:?}", get_index(MembranesEntryTypes::MembraneCrossedClaim));
          let membrane_claim = MembraneCrossedClaim::try_from(entry)?;
          return validate_membrane_claim(membrane_claim);
 
       },
-      4 => {
+      4 /* RoleClaim */ => {
          //debug!("validate_app_entry() role_claim index = {:?}", get_index(MembranesEntryTypes::RoleClaim));
          let role_claim = RoleClaim::try_from(entry)?;
          return validate_role_claim(role_claim);
