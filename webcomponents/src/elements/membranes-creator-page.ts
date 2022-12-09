@@ -4,7 +4,7 @@ import {ActionHashB64, Dictionary, EntryHashB64} from "@holochain-open-dev/core-
 import {describe_threshold, MembranesZvm} from "../membranes.zvm";
 import {MembraneThresholdKind, MyAppEntryType} from "../membranes.bindings";
 import {MembranesPerspective} from "../membranes.perspective";
-import { ZomeElement } from "@ddd-qc/dna-client";
+import { ZomeElement } from "@ddd-qc/lit-happ";
 
 
 /**

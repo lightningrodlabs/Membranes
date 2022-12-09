@@ -1,4 +1,4 @@
-import {ZomeProxy} from "@ddd-qc/dna-client";
+import {ZomeProxy} from "@ddd-qc/lit-happ";
 import { EntryHashB64, AgentPubKeyB64 } from '@holochain-open-dev/core-types';
 import { SignedActionHashed, EntryHash, AgentPubKey} from "@holochain/client";
 import {

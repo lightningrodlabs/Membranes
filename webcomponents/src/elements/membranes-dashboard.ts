@@ -3,7 +3,7 @@ import {property, state} from "lit/decorators.js";
 import {Dictionary} from "@holochain-open-dev/core-types";
 import {describe_threshold, MembranesZvm} from "../membranes.zvm";
 import {MembranesPerspective} from "../membranes.perspective";
-import { ZomeElement } from "@ddd-qc/dna-client";
+import { ZomeElement } from "@ddd-qc/lit-happ";
 
 
 /**

@@ -68,7 +68,7 @@ pub fn claim_membrane(input: MembraneInput) -> ExternResult<Option<EntryHashB64>
 fn claim_threshold(subject: AgentPubKey, threshold_eh: EntryHash) -> ExternResult<Option<ThresholdReachedProof>> {
    let threshold: MembraneThreshold = zome_utils::get_typed_from_eh(threshold_eh.clone())?;
    let maybe_sahs = match threshold {
-      MembraneThreshold::Progenitor => None,
+      MembraneThreshold::Progenitor => claim_progenitorThreshold(subject)?,
       MembraneThreshold::CreateEntryCount(th) => {
          claim_createEntryCountThreshold(subject, th)?
       },
@@ -85,6 +85,18 @@ fn claim_threshold(subject: AgentPubKey, threshold_eh: EntryHash) -> ExternResul
    })
 }
 
+
+/// Proof of vouchThreshold is empty SAH
+/// Returns None if claim failed.
+fn claim_progenitorThreshold(subject: AgentPubKey) -> ExternResult<Option<Vec<SignedActionHashed>>> {
+   let maybe = is_progenitor(subject);
+   let Ok(is_progenitor) = maybe
+      else { return Ok(None) };
+   if is_progenitor {
+      return Ok(Some(vec![]));
+   }
+   Ok(None)
+}
 
 /// Proof of vouchThreshold is SAH of Vouchs and RoleClaims by Vouchers.
 /// Returns None if claim failed.

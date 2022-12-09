@@ -1,6 +1,6 @@
 import {TaskListEntry, TaskItemEntry} from './tasker.bindings';
 import {AgentPubKey, EntryHash, ActionHash} from "@holochain/client";
-import {ZomeProxy} from "@ddd-qc/dna-client";
+import {ZomeProxy} from "@ddd-qc/lit-happ";
 
 
 /**

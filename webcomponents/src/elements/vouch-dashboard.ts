@@ -4,7 +4,7 @@ import {AgentPubKeyB64} from "@holochain-open-dev/core-types";
 
 import {MembranesZvm} from "../membranes.zvm";
 import {MembranesPerspective} from "../membranes.perspective";
-import { ZomeElement } from "@ddd-qc/dna-client";
+import { ZomeElement } from "@ddd-qc/lit-happ";
 
 
 

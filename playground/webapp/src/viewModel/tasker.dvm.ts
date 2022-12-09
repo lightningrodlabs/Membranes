@@ -1,4 +1,4 @@
-import { DnaViewModel, ZvmDef } from "@ddd-qc/dna-client";
+import { DnaViewModel, ZvmDef } from "@ddd-qc/lit-happ";
 import { MembranesZvm } from "@membranes/elements";
 import {TaskerZvm} from "./tasker.zvm"
 import {AgentDirectoryZvm} from "@ddd-qc/agent-directory"
@@ -12,7 +12,7 @@ import {MEMBRANES_ZOME_NAME} from "./defs";
 
   /** -- DnaViewModel Interface -- */
 
-  static readonly DEFAULT_ROLE_ID = "rTasker";
+  static readonly DEFAULT_BASE_ROLE_NAME = "rTasker";
   static readonly ZVM_DEFS: ZvmDef[] = [
    TaskerZvm,
    [MembranesZvm, MEMBRANES_ZOME_NAME],

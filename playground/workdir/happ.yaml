@@ -9,4 +9,4 @@ roles:
       deferred: true
     dna:
       bundled: ../../tasker.dna
-      clone_limit: 0
+      clone_limit: 10

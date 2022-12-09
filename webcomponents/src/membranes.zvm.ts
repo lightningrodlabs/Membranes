@@ -1,7 +1,7 @@
 import {EntryHashB64, ActionHashB64, AgentPubKeyB64, Dictionary} from '@holochain-open-dev/core-types';
 import {AgentPubKey, EntryHash} from "@holochain/client";
 import {deserializeHash, serializeHash} from "@holochain-open-dev/utils";
-import {ZomeViewModel} from "@ddd-qc/dna-client";
+import {ZomeViewModel} from "@ddd-qc/lit-happ";
 import {MembranesProxy} from "./membranes.proxy";
 import {
   CreateEntryCountThreshold,

@@ -3,7 +3,7 @@ import {property, state} from "lit/decorators.js";
 import {AgentPubKeyB64, Dictionary} from "@holochain-open-dev/core-types";
 import {MembranesZvm} from "../membranes.zvm";
 import {MyAppEntryType} from "../membranes.bindings";
-import { ZomeElement } from "@ddd-qc/dna-client";
+import { ZomeElement } from "@ddd-qc/lit-happ";
 import { MembranesPerspective } from "../membranes.perspective";
 
 

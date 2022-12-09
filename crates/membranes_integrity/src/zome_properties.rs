@@ -8,7 +8,9 @@ pub struct MembraneZomeProperties {
 impl MembraneZomeProperties {
    pub fn get() -> ExternResult<Self> {
       let properties = zome_info()?.properties;
-      debug!("MembraneZomeProperties: {:?}", properties);
+      debug!("MembraneZomeProperties zome: {:?}", properties);
+      let properties = dna_info()?.properties;
+      debug!("MembraneZomeProperties dna: {:?}", properties);
       let props = MembraneZomeProperties::try_from(properties)
          .map_err(|err| wasm_error!(WasmErrorInner::Guest(err.to_string())))?;
       Ok(props)
@@ -17,5 +19,7 @@ impl MembraneZomeProperties {
 
 pub fn is_progenitor(candidat: AgentPubKey) -> ExternResult<bool> {
    let keys = MembraneZomeProperties::get()?.progenitors;
-   Ok(keys.contains(&candidat.into()))
+   let b64 = candidat.into();
+   debug!("Progenitors: {:?}\n candidat: {:?}", keys, b64);
+   Ok(keys.contains(&b64))
 }

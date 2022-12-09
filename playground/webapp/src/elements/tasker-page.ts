@@ -2,7 +2,7 @@ import {css, html} from "lit";
 import {property, state} from "lit/decorators.js";
 import {AgentPubKeyB64, EntryHashB64} from "@holochain-open-dev/core-types";
 import {serializeHash} from "@holochain-open-dev/utils";
-import { DnaElement } from "@ddd-qc/dna-client";
+import { DnaElement } from "@ddd-qc/lit-happ";
 import { TaskerDvm } from "../viewModel/tasker.dvm";
 import {TaskerPerspective, TaskList} from "../viewModel/tasker.perspective";
 
@@ -13,7 +13,7 @@ import {TaskerPerspective, TaskList} from "../viewModel/tasker.perspective";
 export class TaskerPage extends DnaElement<unknown, TaskerDvm> {
 
   constructor() {
-    super(TaskerDvm.DEFAULT_ROLE_ID)
+    super(TaskerDvm.DEFAULT_BASE_ROLE_NAME)
   }
 
   /** -- Fields -- */

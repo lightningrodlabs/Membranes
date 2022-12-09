@@ -3,7 +3,7 @@ import {EntryHashB64, ActionHashB64, AgentPubKeyB64} from '@holochain-open-dev/c
 import {deserializeHash, serializeHash} from "@holochain-open-dev/utils";
 import {TaskerProxy} from './tasker.proxy';
 import {TaskItemEntry} from './tasker.bindings';
-import {ZomeViewModel, CellProxy} from "@ddd-qc/dna-client";
+import {ZomeViewModel, CellProxy} from "@ddd-qc/lit-happ";
 import {MembranesProxy} from "@membranes/elements";
 import {MEMBRANES_ZOME_NAME} from "./defs";
 import {TaskerPerspective, TaskItem, TaskList, emptyTaskerPerspective} from "./tasker.perspective";
