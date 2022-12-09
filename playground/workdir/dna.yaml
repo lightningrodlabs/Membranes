@@ -4,22 +4,22 @@ name: dTasker
 integrity:
   origin_time: 2022-09-25T13:55:49.200Z
   zomes:
-    - name: tasker_model
-      bundled: ../../target/wasm32-unknown-unknown/release/tasker_model.wasm
     - name: membranes_integrity
       bundled: ../../target/wasm32-unknown-unknown/release/membranes_integrity.wasm
+    - name: tasker_model
+      bundled: ../../target/wasm32-unknown-unknown/release/tasker_model.wasm
     - name: agent_directory_integrity
       bundled: ../../target/wasm32-unknown-unknown/release/agent_directory_integrity.wasm
 coordinator:
   zomes:
-    - name: zTasker
-      bundled: ../../target/wasm32-unknown-unknown/release/tasker.wasm
-      dependencies:
-        - name: tasker_model
     - name: zMembranes
       bundled: ../../target/wasm32-unknown-unknown/release/membranes.wasm
       dependencies:
         - name: membranes_integrity
+    - name: zTasker
+      bundled: ../../target/wasm32-unknown-unknown/release/tasker.wasm
+      dependencies:
+        - name: tasker_model
     - name: zAgentDirectory
       bundled: ../../target/wasm32-unknown-unknown/release/agent_directory.wasm
       dependencies:

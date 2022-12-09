@@ -68,6 +68,7 @@ pub fn claim_membrane(input: MembraneInput) -> ExternResult<Option<EntryHashB64>
 fn claim_threshold(subject: AgentPubKey, threshold_eh: EntryHash) -> ExternResult<Option<ThresholdReachedProof>> {
    let threshold: MembraneThreshold = zome_utils::get_typed_from_eh(threshold_eh.clone())?;
    let maybe_sahs = match threshold {
+      MembraneThreshold::Progenitor => None,
       MembraneThreshold::CreateEntryCount(th) => {
          claim_createEntryCountThreshold(subject, th)?
       },

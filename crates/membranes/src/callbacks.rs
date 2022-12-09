@@ -2,6 +2,7 @@ use hdk::prelude::*;
 //use hdk::hash_path::path::Component;
 #[allow(unused_imports)]
 use membranes_integrity::*;
+use membranes_types::MembraneThreshold;
 use crate::*;
 
 /// Zome Callback
@@ -37,14 +38,21 @@ fn init_anchors() -> ExternResult<InitCallbackResult> {
 
 /// Validate DNA properties
 fn init_properties() -> ExternResult<InitCallbackResult> {
-   // let maybe_place_properties = get_properties(());
-   // //debug!("maybe_place_properties = {:?}", maybe_place_properties);
-   // if let Err(e) = &maybe_place_properties {
-   //    error!("Failed parsing DNA properties: {:?}", e);
-   // }
-   // let place_properties = maybe_place_properties.unwrap();
-   // debug!("*** init() place_properties: {:?}", place_properties);
-   // assert!(place_properties.bucket_size_sec < MAX_BUCKET_SIZE_SEC);
+   let maybe_membrane_zome_properties = MembraneZomeProperties::get();
+   debug!("maybe_membrane_zome_properties = {:?}", maybe_membrane_zome_properties);
+
+   /// Create progenitor threshold if properties is set
+   //if let Ok(props) = &maybe_membrane_zome_properties {
+      //let _progenitors = &props.progenitors;
+      // FIXME make sure they are valid key hashs.
+
+      /// Create threshold Entry
+      let _ah = create_entry(MembranesEntry::Threshold(MembraneThreshold::Progenitor))?;
+      let _eh = hash_entry(MembraneThreshold::Progenitor)?;
+      // Add to Index
+      //let root_path = Path::from(anchors::Thresholds).path_entry_hash()?;
+      //let _lah = create_link(root_path, eh.clone(), MembranesLinkType::Threshold, LinkTag::from("Progenitor".to_string().into_bytes()))?;
+   //}
    Ok(InitCallbackResult::Pass)
 }
 

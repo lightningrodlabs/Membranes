@@ -3,6 +3,8 @@ use hdi::prelude::*;
 use membranes_types::*;
 use crate::{MembranesEntryTypes};
 use crate::get_index;
+use crate::zome_properties::is_progenitor;
+
 
 ///
 #[allow(unreachable_patterns)]
@@ -79,6 +81,9 @@ fn validate_membrane_claim(membrane_claim: MembraneCrossedClaim) -> ExternResult
 ///
 fn verify_threshold_proof(subject: AgentPubKey, threshold: MembraneThreshold, signed_actions: Vec<SignedActionHashed>) -> ExternResult<bool> {
    match threshold {
+      MembraneThreshold::Progenitor => {
+         return is_progenitor(subject);
+      },
       MembraneThreshold::CreateEntryCount(th) => {
          let threshold_entry_type = th.entry_type.clone().into_typed();
          /// Must find enough CreateEntry actions by the subject for the correct entry type

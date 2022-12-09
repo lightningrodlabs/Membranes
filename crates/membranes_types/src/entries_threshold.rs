@@ -7,6 +7,7 @@ use hdi::prelude::*;
 pub enum MembraneThreshold {
    CreateEntryCount(CreateEntryCountThreshold),
    Vouch(VouchThreshold),
+   Progenitor,
 }
 
 #[derive(Clone, PartialEq, Debug, Serialize, Deserialize)]

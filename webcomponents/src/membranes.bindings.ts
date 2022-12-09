@@ -58,7 +58,7 @@ export interface MyAppEntryType {
   isPublic: boolean,
 }
 
-export type MembraneThresholdEntry = CreateEntryCountThreshold | VouchThreshold
+export type MembraneThresholdEntry = CreateEntryCountThreshold | VouchThreshold | any // progenitor unit enum fixme
 
 export function isVouchThreshold(obj: any): obj is VouchThreshold  {
   return obj.hasOwnProperty('byRole')
@@ -70,6 +70,7 @@ export function isCreateThreshold(obj: any): obj is CreateEntryCountThreshold  {
 export enum MembraneThresholdKind {
   CreateEntryCountThreshold,
   VouchThreshold,
+  ProgenitorThreshold,
 }
 
 export interface CreateEntryCountThreshold {

@@ -1,16 +1,12 @@
 ---
 manifest_version: "1"
-
 name: hTasker
 description: Task manager app
-
 roles:
   - id: rTasker
     provisioning:
       strategy: create
-      deferred: false
+      deferred: true
     dna:
       bundled: ../../tasker.dna
-      uuid: ~
-      properties: ~
       clone_limit: 0

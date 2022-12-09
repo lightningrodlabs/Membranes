@@ -6,7 +6,9 @@
 
 mod validate;
 pub(crate) mod validate_app_entry;
+pub mod zome_properties;
 
+pub use zome_properties::*;
 
 use hdi::prelude::*;
 use membranes_types::*;
