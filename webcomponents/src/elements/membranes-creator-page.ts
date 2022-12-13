@@ -1,9 +1,9 @@
 import {css, html} from "lit";
 import {property, state} from "lit/decorators.js";
 import {ActionHashB64, Dictionary, EntryHashB64} from "@holochain-open-dev/core-types";
-import {describe_threshold, MembranesZvm} from "../membranes.zvm";
-import {MembraneThresholdKind, MyAppEntryType} from "../membranes.bindings";
-import {MembranesPerspective} from "../membranes.perspective";
+import {describe_threshold, MembranesZvm} from "../viewModel/membranes.zvm";
+import {MembraneThresholdType, MyAppEntryType} from "../bindings/membranes";
+import {MembranesPerspective} from "../viewModel/membranes.perspective";
 import { ZomeElement } from "@ddd-qc/lit-happ";
 
 
@@ -228,7 +228,7 @@ export class MembranesCreatorPage extends ZomeElement<MembranesPerspective, Memb
             }
         )
 
-        const kindOptions = Object.keys(MembraneThresholdKind)
+        const kindOptions = Object.keys(MembraneThresholdType)
             .filter((item) => {return isNaN(Number(item));})
             .map((kind) => {
                 return html `<option value="${kind}">${kind}</option>`
