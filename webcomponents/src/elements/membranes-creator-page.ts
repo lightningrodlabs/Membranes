@@ -22,7 +22,7 @@ export class MembranesCreatorPage extends ZomeElement<MembranesPerspective, Memb
     @state() private _selectedZomeName = ""
     @state() private _membranesForCurrentRole: EntryHashB64[] = [];
     @state() private _thresholdsForCurrentMembrane: EntryHashB64[] = [];
-    @state() private _selectedKind = ""
+    @state() private _selectedKind?: MembraneThresholdType;
 
     @property()
     allAppEntryTypes: Dictionary<[string, boolean][]> = {};
@@ -113,7 +113,7 @@ export class MembranesCreatorPage extends ZomeElement<MembranesPerspective, Memb
     onCreateThreshold(e: any) {
         console.log("onCreateThreshold() CALLED", e);
         switch (this._selectedKind) {
-            case "CreateEntryCountThreshold": {
+            case MembraneThresholdType.CreateEntryCount: {
                 const zomeSelector = this.shadowRoot!.getElementById("selectedZome") as HTMLSelectElement;
                 const entrySelector = this.shadowRoot!.getElementById("selectedEntryType") as HTMLSelectElement;
                 const entryType: MyAppEntryType = {id: entrySelector.selectedIndex, zomeId: zomeSelector.selectedIndex, isPublic: true};  // FIXME
@@ -122,7 +122,7 @@ export class MembranesCreatorPage extends ZomeElement<MembranesPerspective, Memb
                 const _res = this._zvm.createCreateEntryCountThreshold(entryType, count);
                 break;
             }
-            case "VouchThreshold": {
+            case MembraneThresholdType.Vouch: {
                 const input = this.shadowRoot!.getElementById("requiredVouchCount") as HTMLInputElement;
                 const count = Number(input.value);
                 const input2 = this.shadowRoot!.getElementById("forRoleInput") as HTMLInputElement;
@@ -142,7 +142,7 @@ export class MembranesCreatorPage extends ZomeElement<MembranesPerspective, Memb
     /** */
     renderThresholdForm() {
         switch(this._selectedKind) {
-            case "CreateEntryCountThreshold": {
+            case MembraneThresholdType.CreateEntryCount: {
                 const zomeOptions = Object.entries(this.allAppEntryTypes).map(
                     ([zomeName, _entryDef]) => {
                         return html`
@@ -176,7 +176,7 @@ export class MembranesCreatorPage extends ZomeElement<MembranesPerspective, Memb
                 `;
                 break;
             }
-            case "VouchThreshold":  {
+            case MembraneThresholdType.Vouch:  {
                 return html`
                     <label for="requiredVouchCount">Receive</label>
                     <input type="number" id="requiredVouchCount" style="width: 40px;">
@@ -194,7 +194,7 @@ export class MembranesCreatorPage extends ZomeElement<MembranesPerspective, Memb
 
     /** */
     render() {
-        console.log("<membranes-creator-page> render()", this._initialized);
+        console.log("<membranes-creator-page> render()", this._initialized, this._selectedKind);
         if (!this._initialized) {
             return html`<span>Loading...</span>`;
         }
