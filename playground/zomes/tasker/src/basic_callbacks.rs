@@ -5,7 +5,7 @@ use tasker_model::*;
 use crate::init_membranes::*;
 
 /// Setup initial capabilities
-#[hdk_extern]
+//#[hdk_extern]
 fn init_caps(_: ()) -> ExternResult<()> {
    let /*mut*/ functions: GrantedFunctions = BTreeSet::new();
    //functions.insert((zome_info()?.name, REMOTE_ENDPOINT.into()));

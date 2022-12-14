@@ -1,12 +1,12 @@
 import {EntryHash, ZomeName} from "@holochain/client";
 import {EntryHashB64, ActionHashB64, AgentPubKeyB64} from '@holochain-open-dev/core-types';
 import {deserializeHash, serializeHash} from "@holochain-open-dev/utils";
-import {TaskerProxy} from './tasker.proxy';
-import {TaskItemEntry} from './tasker.bindings';
+import {TaskerProxy} from '../bindings/tasker.proxy';
+import {TaskItem} from '../bindings/tasker';
 import {ZomeViewModel, CellProxy} from "@ddd-qc/lit-happ";
 import {MembranesProxy} from "@membranes/elements";
-import {MEMBRANES_ZOME_NAME} from "./defs";
-import {TaskerPerspective, TaskItem, TaskList, emptyTaskerPerspective} from "./tasker.perspective";
+import {MEMBRANES_ZOME_NAME} from "./tasker.dvm";
+import {TaskerPerspective, TaskItemMaterialized, TaskListMaterialized, emptyTaskerPerspective} from "./tasker.perspective";
 
 
 
@@ -19,13 +19,13 @@ export class TaskerZvm extends ZomeViewModel {
   get zomeProxy(): TaskerProxy {return this._zomeProxy as TaskerProxy;}
 
 
+  /** Hack to call Membranes zome from tasker zvm */
   private _membranesProxy: MembranesProxy;
 
 
   constructor(cellProxy: CellProxy, zomeName?: ZomeName) {
     super(cellProxy, zomeName);
     this._membranesProxy = new MembranesProxy(cellProxy, MEMBRANES_ZOME_NAME);
-
   }
 
 
@@ -67,13 +67,13 @@ export class TaskerZvm extends ZomeViewModel {
     //console.log({listEntries})
     let pr = Object.entries(listEntries).map(async ([listEhB64, listEntry]) => {
       const listEh: EntryHash = deserializeHash(listEhB64);
-      const triples: [EntryHash, TaskItemEntry, boolean][] = await this.zomeProxy.getListItems(listEh);
+      const triples: [EntryHash, TaskItem, boolean][] = await this.zomeProxy.getListItems(listEh);
       //console.log({listEhB64, triples})
       const isLocked = await this.zomeProxy.isListLocked(listEh);
-      const items: [EntryHashB64, TaskItem][]= triples.map(([eh, entry, isCompleted]) => {
+      const items: [EntryHashB64, TaskItemMaterialized][]= triples.map(([eh, entry, isCompleted]) => {
         return [serializeHash(eh), {entry, isCompleted}];
       });
-      const list: TaskList = {
+      const list: TaskListMaterialized = {
         title: listEntry.title,
         isLocked,
         items,
@@ -106,9 +106,14 @@ export class TaskerZvm extends ZomeViewModel {
 
   /** */
   async createTaskItem(title: string, assignee: AgentPubKeyB64, listEh: EntryHashB64): Promise<ActionHashB64> {
-    let res = serializeHash(await this.zomeProxy.createTaskItem(title, deserializeHash(assignee), deserializeHash(listEh)));
+    let res = await this.zomeProxy.createTaskItem({
+      title,
+      assignee: deserializeHash(assignee),
+      listEh: deserializeHash(listEh),
+    });
+    let resb64 = serializeHash(res);
     this.probeAll();
-    return res;
+    return resb64;
   }
 
   /** */
@@ -119,7 +124,7 @@ export class TaskerZvm extends ZomeViewModel {
   }
 
   async lockTaskList(eh: EntryHashB64): Promise<ActionHashB64> {
-    let res = serializeHash(await this.zomeProxy.lockTaskList(deserializeHash(eh)));
+    let res = serializeHash(await this.zomeProxy.membranedLockTaskList(deserializeHash(eh)));
     this.probeAll();
     return res;
   }

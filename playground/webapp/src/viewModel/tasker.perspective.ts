@@ -1,28 +1,28 @@
 import {Dictionary, EntryHashB64} from "@holochain-open-dev/core-types";
-import {TaskItemEntry, TaskListEntry} from "./tasker.bindings";
+import {TaskItem, TaskList} from "../bindings/tasker";
 
 
 /** */
-export interface TaskItem {
-    entry: TaskItemEntry,
+export interface TaskItemMaterialized {
+    entry: TaskItem,
     isCompleted: boolean,
 }
 /** */
-export interface TaskList {
+export interface TaskListMaterialized {
     title: string,
     isLocked: boolean,
-    items: [EntryHashB64, TaskItem][],
+    items: [EntryHashB64, TaskItemMaterialized][],
 }
 
 
 /** */
 export interface TaskerPerspective {
     /** EntryHash -> TaskList */
-    taskLists: Dictionary<TaskList>,
-    taskListEntries: Dictionary<TaskListEntry>,
+    taskLists: Dictionary<TaskListMaterialized>,
+    taskListEntries: Dictionary<TaskList>,
     /** EntryHash -> TaskItem */
-    taskItems: Dictionary<TaskItem>,
-    myRoles: string[]
+    taskItems: Dictionary<TaskItemMaterialized>,
+    myRoles: string[],
 }
 
 export const emptyTaskerPerspective: TaskerPerspective = {

@@ -3,10 +3,12 @@ import { MembranesZvm } from "@membranes/elements";
 import {TaskerZvm} from "./tasker.zvm"
 import {AgentDirectoryZvm} from "@ddd-qc/agent-directory"
 import {AppSignalCb} from "@holochain/client";
-import {MEMBRANES_ZOME_NAME} from "./defs";
+
+
+export const MEMBRANES_ZOME_NAME = "zMembranes";
 
 /**
- * TODO: Make a Default DVM generator in dna-client based on ZVM_DEFS
+ * TODO: Make a "passthrough" DVM generator in dna-client based on ZVM_DEFS
  */
  export class TaskerDvm extends DnaViewModel {
 

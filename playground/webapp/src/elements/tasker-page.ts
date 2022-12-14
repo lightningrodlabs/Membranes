@@ -4,7 +4,7 @@ import {AgentPubKeyB64, EntryHashB64} from "@holochain-open-dev/core-types";
 import {serializeHash} from "@holochain-open-dev/utils";
 import { DnaElement } from "@ddd-qc/lit-happ";
 import { TaskerDvm } from "../viewModel/tasker.dvm";
-import {TaskerPerspective, TaskList} from "../viewModel/tasker.perspective";
+import {TaskerPerspective, TaskListMaterialized} from "../viewModel/tasker.perspective";
 
 
 /**
@@ -101,7 +101,7 @@ export class TaskerPage extends DnaElement<unknown, TaskerDvm> {
 
 
   /** */
-  async onSubmitCompletion(selectedList: TaskList | null) {
+  async onSubmitCompletion(selectedList: TaskListMaterialized | null) {
     //console.log("onSubmitCompletion() CALLED", e)
     if (!selectedList) {
       return;
@@ -128,7 +128,7 @@ export class TaskerPage extends DnaElement<unknown, TaskerDvm> {
     let taskListEntries = this._dvm.taskerZvm.perspective.taskListEntries;
     let agents: AgentPubKeyB64[] = this._dvm.AgentDirectoryZvm.perspective.agents;
     let myRoles = this._dvm.taskerZvm.perspective.myRoles;
-    let selectedList: TaskList | null = null;
+    let selectedList: TaskListMaterialized | null = null;
     if (this._selectedListEh) {
       selectedList = this._dvm.taskerZvm.perspective.taskLists[this._selectedListEh];
       if (!selectedList) {

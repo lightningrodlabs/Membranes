@@ -10,18 +10,10 @@ import {
 import {AgentPubKeyB64, Dictionary} from "@holochain-open-dev/core-types";
 import {AgentDirectoryList} from "@ddd-qc/agent-directory";
 import { TaskerDvm } from "./viewModel/tasker.dvm";
-import {ContextProvider} from "@lit-labs/context";
 import {
-  HvmDef,
-  HappElement,
-  CloneIndex,
-  HCL,
-  cellContext,
-  ViewCellContext,
-  CellDef,
-  CellContext
+  HvmDef, HappElement, CloneIndex, HCL, ViewCellContext, CellDef, CellContext
 } from "@ddd-qc/lit-happ";
-import {InstalledAppId, InstalledCell} from "@holochain/client";
+import {InstalledCell} from "@holochain/client";
 
 
 /**
