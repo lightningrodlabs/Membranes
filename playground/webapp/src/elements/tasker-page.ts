@@ -4,7 +4,7 @@ import {AgentPubKeyB64, EntryHashB64} from "@holochain-open-dev/core-types";
 import {serializeHash} from "@holochain-open-dev/utils";
 import { DnaElement } from "@ddd-qc/lit-happ";
 import { TaskerDvm } from "../viewModel/tasker.dvm";
-import {TaskerPerspective, TaskListMaterialized} from "../viewModel/tasker.perspective";
+import {emptyTaskerPerspective, TaskerPerspective, TaskListMaterialized} from "../viewModel/tasker.perspective";
 
 
 /**
@@ -29,12 +29,24 @@ export class TaskerPage extends DnaElement<unknown, TaskerDvm> {
 
   /** -- Methods -- */
 
-  /** After first render only */
-  async firstUpdated() {
-    this._dvm.taskerZvm.subscribe(this, 'taskerPerspective');
-    await this.refresh();
+  protected async dvmUpdated(newDvm: TaskerDvm, oldDvm?: TaskerDvm): Promise<void> {
+    console.log("<tasker-page>.dvmUpdated()");
+    if (oldDvm) {
+      oldDvm.taskerZvm.unsubscribe(this);
+    }
+    newDvm.taskerZvm.subscribe(this, 'taskerPerspective');
+    newDvm.probeAll();
+    this._selectedListEh = undefined;
+    this.taskerPerspective = emptyTaskerPerspective;
     this._initialized = true;
   }
+
+
+
+  // /** After first render only */
+  // async firstUpdated() {
+  //   this._initialized = true;
+  // }
 
 
   /** */
@@ -126,6 +138,7 @@ export class TaskerPage extends DnaElement<unknown, TaskerDvm> {
       return html`<span>Loading...</span>`;
     }
     let taskListEntries = this._dvm.taskerZvm.perspective.taskListEntries;
+    console.log("<tasker-page.render()> render() taskListEntries", taskListEntries);
     let agents: AgentPubKeyB64[] = this._dvm.AgentDirectoryZvm.perspective.agents;
     let myRoles = this._dvm.taskerZvm.perspective.myRoles;
     let selectedList: TaskListMaterialized | null = null;

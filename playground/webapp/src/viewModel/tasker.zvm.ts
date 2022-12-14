@@ -48,6 +48,8 @@ export class TaskerZvm extends ZomeViewModel {
   /** */
   async pullAllLists() {
     const lists = await this.zomeProxy.getAllLists();
+    this._perspective.taskListEntries = {};
+
     console.log("pullAllLists() lists:", lists);
     //console.log("pullAllLists() taskListEntryStore:", this.taskListEntryStore);
     for (const pair of lists) {

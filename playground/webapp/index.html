@@ -19,6 +19,9 @@
     <script type="module">
       import { TaskerApp } from "./out-tsc";
       customElements.define("tasker-app", TaskerApp);
+      import {ContextRoot} from '@lit-labs/context';
+      const root = new ContextRoot();
+      root.attach(document.body);
     </script>
   </body>
 </html>

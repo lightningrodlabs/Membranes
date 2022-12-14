@@ -2,6 +2,8 @@
 
 rustc --version
 
+# For ts-bindings
+cargo install zits
 
 # Temporary workaround for broken HDK deps
 cargo update -p hdi --precise 0.1.3
