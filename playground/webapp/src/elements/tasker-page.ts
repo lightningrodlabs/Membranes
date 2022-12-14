@@ -4,7 +4,7 @@ import {AgentPubKeyB64, EntryHashB64} from "@holochain-open-dev/core-types";
 import {serializeHash} from "@holochain-open-dev/utils";
 import { DnaElement } from "@ddd-qc/lit-happ";
 import { TaskerDvm } from "../viewModel/tasker.dvm";
-import {emptyTaskerPerspective, TaskerPerspective, TaskListMaterialized} from "../viewModel/tasker.perspective";
+import {TaskerPerspective, TaskListMaterialized} from "../viewModel/tasker.perspective";
 
 
 /**
@@ -32,12 +32,14 @@ export class TaskerPage extends DnaElement<unknown, TaskerDvm> {
   protected async dvmUpdated(newDvm: TaskerDvm, oldDvm?: TaskerDvm): Promise<void> {
     console.log("<tasker-page>.dvmUpdated()");
     if (oldDvm) {
+      console.log("\t Unsubscribed to taskerZvm's roleInstanceId = ", oldDvm.taskerZvm.roleInstanceId)
       oldDvm.taskerZvm.unsubscribe(this);
     }
     newDvm.taskerZvm.subscribe(this, 'taskerPerspective');
+    console.log("\t Subscribed taskerZvm's roleInstanceId = ", newDvm.taskerZvm.roleInstanceId)
     newDvm.probeAll();
     this._selectedListEh = undefined;
-    this.taskerPerspective = emptyTaskerPerspective;
+    //this.taskerPerspective = emptyTaskerPerspective;
     this._initialized = true;
   }
 
@@ -102,13 +104,15 @@ export class TaskerPage extends DnaElement<unknown, TaskerDvm> {
 
   /** */
   async onListSelect(e: any) {
-    //console.log("onListSelect() CALLED", e)
+    console.log("onListSelect() CALLED", e)
     const selector = this.shadowRoot!.getElementById("listSelector") as HTMLSelectElement;
     if (!selector || !selector.value) {
       console.warn("No list selector value", selector);
       return;
     }
+    console.log("onListSelect() value", selector.value)
     this._selectedListEh = selector.value;
+    this.requestUpdate();
   }
 
 
@@ -133,21 +137,23 @@ export class TaskerPage extends DnaElement<unknown, TaskerDvm> {
 
   /** */
   render() {
-    console.log("<tasker-page.render()> render()", this._initialized);
+    console.log("<tasker-page.render()> render()", this._initialized, this._selectedListEh);
     if (!this._initialized) {
       return html`<span>Loading...</span>`;
     }
+    console.log("\t Using taskerZvm's roleInstanceId = ", this._dvm.taskerZvm.roleInstanceId)
+
     let taskListEntries = this._dvm.taskerZvm.perspective.taskListEntries;
     console.log("<tasker-page.render()> render() taskListEntries", taskListEntries);
     let agents: AgentPubKeyB64[] = this._dvm.AgentDirectoryZvm.perspective.agents;
     let myRoles = this._dvm.taskerZvm.perspective.myRoles;
-    let selectedList: TaskListMaterialized | null = null;
-    if (this._selectedListEh) {
-      selectedList = this._dvm.taskerZvm.perspective.taskLists[this._selectedListEh];
-      if (!selectedList) {
-        console.warn("No list found for selectedListEh", this._selectedListEh);
-        this.refresh();
-        return html`<span>Loading...</span>`;
+    let maybeSelectedList: TaskListMaterialized | undefined = undefined;
+    if (this._selectedListEh !== undefined) {
+      maybeSelectedList = this._dvm.taskerZvm.perspective.taskLists[this._selectedListEh];
+      if (!maybeSelectedList === undefined) {
+         console.warn("No list found for selectedListEh", this._selectedListEh);
+      //   //this.refresh();
+      //   return html`<span>Loading...</span>`;
       }
     }
 
@@ -177,30 +183,30 @@ export class TaskerPage extends DnaElement<unknown, TaskerDvm> {
 
     /** Display selected list */
     let selectedListHtml = html `<h3>none</h3>`
-    if (selectedList) {
-      const listItems = Object.entries(selectedList.items).map(
+    if (maybeSelectedList !== undefined) {
+      const listItems = Object.entries(maybeSelectedList!.items).map(
           ([index, [ahB64, taskItem]]) => {
             ///console.log("taskItem:", taskItem)
             return html`
-              <input type="checkbox" id="${ahB64}" value="${ahB64}" .checked=${taskItem.isCompleted} .disabled=${selectedList!.isLocked || taskItem.isCompleted}>              
+              <input type="checkbox" id="${ahB64}" value="${ahB64}" .checked=${taskItem.isCompleted} .disabled=${maybeSelectedList!.isLocked || taskItem.isCompleted}>              
               <label for="${ahB64}"><b>${taskItem.entry.title}</b></label><span> - <i>${serializeHash(taskItem.entry.assignee)}</i></span><br>
               `
           }
       )
       selectedListHtml = html `
-        <h2>${selectedList.title}</h2>
-            <!-- <span>Locked: ${selectedList.isLocked}</span> -->
-          <input type="button" value="Lock" @click=${this.onLockList} .disabled=${selectedList.isLocked}>
+        <h2>${maybeSelectedList.title}</h2>
+            <!-- <span>Locked: ${maybeSelectedList.isLocked}</span> -->
+          <input type="button" value="Lock" @click=${this.onLockList} .disabled=${maybeSelectedList.isLocked}>
           <br/>
           <label for="itemTitleInput">Add task:</label>
-          <input type="text" id="itemTitleInput" name="title" .disabled=${selectedList.isLocked}>
-          <select name="selectedAgent" id="selectedAgent" .disabled=${selectedList.isLocked}>
+          <input type="text" id="itemTitleInput" name="title" .disabled=${maybeSelectedList.isLocked}>
+          <select name="selectedAgent" id="selectedAgent" .disabled=${maybeSelectedList.isLocked}>
             ${AgentOptions}
           </select>
-        <input type="button" value="Add" @click=${this.onCreateTask} .disabled=${selectedList.isLocked}>
+        <input type="button" value="Add" @click=${this.onCreateTask} .disabled=${maybeSelectedList.isLocked}>
           <form id="listForm">
               ${listItems}
-          <input type="button" value="submit" @click=${() => this.onSubmitCompletion(selectedList)} .disabled=${selectedList.isLocked}>
+          <input type="button" value="submit" @click=${() => this.onSubmitCompletion(maybeSelectedList!)} .disabled=${maybeSelectedList.isLocked}>
           </form>
       `
     }

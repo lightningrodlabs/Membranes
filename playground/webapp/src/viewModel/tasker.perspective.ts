@@ -25,10 +25,4 @@ export interface TaskerPerspective {
     myRoles: string[],
 }
 
-export const emptyTaskerPerspective: TaskerPerspective = {
-    taskLists: {},
-    taskListEntries: {},
-    taskItems: {},
-    myRoles: [],
-}
 

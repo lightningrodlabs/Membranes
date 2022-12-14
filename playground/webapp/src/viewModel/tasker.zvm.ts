@@ -6,7 +6,7 @@ import {TaskItem} from '../bindings/tasker';
 import {ZomeViewModel, CellProxy} from "@ddd-qc/lit-happ";
 import {MembranesProxy} from "@membranes/elements";
 import {MEMBRANES_ZOME_NAME} from "./tasker.dvm";
-import {TaskerPerspective, TaskItemMaterialized, TaskListMaterialized, emptyTaskerPerspective} from "./tasker.perspective";
+import {TaskerPerspective, TaskItemMaterialized, TaskListMaterialized} from "./tasker.perspective";
 
 
 
@@ -31,7 +31,7 @@ export class TaskerZvm extends ZomeViewModel {
 
   /** -- ViewModel -- */
 
-  private _perspective: TaskerPerspective = emptyTaskerPerspective;
+  private _perspective: TaskerPerspective = {taskLists: {}, taskListEntries:{}, taskItems:{}, myRoles: []};
 
   /* */
   get perspective(): TaskerPerspective {return this._perspective}
@@ -54,17 +54,7 @@ export class TaskerZvm extends ZomeViewModel {
       const ehB64 = serializeHash(pair[0])
       this._perspective.taskListEntries[ehB64] = pair[1];
     }
-    this.notifySubscribers();
-  }
 
-
-  /** */
-  async probeAll() {
-    console.log("taskerViewModel.probeAll() called");
-    /** Reset perspective */
-    this._perspective = emptyTaskerPerspective;
-    /** Get Lists */
-    await this.pullAllLists();
     const listEntries = this._perspective.taskListEntries;
     //console.log({listEntries})
     let pr = Object.entries(listEntries).map(async ([listEhB64, listEntry]) => {
@@ -83,11 +73,27 @@ export class TaskerZvm extends ZomeViewModel {
       return {eh: listEhB64, list};
     })
     Promise.all(pr).then((results) => {
-        for (const obj of results) {
-          this._perspective.taskLists[obj.eh] = obj.list;
-        }
+      for (const obj of results) {
+        this._perspective.taskLists[obj.eh] = obj.list;
+      }
       this.notifySubscribers()
     })
+
+
+    this.notifySubscribers();
+  }
+
+
+  /** */
+  async probeAll() {
+    console.log("taskerViewModel.probeAll() called");
+    /** Reset perspective */
+    this._perspective.taskListEntries = {};
+    this._perspective.taskLists = {};
+    this._perspective.taskItems = {};
+    this._perspective.myRoles = [];
+    /** Get Lists */
+    await this.pullAllLists();
 
 
     /** Get My Roles */
