@@ -16,7 +16,6 @@ import {
   VouchThreshold
 } from "../bindings/membranes";
 import {
-  emptyPerspective,
   TypedMembrane,
   TypedMembraneCrossedClaim,
   TypedMembraneRole,
