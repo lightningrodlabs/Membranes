@@ -14,13 +14,16 @@ export interface MembranesPerspective {
     myVouches: Dictionary<[TypedVouch[], [TypedVouch, AgentPubKeyB64][]]>
 }
 
-export const emptyPerspective: MembranesPerspective = {
-    thresholds: {},
-    membranes: {},
-    roles: {},
-    myRoleClaims: {},
-    myMembraneClaims: {},
-    myVouches: {},
+
+export function defaultPerspective(): MembranesPerspective {
+    return {
+        thresholds: {},
+        membranes: {},
+        roles: {},
+        myRoleClaims: {},
+        myMembraneClaims: {},
+        myVouches: {},
+    }
 }
 
 

@@ -21,7 +21,7 @@ import {
   TypedMembraneCrossedClaim,
   TypedMembraneRole,
   MembranesPerspective, TypedRoleClaim,
-  TypedVouch
+  TypedVouch, defaultPerspective
 } from "./membranes.perspective";
 
 
@@ -135,7 +135,7 @@ export class MembranesZvm extends ZomeViewModel {
 
   /** -- Perspective -- */
 
-  private _perspective: MembranesPerspective = emptyPerspective
+  private _perspective: MembranesPerspective = defaultPerspective();
 
 
   /** -- Methods -- */
