@@ -119,15 +119,15 @@ export class MembranesProxy extends ZomeProxy {
   static readonly DEFAULT_ZOME_NAME = "membranes"
  
 
-  async getAllMembranesDetails(): Promise<[EntryHash, Membrane, ][]> {
+  async getAllMembranesDetails(): Promise<[EntryHash, Membrane][]> {
     return this.call('get_all_membranes_details', null);
   }
 
-  async getAllRoles(): Promise<[EntryHashB64, string, ][]> {
+  async getAllRoles(): Promise<[EntryHashB64, string][]> {
     return this.call('get_all_roles', null);
   }
 
-  async getAllRolesDetails(): Promise<[EntryHash, MembraneRole, ][]> {
+  async getAllRolesDetails(): Promise<[EntryHash, MembraneRole][]> {
     return this.call('get_all_roles_details', null);
   }
 
@@ -135,7 +135,7 @@ export class MembranesProxy extends ZomeProxy {
     return this.call('get_role_by_name', requestedName);
   }
 
-  async getAllThresholdsDetails(): Promise<[EntryHash, MembraneThreshold, ][]> {
+  async getAllThresholdsDetails(): Promise<[EntryHash, MembraneThreshold][]> {
     return this.call('get_all_thresholds_details', null);
   }
 
@@ -184,11 +184,11 @@ export class MembranesProxy extends ZomeProxy {
     return this.call('get_membrane_crossed_claim', eh);
   }
 
-  async getMyRoleClaimsDetails(): Promise<[EntryHash, RoleClaim, ][]> {
+  async getMyRoleClaimsDetails(): Promise<[EntryHash, RoleClaim][]> {
     return this.call('get_my_role_claims_details', null);
   }
 
-  async getMyMembraneClaimsDetails(): Promise<[EntryHash, MembraneCrossedClaim, ][]> {
+  async getMyMembraneClaimsDetails(): Promise<[EntryHash, MembraneCrossedClaim][]> {
     return this.call('get_my_membrane_claims_details', null);
   }
 
@@ -232,7 +232,7 @@ export class MembranesProxy extends ZomeProxy {
     return this.call('publish_MembraneCrossedClaim', claim);
   }
 
-  async getRoleWithName(name: string): Promise<[EntryHash, MembraneRole, ] | null> {
+  async getRoleWithName(name: string): Promise<[EntryHash, MembraneRole] | null> {
     return this.call('get_role_with_name', name);
   }
 
@@ -252,7 +252,7 @@ export class MembranesProxy extends ZomeProxy {
     return this.call('get_my_emitted_vouches', maybeRole);
   }
 
-  async getMyReceivedVouches(maybeRole: string): Promise<[EntryHash, AgentPubKey, ][]> {
+  async getMyReceivedVouches(maybeRole: string): Promise<[EntryHash, AgentPubKey][]> {
     return this.call('get_my_received_vouches', maybeRole);
   }
 }
