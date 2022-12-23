@@ -1,8 +1,7 @@
-import {EntryHash, ZomeName} from "@holochain/client";
+import {decodeHashFromBase64, encodeHashToBase64, EntryHash, ZomeName} from "@holochain/client";
 import {EntryHashB64, ActionHashB64, AgentPubKeyB64} from '@holochain-open-dev/core-types';
-import {deserializeHash, serializeHash} from "@holochain-open-dev/utils";
 import {TaskerProxy} from '../bindings/tasker.proxy';
-import {TaskItem} from '../bindings/tasker';
+import {TaskItem} from '../bindings/tasker.types';
 import {ZomeViewModel, CellProxy} from "@ddd-qc/lit-happ";
 import {MembranesProxy} from "@membranes/elements";
 import {MEMBRANES_ZOME_NAME} from "./tasker.dvm";
@@ -51,19 +50,19 @@ export class TaskerZvm extends ZomeViewModel {
     console.log("pullAllLists() lists:", lists);
     //console.log("pullAllLists() taskListEntryStore:", this.taskListEntryStore);
     for (const pair of lists) {
-      const ehB64 = serializeHash(pair[0])
+      const ehB64 = encodeHashToBase64(pair[0])
       this._perspective.taskListEntries[ehB64] = pair[1];
     }
 
     const listEntries = this._perspective.taskListEntries;
     //console.log({listEntries})
     let pr = Object.entries(listEntries).map(async ([listEhB64, listEntry]) => {
-      const listEh: EntryHash = deserializeHash(listEhB64);
+      const listEh: EntryHash = decodeHashFromBase64(listEhB64);
       const triples: [EntryHash, TaskItem, boolean][] = await this.zomeProxy.getListItems(listEh);
       //console.log({listEhB64, triples})
       const isLocked = await this.zomeProxy.isListLocked(listEh);
       const items: [EntryHashB64, TaskItemMaterialized][]= triples.map(([eh, entry, isCompleted]) => {
-        return [serializeHash(eh), {entry, isCompleted}];
+        return [encodeHashToBase64(eh), {entry, isCompleted}];
       });
       const list: TaskListMaterialized = {
         title: listEntry.title,
@@ -116,29 +115,29 @@ export class TaskerZvm extends ZomeViewModel {
   async createTaskItem(title: string, assignee: AgentPubKeyB64, listEh: EntryHashB64): Promise<ActionHashB64> {
     let res = await this.zomeProxy.createTaskItem({
       title,
-      assignee: deserializeHash(assignee),
-      listEh: deserializeHash(listEh),
+      assignee: decodeHashFromBase64(assignee),
+      listEh: decodeHashFromBase64(listEh),
     });
-    let resb64 = serializeHash(res);
+    let resb64 = encodeHashToBase64(res);
     this.probeAll();
     return resb64;
   }
 
   /** */
   async createTaskList(title: string): Promise<ActionHashB64> {
-    let newList = serializeHash(await this.zomeProxy.createTaskList(title));
+    let newList = encodeHashToBase64(await this.zomeProxy.createTaskList(title));
     this.pullAllLists();
     return newList;
   }
 
   async lockTaskList(eh: EntryHashB64): Promise<ActionHashB64> {
-    let res = serializeHash(await this.zomeProxy.membranedLockTaskList(deserializeHash(eh)));
+    let res = encodeHashToBase64(await this.zomeProxy.membranedLockTaskList(decodeHashFromBase64(eh)));
     this.probeAll();
     return res;
   }
 
   async completeTask(eh: EntryHashB64): Promise<ActionHashB64> {
-    let res = serializeHash(await this.zomeProxy.completeTask(deserializeHash(eh)));
+    let res = encodeHashToBase64(await this.zomeProxy.completeTask(decodeHashFromBase64(eh)));
     //this.pullAllFromDht();
     return res;
   }

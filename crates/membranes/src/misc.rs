@@ -16,8 +16,8 @@ pub fn dna_info_hack(_: ()) -> ExternResult<Vec<ZomeName>> {
 
 //
 #[hdk_extern]
-pub fn echo_app_entry_type(entry_type: AppEntryType) -> ExternResult<()> {
-   debug!("echo_app_entry_type() called: {:?}", entry_type);
+pub fn echo_app_entry_def(entry_type: AppEntryDef) -> ExternResult<()> {
+   debug!("echo_app_entry_def() called: {:?}", entry_type);
    Ok(())
 }
 

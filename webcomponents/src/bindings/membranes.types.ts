@@ -11,14 +11,23 @@ ActionHash,
 AnyDhtHash,
 KitsuneAgent,
 KitsuneSpace,
+HoloHashB64,
+AgentPubKeyB64,
+DnaHashB64,
+WasmHashB64,
+EntryHashB64,
+ActionHashB64,
+AnyDhtHashB64,
 InstalledAppId,
 Signature,
 CellId,
 DnaProperties,
-RoleId,
+RoleName,
 InstalledCell,
 Timestamp,
 HoloHashed,
+NetworkInfo,
+FetchQueueInfo,
 /** Action */
 SignedActionHashed,
 ActionHashed,
@@ -59,7 +68,7 @@ getDhtOpEntry,
 getDhtOpSignature,
 /** Entry */
 EntryVisibility,
-AppEntryType,
+AppEntryDef,
 EntryType,
 EntryContent,
 Entry,
@@ -67,8 +76,15 @@ Entry,
 Record,
 RecordEntry,
 /** admin types */
-ZomeName,
+InstalledAppInfoStatus,
+StemCell,
+Cell,
+CellType,
+CellInfo,
+AppInfo,
 MembraneProof,
+FunctionName,
+ZomeName,
 ZomeDefinition,
 IntegrityZome,
 CoordinatorZome,
@@ -76,7 +92,6 @@ DnaDefinition,
 ResourceBytes,
 ResourceMap,
 CellProvisioning,
-HoloHashB64,
 DnaVersionSpec,
 DnaVersionFlexible,
 NetworkSeed,
@@ -84,27 +99,22 @@ ZomeLocation,
    } from '@holochain/client';
 
 import {
-// Common
+/** Common */
 Dictionary,
-EntryHashB64,
-ActionHashB64,
 DhtOpHashB64,
-DnaHashB64,
-AgentPubKeyB64,
-AnyDhtHashB64,
 DhtOpHash,
-// DnaFile
+/** DnaFile */
 DnaFile,
 DnaDef,
 Zomes,
 WasmCode,
-// entry-details
+/** entry-details */
 EntryDetails,
 RecordDetails,
 Details,
 DetailsType,
 EntryDhtStatus,
-// Validation
+/** Validation */
 ValidationStatus,
 ValidationReceipt,
    } from '@holochain-open-dev/core-types';
@@ -153,8 +163,8 @@ export type MembraneThreshold =
  | MembraneThresholdVariantCreateEntryCount | MembraneThresholdVariantVouch | MembraneThresholdVariantProgenitor;
 
 export interface MyAppEntryType {
-  id: number
-  zomeId: number
+  entryIndex: number
+  zomeIndex: number
   isPublic: boolean
 }
 
@@ -179,7 +189,7 @@ export type CrudType =
   | "Create" | "Read" | "Update" | "Delete";
 
 export interface Privilege {
-  entry_type: AppEntryType
+  entry_def: AppEntryDef
   crud: string
 }
 

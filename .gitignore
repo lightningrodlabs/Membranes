@@ -22,3 +22,4 @@ playground/webapp/out-tsc
 **/*.happ
 package-lock.json
 .hc
+.hc_live*

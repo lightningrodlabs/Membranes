@@ -1,6 +1,5 @@
 import {EntryHashB64, ActionHashB64, AgentPubKeyB64, Dictionary} from '@holochain-open-dev/core-types';
-import {AgentPubKey, EntryHash} from "@holochain/client";
-import {deserializeHash, serializeHash} from "@holochain-open-dev/utils";
+import {AgentPubKey, decodeHashFromBase64, encodeHashToBase64, EntryHash} from "@holochain/client";
 import {ZomeViewModel} from "@ddd-qc/lit-happ";
 import {MembranesProxy} from "../bindings/membranes.proxy";
 import {
@@ -14,7 +13,7 @@ import {
   RoleClaim,
   Vouch,
   VouchThreshold
-} from "../bindings/membranes";
+} from "../bindings/membranes.types";
 import {
   TypedMembrane,
   TypedMembraneCrossedClaim,
@@ -38,9 +37,9 @@ export function describe_threshold(th: MembraneThreshold, allZomeTypes: [string,
   }
   if (th.hasOwnProperty('createEntryCount')) {
     let typed = (th as any).createEntryCount as CreateEntryCountThreshold;
-    const zomeTypes = allZomeTypes[typed.entryType.zomeId];
+    const zomeTypes = allZomeTypes[typed.entryType.zomeIndex];
     //console.log({zomeTypes})
-    const entryType = zomeTypes[typed.entryType.id]
+    const entryType = zomeTypes[typed.entryType.entryIndex]
     //console.log({entryType})
     //const entryType = typed.entryType.id
     desc = "Create " + typed.requiredCount  + " \"" + entryType[0] + "\" entries";
@@ -151,7 +150,7 @@ export class MembranesZvm extends ZomeViewModel {
 
   /** */
   private convertVouchEntry(entry: Vouch): TypedVouch {
-    return {subject: serializeHash(entry.subject), forRole: entry.forRole};
+    return {subject: encodeHashToBase64(entry.subject), forRole: entry.forRole};
   }
 
 
@@ -161,7 +160,7 @@ export class MembranesZvm extends ZomeViewModel {
     let allThresholds = this.perspective.thresholds;
     let thresholds = []
     for (const thresholdEh of membraneEntry.thresholdEhs) {
-      let maybeStoredThreshold = allThresholds[serializeHash(thresholdEh)];
+      let maybeStoredThreshold = allThresholds[encodeHashToBase64(thresholdEh)];
       if (!maybeStoredThreshold) {
         maybeStoredThreshold = await this.pullThreshold(thresholdEh);
       }
@@ -178,7 +177,7 @@ export class MembranesZvm extends ZomeViewModel {
     let allMembranes = this.perspective.membranes;
     let enteringMembranes = []
     for (const membraneEh of entry.enteringMembraneEhs) {
-      let maybeStoredMembrane = allMembranes[serializeHash(membraneEh)];
+      let maybeStoredMembrane = allMembranes[encodeHashToBase64(membraneEh)];
       if (!maybeStoredMembrane) {
         maybeStoredMembrane = await this.pullMembrane(membraneEh);
       }
@@ -193,7 +192,7 @@ export class MembranesZvm extends ZomeViewModel {
     //console.log("convertMembraneCrossedClaimEntry() called", membraneClaimEntry)
     let membraneClaim = {
       proofs: membraneClaimEntry.proofs,
-      subject: serializeHash(membraneClaimEntry.subject),
+      subject: encodeHashToBase64(membraneClaimEntry.subject),
       membrane: await this.pullMembrane(membraneClaimEntry.membraneEh),
     };
     //console.log("convertMembraneCrossedClaimEntry() result", membraneClaim)
@@ -204,7 +203,7 @@ export class MembranesZvm extends ZomeViewModel {
   private async convertRoleClaimEntry(entry: RoleClaim): Promise<TypedRoleClaim> {
     //console.log("convertRoleClaimEntry() called", entry)
     let roleClaim: TypedRoleClaim = {
-      subject: serializeHash(entry.subject),
+      subject: encodeHashToBase64(entry.subject),
       membraneIndex: entry.membraneIndex,
       role: await this.pullRole(entry.roleEh),
       membraneClaim: await this.pullMembraneCrossedClaim(entry.membraneClaimEh),
@@ -218,7 +217,7 @@ export class MembranesZvm extends ZomeViewModel {
   /** */
   private async pullThreshold(eh: EntryHash): Promise<MembraneThreshold> {
     //console.log("pullThreshold() called", eh)
-    let thB64 = serializeHash(eh)
+    let thB64 = encodeHashToBase64(eh)
     const maybeThreshold = await this.zomeProxy.getThreshold(eh)
     if (!maybeThreshold) {
       console.warn("pullThreshold() Failed. Can't find Threshold at " + thB64)
@@ -232,7 +231,7 @@ export class MembranesZvm extends ZomeViewModel {
   /** */
   private async pullMembrane(eh: EntryHash): Promise<TypedMembrane> {
     //console.log("pullMembrane() called", eh)
-    let b64 = serializeHash(eh)
+    let b64 = encodeHashToBase64(eh)
     const maybeEntry = await this.zomeProxy.getMembrane(eh)
     if (!maybeEntry) {
       console.warn("pullMembrane() Failed. Can't find Membrane at " + b64)
@@ -247,7 +246,7 @@ export class MembranesZvm extends ZomeViewModel {
   /** */
   private async pullMembraneCrossedClaim(eh: EntryHash): Promise<TypedMembraneCrossedClaim> {
     //console.log("pullMembraneCrossedClaim() called", eh)
-    let b64 = serializeHash(eh)
+    let b64 = encodeHashToBase64(eh)
     const maybeEntry = await this.zomeProxy.getMembraneCrossedClaim(eh)
     if (!maybeEntry) {
       console.warn("pullMembraneCrossedClaim() Failed. Can't find Membrane at " + b64)
@@ -261,7 +260,7 @@ export class MembranesZvm extends ZomeViewModel {
   /** */
   private async pullRole(eh: EntryHash): Promise<TypedMembraneRole> {
     //console.log("pullRole() called", eh)
-    let b64 = serializeHash(eh)
+    let b64 = encodeHashToBase64(eh)
     const maybeEntry = await this.zomeProxy.getRole(eh)
     if (!maybeEntry) {
       console.warn("pullRole() Failed. Can't find Role at " + b64)
@@ -278,7 +277,7 @@ export class MembranesZvm extends ZomeViewModel {
     const thresholdEntries = await this.zomeProxy.getAllThresholdsDetails();
     let thStore: Dictionary<MembraneThreshold> = {};
     for (const [eh, typed] of thresholdEntries) {
-      const b64 = serializeHash(eh);
+      const b64 = encodeHashToBase64(eh);
       thStore[b64] = typed;
     }
     this._perspective.thresholds = thStore!;
@@ -293,7 +292,7 @@ export class MembranesZvm extends ZomeViewModel {
     //console.log("membraneEntries:", membraneEntries)
     let membraneStore: Dictionary<TypedMembrane> = {};
     for (const [eh, membraneEntry] of membraneEntries) {
-      const b64 = serializeHash(eh);
+      const b64 = encodeHashToBase64(eh);
       const membrane = await this.convertMembraneEntry(membraneEntry)
       membraneStore[b64] = membrane;
     }
@@ -309,7 +308,7 @@ export class MembranesZvm extends ZomeViewModel {
     //console.log("roleEntries:", roleEntries)
     let roleStore: Dictionary<TypedMembraneRole> = {};
     for (const [eh, roleEntry] of roleEntries) {
-      const b64 = serializeHash(eh);
+      const b64 = encodeHashToBase64(eh);
       const role = await this.convertRoleEntry(roleEntry);
       roleStore[b64] = role;
     }
@@ -338,7 +337,7 @@ export class MembranesZvm extends ZomeViewModel {
       for (const [eh, author] of receivedPairs) {
         const vouch = await this.zomeProxy.getVouch(eh);
         if (vouch) {
-          const pair: [TypedVouch, AgentPubKeyB64] = [this.convertVouchEntry(vouch), serializeHash(author)]
+          const pair: [TypedVouch, AgentPubKeyB64] = [this.convertVouchEntry(vouch), encodeHashToBase64(author)]
           received.push(pair)
         }
       }
@@ -362,7 +361,7 @@ export class MembranesZvm extends ZomeViewModel {
     const myRoleClaims = await this.zomeProxy.getMyRoleClaimsDetails();
     let store: Dictionary<TypedRoleClaim> = {}
     for (const [eh, entry] of myRoleClaims) {
-      const b64 = serializeHash(eh);
+      const b64 = encodeHashToBase64(eh);
       const claim = await this.convertRoleClaimEntry(entry);
       store[b64] = claim
     }
@@ -372,7 +371,7 @@ export class MembranesZvm extends ZomeViewModel {
     const myMembraneClaims = await this.zomeProxy.getMyMembraneClaimsDetails();
     let membraneClaimStore: Dictionary<TypedMembraneCrossedClaim> = {}
     for (const [eh, entry] of myMembraneClaims) {
-      const b64 = serializeHash(eh);
+      const b64 = encodeHashToBase64(eh);
       const claim = await this.convertMembraneCrossedClaimEntry(entry);
       membraneClaimStore[b64] = claim
     }
@@ -384,7 +383,7 @@ export class MembranesZvm extends ZomeViewModel {
 
   /** */
   async createRole(name: string, membraneEhs: EntryHashB64[]): Promise<EntryHash> {
-    const enteringMembraneEhs: EntryHash[] = Object.values(membraneEhs).map((ehb64) => deserializeHash(ehb64));
+    const enteringMembraneEhs: EntryHash[] = Object.values(membraneEhs).map((ehb64) => decodeHashFromBase64(ehb64));
     const role: MembraneRole = {
       name,
       privileges: [],
@@ -398,7 +397,7 @@ export class MembranesZvm extends ZomeViewModel {
 
   /** */
   async createMembrane(ehs: EntryHashB64[]): Promise<EntryHash> {
-    const thresholdEhs: EntryHash[] = Object.values(ehs).map((ehb64) => deserializeHash(ehb64));
+    const thresholdEhs: EntryHash[] = Object.values(ehs).map((ehb64) => decodeHashFromBase64(ehb64));
     const membrane: Membrane = {
       thresholdEhs,
     };
@@ -432,7 +431,7 @@ export class MembranesZvm extends ZomeViewModel {
 
 
   async vouchAgent(agent: AgentPubKeyB64, forRole: string): Promise<EntryHash> {
-    const res = await this.zomeProxy.publishVouch({subject: deserializeHash(agent), forRole});
+    const res = await this.zomeProxy.publishVouch({subject: decodeHashFromBase64(agent), forRole});
     this.probeAll();
     return res;
   }
@@ -440,15 +439,15 @@ export class MembranesZvm extends ZomeViewModel {
 
   /* */
   async getVouchAuthor(vouch: TypedVouch): Promise<AgentPubKeyB64> {
-    let entry: Vouch = {subject: deserializeHash(vouch.subject), forRole: vouch.forRole};
+    let entry: Vouch = {subject: decodeHashFromBase64(vouch.subject), forRole: vouch.forRole};
     let res = await this.zomeProxy.getVouchAuthor(entry);
-    return serializeHash(res);
+    return encodeHashToBase64(res);
   }
 
 
   /** */
   async getCreateCount(agent: AgentPubKeyB64, entryType: MyAppEntryType): Promise<number> {
-    return this.zomeProxy.getCreateCount({subject: deserializeHash(agent), entryType});
+    return this.zomeProxy.getCreateCount({subject: decodeHashFromBase64(agent), entryType});
   }
 
 }

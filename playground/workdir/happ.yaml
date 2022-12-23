@@ -3,7 +3,7 @@ manifest_version: "1"
 name: hTasker
 description: Task manager app
 roles:
-  - id: rTasker
+  - name: rTasker
     provisioning:
       strategy: create
       deferred: true

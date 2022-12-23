@@ -118,7 +118,8 @@ fn claim_vouchThreshold(subject: AgentPubKey, th: VouchThreshold) -> ExternResul
       /// Vouch must be for the right role
       if vouch.for_role != th.for_role { continue }
       /// Get vouch's author
-      let vouch_author = zome_utils::get_author(&link.target)?;
+      let target: holo_hash::AnyDhtHash = link.target.clone().into_entry_hash().unwrap().into();
+      let vouch_author = zome_utils::get_author(&target)?;
       author_map.insert(vouch_author, (vouch, link));
    }
    debug!("claim_vouchThreshold() author_map.len 1 = {:?}", author_map.len());
@@ -130,7 +131,8 @@ fn claim_vouchThreshold(subject: AgentPubKey, th: VouchThreshold) -> ExternResul
       if maybe_role_claim.is_err() || maybe_role_claim.as_ref().unwrap().is_none() { return false; }
       let role_claim = maybe_role_claim.unwrap().unwrap();
       /// Get Vouch's SignedActionHashed
-      let maybe_vouch_sah = get(link.target.clone(), GetOptions::content());
+      let target: holo_hash::AnyDhtHash = link.target.clone().into_entry_hash().unwrap().into();
+      let maybe_vouch_sah = get(target, GetOptions::content());
       if maybe_vouch_sah.is_err() || maybe_vouch_sah.as_ref().unwrap().is_none() {
          let msg = format!("Could not get VouchReceived link's target entry {}", link.target);
          warn!(msg);

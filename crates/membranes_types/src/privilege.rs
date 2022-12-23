@@ -10,7 +10,7 @@ pub enum CrudType {
 
 #[derive(Clone, PartialEq, Debug, Serialize, Deserialize)]
 pub struct Privilege {
-   pub entry_type: AppEntryType,
+   pub entry_def: AppEntryDef,
    pub crud: String,
    //pub condition: String
 }

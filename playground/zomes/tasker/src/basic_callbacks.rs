@@ -3,17 +3,19 @@ use hdk::prelude::*;
 use tasker_model::*;
 
 use crate::init_membranes::*;
+use std::collections::BTreeSet;
 
 /// Setup initial capabilities
 //#[hdk_extern]
 fn init_caps(_: ()) -> ExternResult<()> {
-   let /*mut*/ functions: GrantedFunctions = BTreeSet::new();
+   //let /*mut*/ functions: GrantedFunctions = BTreeSet::new();
    //functions.insert((zome_info()?.name, REMOTE_ENDPOINT.into()));
    create_cap_grant(
       CapGrantEntry {
          tag: "".into(),
          access: ().into(), // empty access converts to unrestricted
-         functions,
+         functions: hdk::prelude::GrantedFunctions::Listed(BTreeSet::new()),
+         //functions,
       }
    )?;
    Ok(())

@@ -1,5 +1,5 @@
 import {Dictionary, EntryHashB64} from "@holochain-open-dev/core-types";
-import {TaskItem, TaskList} from "../bindings/tasker";
+import {TaskItem, TaskList} from "../bindings/tasker.types";
 
 
 /** */

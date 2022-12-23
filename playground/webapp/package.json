@@ -19,7 +19,6 @@
     "@rollup/plugin-typescript": "^8.2.5",
     "@web/dev-server": "^0.1.21",
     "@web/rollup-plugin-html": "^1.11.0",
-    "@web/rollup-plugin-import-meta-assets": "^1.0.7",
     "babel-plugin-template-html-minifier": "^4.1.0",
     "bestzip": "^2.2.0",
     "concurrently": "^5.3.0",
@@ -29,24 +28,19 @@
     "new-port-cli": "^1.0.0",
     "path-exists-cli": "^2.0.0",
     "rollup": "^2.56.2",
-    "rollup-plugin-node-builtins": "^2.1.2",
-    "rollup-plugin-node-globals": "^1.4.0",
-    "rollup-plugin-terser": "^7.0.2",
-    "rollup-plugin-workbox": "^6.2.0",
     "run-singleton-cli": "^0.0.5",
     "tslib": "^2.3.1",
-    "typescript": "4.3.5"
+    "typescript": "^4.9.0"
   },
   "dependencies": {
-    "@ddd-qc/lit-happ": "0.9.7",
-    "@ddd-qc/cell-proxy": "0.9.7",
-    "@ddd-qc/agent-directory": "4.165.5",
+    "@ddd-qc/lit-happ": "0.10.0",
+    "@ddd-qc/cell-proxy": "0.10.0",
+    "@ddd-qc/agent-directory": "5.0.0",
     "@holochain-open-dev/core-types": "^0.6.1",
-    "@holochain-open-dev/utils": "0.6.2",
-    "@holochain/client": "^0.9.3",
+    "@holochain/client": "^0.11.8",
     "@lit-labs/context": "^0.1.2",
     "@membranes/elements": "file:../../webcomponents",
     "@open-wc/scoped-elements": "^2.1.1",
-    "lit": "^2.2.0"
+    "lit": "^2.3.0"
   }
 }

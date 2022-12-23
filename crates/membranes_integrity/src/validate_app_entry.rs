@@ -119,9 +119,9 @@ fn verify_threshold_proof(subject: AgentPubKey, threshold: MembraneThreshold, si
             let action = signed_action.action().clone();
             /// Must find enough Vouch CreateEntry actions with the correct "for_role" by authors who have the "by_role" role
             if let Action::Create(create) = action.clone() {
-               if let EntryType::App(app_entry_type) = create.entry_type.clone() {
-                  if app_entry_type.zome_id != this_zome_id { continue; }
-                  if app_entry_type.id.0 == vouch_entry_id {
+               if let EntryType::App(app_entry_def) = create.entry_type.clone() {
+                  if app_entry_def.zome_index != this_zome_id { continue; }
+                  if app_entry_def.entry_index.0 == vouch_entry_id {
                      let vouch_entry = must_get_entry(create.entry_hash.clone())?;
                      let vouch = Vouch::try_from(vouch_entry)?;
                      if vouch.for_role != th.for_role { continue; }
@@ -130,7 +130,7 @@ fn verify_threshold_proof(subject: AgentPubKey, threshold: MembraneThreshold, si
                      vouch_map.insert(create.author, signed_action);
                      continue;
                   }
-                  if app_entry_type.id.0 == role_claim_entry_id {
+                  if app_entry_def.entry_index.0 == role_claim_entry_id {
                      let role_claim_entry = must_get_entry(create.entry_hash.clone())?;
                      let role_claim = RoleClaim::try_from(role_claim_entry)?;
                      let role_entry = must_get_entry(role_claim.role_eh)?;

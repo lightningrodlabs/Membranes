@@ -1,5 +1,5 @@
 
-export * from './bindings/membranes';
+export * from './bindings/membranes.types';
 export * from './bindings/membranes.proxy';
 //export * from './viewModel/membranes.perspective';
 export * from './viewModel/membranes.zvm';

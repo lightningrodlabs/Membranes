@@ -1,5 +1,5 @@
 import {AgentPubKeyB64, Dictionary} from "@holochain-open-dev/core-types";
-import {MembraneThreshold, Privilege, ThresholdReachedProof} from "../bindings/membranes";
+import {MembraneThreshold, Privilege, ThresholdReachedProof} from "../bindings/membranes.types";
 
 
 /** */

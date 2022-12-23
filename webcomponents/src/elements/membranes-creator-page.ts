@@ -2,7 +2,7 @@ import {css, html} from "lit";
 import {property, state} from "lit/decorators.js";
 import {ActionHashB64, Dictionary, EntryHashB64} from "@holochain-open-dev/core-types";
 import {describe_threshold, MembranesZvm} from "../viewModel/membranes.zvm";
-import {MembraneThresholdType, MyAppEntryType} from "../bindings/membranes";
+import {MembraneThresholdType, MyAppEntryType} from "../bindings/membranes.types";
 import {MembranesPerspective} from "../viewModel/membranes.perspective";
 import { ZomeElement } from "@ddd-qc/lit-happ";
 
@@ -116,7 +116,7 @@ export class MembranesCreatorPage extends ZomeElement<MembranesPerspective, Memb
             case MembraneThresholdType.CreateEntryCount: {
                 const zomeSelector = this.shadowRoot!.getElementById("selectedZome") as HTMLSelectElement;
                 const entrySelector = this.shadowRoot!.getElementById("selectedEntryType") as HTMLSelectElement;
-                const entryType: MyAppEntryType = {id: entrySelector.selectedIndex, zomeId: zomeSelector.selectedIndex, isPublic: true};  // FIXME
+                const entryType: MyAppEntryType = {entryIndex: entrySelector.selectedIndex, zomeIndex: zomeSelector.selectedIndex, isPublic: true};  // FIXME
                 const input = this.shadowRoot!.getElementById("createEntryCountNumber") as HTMLInputElement;
                 const count = Number(input.value);
                 const _res = this._zvm.createCreateEntryCountThreshold(entryType, count);

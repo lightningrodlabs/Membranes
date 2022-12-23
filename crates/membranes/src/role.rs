@@ -37,7 +37,8 @@ pub fn has_role(input: HasRoleInput) -> ExternResult<Option<SignedActionHashed>>
    for (claim, link) in link_pairs {
       if &claim.role_eh == &role_eh {
          // let eh = hash_entry(claim)?;
-         let claim_record = get(link.target, GetOptions::content())?
+         let target: holo_hash::AnyDhtHash = link.target.into_entry_hash().unwrap().into();
+         let claim_record = get(target, GetOptions::content())?
             .expect("Should be able to 'get' Claim targeted by link");
          debug!("has_role() DONE signed_action: {:?}", claim_record.signed_action);
          return Ok(Some(claim_record.signed_action))

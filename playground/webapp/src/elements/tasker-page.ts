@@ -1,10 +1,10 @@
 import {css, html} from "lit";
 import {property, state} from "lit/decorators.js";
 import {AgentPubKeyB64, EntryHashB64} from "@holochain-open-dev/core-types";
-import {serializeHash} from "@holochain-open-dev/utils";
 import { DnaElement } from "@ddd-qc/lit-happ";
 import { TaskerDvm } from "../viewModel/tasker.dvm";
 import {TaskerPerspective, TaskListMaterialized} from "../viewModel/tasker.perspective";
+import { encodeHashToBase64 } from "@holochain/client";
 
 
 /**
@@ -32,11 +32,11 @@ export class TaskerPage extends DnaElement<unknown, TaskerDvm> {
   protected async dvmUpdated(newDvm: TaskerDvm, oldDvm?: TaskerDvm): Promise<void> {
     console.log("<tasker-page>.dvmUpdated()");
     if (oldDvm) {
-      console.log("\t Unsubscribed to taskerZvm's roleInstanceId = ", oldDvm.taskerZvm.roleInstanceId)
+      console.log("\t Unsubscribed to taskerZvm's roleName = ", oldDvm.taskerZvm.cell.name)
       oldDvm.taskerZvm.unsubscribe(this);
     }
     newDvm.taskerZvm.subscribe(this, 'taskerPerspective');
-    console.log("\t Subscribed taskerZvm's roleInstanceId = ", newDvm.taskerZvm.roleInstanceId)
+    console.log("\t Subscribed taskerZvm's roleName = ", newDvm.taskerZvm.cell.name)
     newDvm.probeAll();
     this._selectedListEh = undefined;
     //this.taskerPerspective = emptyTaskerPerspective;
@@ -141,7 +141,7 @@ export class TaskerPage extends DnaElement<unknown, TaskerDvm> {
     if (!this._initialized) {
       return html`<span>Loading...</span>`;
     }
-    console.log("\t Using taskerZvm's roleInstanceId = ", this._dvm.taskerZvm.roleInstanceId)
+    console.log("\t Using taskerZvm's roleName = ", this._dvm.taskerZvm.cell.name)
 
     let taskListEntries = this._dvm.taskerZvm.perspective.taskListEntries;
     console.log("<tasker-page.render()> render() taskListEntries", taskListEntries);
@@ -189,7 +189,7 @@ export class TaskerPage extends DnaElement<unknown, TaskerDvm> {
             ///console.log("taskItem:", taskItem)
             return html`
               <input type="checkbox" id="${ahB64}" value="${ahB64}" .checked=${taskItem.isCompleted} .disabled=${maybeSelectedList!.isLocked || taskItem.isCompleted}>              
-              <label for="${ahB64}"><b>${taskItem.entry.title}</b></label><span> - <i>${serializeHash(taskItem.entry.assignee)}</i></span><br>
+              <label for="${ahB64}"><b>${taskItem.entry.title}</b></label><span> - <i>${encodeHashToBase64(taskItem.entry.assignee)}</i></span><br>
               `
           }
       )

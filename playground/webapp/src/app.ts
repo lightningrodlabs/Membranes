@@ -13,7 +13,7 @@ import { TaskerDvm } from "./viewModel/tasker.dvm";
 import {
   HvmDef, HappElement, CloneIndex, HCL, ViewCellContext, CellDef, CellContext
 } from "@ddd-qc/lit-happ";
-import {InstalledCell} from "@holochain/client";
+import {Cell, InstalledCell} from "@holochain/client";
 
 
 /**
@@ -35,7 +35,7 @@ export class TaskerApp extends HappElement {
   /** QoL */
   get taskerDvm(): TaskerDvm { return this.hvm.getDvm(TaskerDvm.DEFAULT_BASE_ROLE_NAME)! as TaskerDvm }
   get taskerDvmClones(): TaskerDvm[] {return this.hvm.getClones(TaskerDvm.DEFAULT_BASE_ROLE_NAME)! as TaskerDvm[]}
-  taskerDvmClone(index: CloneIndex): TaskerDvm { return this.hvm.getDvm(new HCL(this.hvm.appId, TaskerDvm.DEFAULT_BASE_ROLE_NAME, index))! as TaskerDvm }
+  taskerDvmClone(cloneName: string): TaskerDvm { return this.hvm.getDvm(new HCL(this.hvm.appId, TaskerDvm.DEFAULT_BASE_ROLE_NAME, cloneName))! as TaskerDvm }
 
   /** -- Fields -- */
 
@@ -46,14 +46,14 @@ export class TaskerApp extends HappElement {
   private _allAppEntryTypes: Dictionary<[string, boolean][]> = {};
 
 
-  @state() private _installedCell?: InstalledCell;
+  @state() private _cell?: Cell;
 
 
   /** */
   async happInitialized() {
     console.log("happInitialized()")
-    //new ContextProvider(this, cellContext, this.taskerDvm.installedCell);
-    this._installedCell = this.taskerDvm.installedCell;
+    //new ContextProvider(this, cellContext, this.taskerDvm.cell);
+    this._cell = this.taskerDvm.cell;
     await this.hvm.probeAll();
 
     this._allAppEntryTypes = await this.taskerDvm.fetchAllEntryDefs();
@@ -80,8 +80,8 @@ export class TaskerApp extends HappElement {
       }
     }
     await this.createClone(TaskerDvm.DEFAULT_BASE_ROLE_NAME, cellDef);
-    const myWorldDvm = this.taskerDvmClone(0);
-    this._installedCell = myWorldDvm.installedCell;
+    const myWorldDvm = this.taskerDvmClone('0');
+    this._cell = myWorldDvm.cell;
   }
 
 
@@ -107,7 +107,7 @@ export class TaskerApp extends HappElement {
 
     /* render all */
     return html`
-      <cell-context .installedCell="${this._installedCell}">
+      <cell-context .cell="${this._cell}">
         <div>
           <view-cell-context></view-cell-context>
           <input type="button" value="Tasker" @click=${() => {this._pageDisplayIndex = 0; this.requestUpdate()}} >

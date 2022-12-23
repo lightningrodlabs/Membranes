@@ -2,7 +2,7 @@ import {css, html} from "lit";
 import {property, state} from "lit/decorators.js";
 import {AgentPubKeyB64, Dictionary} from "@holochain-open-dev/core-types";
 import {MembranesZvm} from "../viewModel/membranes.zvm";
-import {MyAppEntryType} from "../bindings/membranes";
+import {MyAppEntryType} from "../bindings/membranes.types";
 import { ZomeElement } from "@ddd-qc/lit-happ";
 import { MembranesPerspective } from "../viewModel/membranes.perspective";
 
@@ -44,7 +44,7 @@ export class CreateEntryDashboard extends ZomeElement<MembranesPerspective, Memb
     const agentSelector = this.shadowRoot!.getElementById("agentSelector") as HTMLSelectElement;
     const zomeSelector = this.shadowRoot!.getElementById("selectedZome") as HTMLSelectElement;
     const entrySelector = this.shadowRoot!.getElementById("selectedEntryType") as HTMLSelectElement;
-    const entryType: MyAppEntryType = {id: entrySelector.selectedIndex, zomeId: zomeSelector.selectedIndex, isPublic: true};  // FIXME
+    const entryType: MyAppEntryType = {entryIndex: entrySelector.selectedIndex, zomeIndex: zomeSelector.selectedIndex, isPublic: true};  // FIXME
     this._queryResult = await this._zvm.getCreateCount(agentSelector.value, entryType);
   }
 

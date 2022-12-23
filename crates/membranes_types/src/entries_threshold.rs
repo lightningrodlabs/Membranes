@@ -13,24 +13,24 @@ pub enum MembraneThreshold {
 #[derive(Clone, PartialEq, Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct MyAppEntryType {
-   id: u8,
-   zome_id: u8,
+   entry_index: u8,
+   zome_index: u8,
    is_public: bool,
 }
 
 impl MyAppEntryType {
-   pub fn into_typed(self) -> AppEntryType {
-      AppEntryType {
-         id: self.id.into(),
-         zome_id: self.zome_id.into(),
+   pub fn into_typed(self) -> AppEntryDef {
+      AppEntryDef {
+         entry_index: self.entry_index.into(),
+         zome_index: self.zome_index.into(),
          visibility:  if self.is_public {EntryVisibility::Public} else {EntryVisibility::Private},
       }
    }
 
-   pub fn from(other: AppEntryType) -> MyAppEntryType {
+   pub fn from(other: AppEntryDef) -> MyAppEntryType {
       MyAppEntryType {
-         id: other.id.into(),
-         zome_id: other.zome_id.into(),
+         entry_index: other.entry_index.into(),
+         zome_index: other.zome_index.into(),
          is_public:  other.visibility == EntryVisibility::Public,
       }
    }
