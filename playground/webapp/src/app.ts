@@ -11,9 +11,9 @@ import {AgentPubKeyB64, Dictionary} from "@holochain-open-dev/core-types";
 import {AgentDirectoryList} from "@ddd-qc/agent-directory";
 import { TaskerDvm } from "./viewModel/tasker.dvm";
 import {
-  HvmDef, HappElement, CloneIndex, HCL, ViewCellContext, CellDef, CellContext
+  HvmDef, HappElement, HCL, ViewCellContext, CellDef, CellContext, delay
 } from "@ddd-qc/lit-happ";
-import {Cell, InstalledCell} from "@holochain/client";
+import {AdminWebsocket, Cell} from "@holochain/client";
 
 
 /**
@@ -53,11 +53,16 @@ export class TaskerApp extends HappElement {
   async happInitialized() {
     console.log("happInitialized()")
     //new ContextProvider(this, cellContext, this.taskerDvm.cell);
+    /** Authorize all zome calls */
+    const adminWs = await AdminWebsocket.connect(`ws://localhost:${process.env.ADMIN_PORT}`);
+    console.log({adminWs});
+    await this.hvm.authorizeAllZomeCalls(adminWs);
+    console.log("*** Zome call authorization complete");
+    await delay(2000);
+    /** Probe */    
     this._cell = this.taskerDvm.cell;
     await this.hvm.probeAll();
-
     this._allAppEntryTypes = await this.taskerDvm.fetchAllEntryDefs();
-
     /** Done */
     this._loaded = true;
   }

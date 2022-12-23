@@ -6,7 +6,7 @@ roles:
   - name: rTasker
     provisioning:
       strategy: create
-      deferred: true
+      deferred: false
     dna:
       bundled: ../../tasker.dna
       clone_limit: 10
