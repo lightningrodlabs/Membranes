@@ -1,10 +1,9 @@
 import {css, html} from "lit";
 import {property, state} from "lit/decorators.js";
-import {AgentPubKeyB64, EntryHashB64} from "@holochain-open-dev/core-types";
 import { DnaElement } from "@ddd-qc/lit-happ";
 import { TaskerDvm } from "../viewModel/tasker.dvm";
 import {TaskerPerspective, TaskListMaterialized} from "../viewModel/tasker.perspective";
-import { encodeHashToBase64 } from "@holochain/client";
+import {AgentPubKeyB64, encodeHashToBase64, EntryHashB64} from "@holochain/client";
 
 
 /**

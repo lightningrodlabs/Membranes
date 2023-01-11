@@ -1,6 +1,6 @@
 {
   "name": "tasker",
-  "version": "0.1.0-hc.165",
+  "version": "0.1.0-hc-brc.2",
   "scripts": {
     "lint": "eslint --ext .ts .",
     "tsc": "tsc",
@@ -33,11 +33,11 @@
     "typescript": "^4.9.0"
   },
   "dependencies": {
-    "@ddd-qc/lit-happ": "0.10.0",
-    "@ddd-qc/cell-proxy": "0.10.0",
-    "@ddd-qc/agent-directory": "5.0.0",
-    "@holochain-open-dev/core-types": "^0.6.1",
-    "@holochain/client": "^0.11.8",
+    "@ddd-qc/lit-happ": "0.10.1",
+    "@ddd-qc/cell-proxy": "0.10.1",
+    "@ddd-qc/agent-directory": "5.1.0",
+    "@holochain-open-dev/core-types": "^0.6.3",
+    "@holochain/client": "^0.11.9",
     "@lit-labs/context": "^0.1.2",
     "@membranes/elements": "file:../../webcomponents",
     "@open-wc/scoped-elements": "^2.1.1",

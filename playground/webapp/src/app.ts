@@ -7,13 +7,12 @@ import {
   MembranesCreatorPage,
   CreateEntryDashboard,
 } from "@membranes/elements";
-import {AgentPubKeyB64, Dictionary} from "@holochain-open-dev/core-types";
 import {AgentDirectoryList} from "@ddd-qc/agent-directory";
 import { TaskerDvm } from "./viewModel/tasker.dvm";
 import {
   HvmDef, HappElement, HCL, ViewCellContext, CellDef, CellContext, delay
 } from "@ddd-qc/lit-happ";
-import {AdminWebsocket, Cell} from "@holochain/client";
+import {AdminWebsocket, AgentPubKeyB64, Cell} from "@holochain/client";
 
 
 /**
@@ -43,7 +42,7 @@ export class TaskerApp extends HappElement {
 
   private _pageDisplayIndex: number = 0;
   /** ZomeName -> (AppEntryDefName, isPublic) */
-  private _allAppEntryTypes: Dictionary<[string, boolean][]> = {};
+  private _allAppEntryTypes: Record<string, [string, boolean][]> = {};
 
 
   @state() private _cell?: Cell;
@@ -78,6 +77,7 @@ export class TaskerApp extends HappElement {
   /** */
   async cloneTasker() {
     const cellDef: CellDef = {
+      cloneName: "0",
       modifiers: {
         properties: {
           progenitors: [this.taskerDvm.agentPubKey],
@@ -85,6 +85,7 @@ export class TaskerApp extends HappElement {
       }
     }
     await this.createClone(TaskerDvm.DEFAULT_BASE_ROLE_NAME, cellDef);
+    console.log({clones: this.taskerDvmClones});
     const myWorldDvm = this.taskerDvmClone('0');
     this._cell = myWorldDvm.cell;
   }

@@ -1,5 +1,12 @@
-import {decodeHashFromBase64, encodeHashToBase64, EntryHash, ZomeName} from "@holochain/client";
-import {EntryHashB64, ActionHashB64, AgentPubKeyB64} from '@holochain-open-dev/core-types';
+import {
+  ActionHashB64,
+  AgentPubKeyB64,
+  decodeHashFromBase64,
+  encodeHashToBase64,
+  EntryHash,
+  EntryHashB64,
+  ZomeName
+} from "@holochain/client";
 import {TaskerProxy} from '../bindings/tasker.proxy';
 import {TaskItem} from '../bindings/tasker.types';
 import {ZomeViewModel, CellProxy} from "@ddd-qc/lit-happ";

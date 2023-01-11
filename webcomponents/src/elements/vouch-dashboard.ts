@@ -1,10 +1,10 @@
 import {css, html} from "lit";
 import {property, state} from "lit/decorators.js";
-import {AgentPubKeyB64} from "@holochain-open-dev/core-types";
 
 import {MembranesZvm} from "../viewModel/membranes.zvm";
 import {MembranesPerspective} from "../viewModel/membranes.perspective";
 import { ZomeElement } from "@ddd-qc/lit-happ";
+import {AgentPubKeyB64} from "@holochain/client";
 
 
 

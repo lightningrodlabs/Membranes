@@ -1,5 +1,11 @@
-import {EntryHashB64, ActionHashB64, AgentPubKeyB64, Dictionary} from '@holochain-open-dev/core-types';
-import {AgentPubKey, decodeHashFromBase64, encodeHashToBase64, EntryHash} from "@holochain/client";
+import {
+  AgentPubKey,
+  AgentPubKeyB64,
+  decodeHashFromBase64,
+  encodeHashToBase64,
+  EntryHash,
+  EntryHashB64
+} from "@holochain/client";
 import {ZomeViewModel} from "@ddd-qc/lit-happ";
 import {MembranesProxy} from "../bindings/membranes.proxy";
 import {
@@ -275,7 +281,7 @@ export class MembranesZvm extends ZomeViewModel {
   /** */
   async probeThresholds() {
     const thresholdEntries = await this.zomeProxy.getAllThresholdsDetails();
-    let thStore: Dictionary<MembraneThreshold> = {};
+    let thStore: Record<string, MembraneThreshold> = {};
     for (const [eh, typed] of thresholdEntries) {
       const b64 = encodeHashToBase64(eh);
       thStore[b64] = typed;
@@ -290,7 +296,7 @@ export class MembranesZvm extends ZomeViewModel {
   async probeMembranes() {
     const membraneEntries = await this.zomeProxy.getAllMembranesDetails();
     //console.log("membraneEntries:", membraneEntries)
-    let membraneStore: Dictionary<TypedMembrane> = {};
+    let membraneStore: Record<string, TypedMembrane> = {};
     for (const [eh, membraneEntry] of membraneEntries) {
       const b64 = encodeHashToBase64(eh);
       const membrane = await this.convertMembraneEntry(membraneEntry)
@@ -306,7 +312,7 @@ export class MembranesZvm extends ZomeViewModel {
   async probeRoles(): Promise<[EntryHash, MembraneRole][]> {
     const roleEntries = await this.zomeProxy.getAllRolesDetails();
     //console.log("roleEntries:", roleEntries)
-    let roleStore: Dictionary<TypedMembraneRole> = {};
+    let roleStore: Record<string, TypedMembraneRole> = {};
     for (const [eh, roleEntry] of roleEntries) {
       const b64 = encodeHashToBase64(eh);
       const role = await this.convertRoleEntry(roleEntry);
@@ -359,7 +365,7 @@ export class MembranesZvm extends ZomeViewModel {
   async probeMyClaims() {
     /** Role Claims */
     const myRoleClaims = await this.zomeProxy.getMyRoleClaimsDetails();
-    let store: Dictionary<TypedRoleClaim> = {}
+    let store: Record<string, TypedRoleClaim> = {}
     for (const [eh, entry] of myRoleClaims) {
       const b64 = encodeHashToBase64(eh);
       const claim = await this.convertRoleClaimEntry(entry);
@@ -369,7 +375,7 @@ export class MembranesZvm extends ZomeViewModel {
     //console.log("pullMyClaims() myRoleClaims:", store)
     /** Membrane Claims */
     const myMembraneClaims = await this.zomeProxy.getMyMembraneClaimsDetails();
-    let membraneClaimStore: Dictionary<TypedMembraneCrossedClaim> = {}
+    let membraneClaimStore: Record<string, TypedMembraneCrossedClaim> = {}
     for (const [eh, entry] of myMembraneClaims) {
       const b64 = encodeHashToBase64(eh);
       const claim = await this.convertMembraneCrossedClaimEntry(entry);

@@ -1,10 +1,10 @@
 import {css, html} from "lit";
 import {property, state} from "lit/decorators.js";
-import {ActionHashB64, Dictionary, EntryHashB64} from "@holochain-open-dev/core-types";
 import {describe_threshold, MembranesZvm} from "../viewModel/membranes.zvm";
 import {MembraneThresholdType, MyAppEntryType} from "../bindings/membranes.types";
 import {MembranesPerspective} from "../viewModel/membranes.perspective";
 import { ZomeElement } from "@ddd-qc/lit-happ";
+import {EntryHashB64} from "@holochain/client";
 
 
 /**
@@ -25,7 +25,7 @@ export class MembranesCreatorPage extends ZomeElement<MembranesPerspective, Memb
     @state() private _selectedKind?: MembraneThresholdType;
 
     @property()
-    allAppEntryTypes: Dictionary<[string, boolean][]> = {};
+    allAppEntryTypes: Record<string, [string, boolean][]> = {};
 
 
     /** -- Methods -- */

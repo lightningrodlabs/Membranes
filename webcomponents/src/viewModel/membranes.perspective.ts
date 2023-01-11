@@ -1,17 +1,17 @@
-import {AgentPubKeyB64, Dictionary} from "@holochain-open-dev/core-types";
 import {MembraneThreshold, Privilege, ThresholdReachedProof} from "../bindings/membranes.types";
+import {AgentPubKeyB64} from "@holochain/client";
 
 
 /** */
 export interface MembranesPerspective {
     /** EntryHashB64 -> <typed> */
-    thresholds: Dictionary<MembraneThreshold>,
-    membranes: Dictionary<TypedMembrane>,
-    roles: Dictionary<TypedMembraneRole>,
-    myRoleClaims: Dictionary<TypedRoleClaim>,
-    myMembraneClaims: Dictionary<TypedMembraneCrossedClaim>,
+    thresholds: Record<string, MembraneThreshold>,
+    membranes: Record<string, TypedMembrane>,
+    roles: Record<string, TypedMembraneRole>,
+    myRoleClaims: Record<string, TypedRoleClaim>,
+    myMembraneClaims: Record<string, TypedMembraneCrossedClaim>,
     /** RoleName -> [[emitted],[[received,author]]] */
-    myVouches: Dictionary<[TypedVouch[], [TypedVouch, AgentPubKeyB64][]]>
+    myVouches: Record<string, [TypedVouch[], [TypedVouch, AgentPubKeyB64][]]>
 }
 
 

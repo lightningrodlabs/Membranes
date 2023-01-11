@@ -1,5 +1,5 @@
-import {Dictionary, EntryHashB64} from "@holochain-open-dev/core-types";
 import {TaskItem, TaskList} from "../bindings/tasker.types";
+import {EntryHashB64} from "@holochain/client";
 
 
 /** */
@@ -18,10 +18,10 @@ export interface TaskListMaterialized {
 /** */
 export interface TaskerPerspective {
     /** EntryHash -> TaskList */
-    taskLists: Dictionary<TaskListMaterialized>,
-    taskListEntries: Dictionary<TaskList>,
+    taskLists: Record<string, TaskListMaterialized>,
+    taskListEntries: Record<string, TaskList>,
     /** EntryHash -> TaskItem */
-    taskItems: Dictionary<TaskItemMaterialized>,
+    taskItems: Record<string, TaskItemMaterialized>,
     myRoles: string[],
 }
 
