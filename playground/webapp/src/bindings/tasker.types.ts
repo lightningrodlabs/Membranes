@@ -130,8 +130,8 @@ export enum TaskerEntryType {
 	TaskList = 'TaskList',
 	TaskItem = 'TaskItem',
 }
-export type TaskerEntryVariantTaskList = {taskList: TaskList}
-export type TaskerEntryVariantTaskItem = {taskItem: TaskItem}
+export type TaskerEntryVariantTaskList = {TaskList: TaskList}
+export type TaskerEntryVariantTaskItem = {TaskItem: TaskItem}
 export type TaskerEntry = 
  | TaskerEntryVariantTaskList | TaskerEntryVariantTaskItem;
 
@@ -149,4 +149,4 @@ export interface TaskItem {
 
 /** List of all Link types handled by this Zome */
 export type TaskerLinkType =
-  | "Default" | "Path" | "TaskLists" | "Locked" | "Completed" | "Item";
+  | {Default: null} | {Path: null} | {TaskLists: null} | {Locked: null} | {Completed: null} | {Item: null};

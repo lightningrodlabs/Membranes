@@ -186,7 +186,7 @@ export interface ThresholdReachedProof {
 }
 
 export type CrudType =
-  | "Create" | "Read" | "Update" | "Delete";
+  | {Create: null} | {Read: null} | {Update: null} | {Delete: null};
 
 export interface Privilege {
   entry_def: AppEntryDef
@@ -222,12 +222,12 @@ export enum MembranesEntryType {
 	RoleClaim = 'RoleClaim',
 	Vouch = 'Vouch',
 }
-export type MembranesEntryVariantThreshold = {threshold: MembraneThreshold}
-export type MembranesEntryVariantMembrane = {membrane: Membrane}
-export type MembranesEntryVariantMembraneCrossedClaim = {membraneCrossedClaim: MembraneCrossedClaim}
-export type MembranesEntryVariantRole = {role: MembraneRole}
-export type MembranesEntryVariantRoleClaim = {roleClaim: RoleClaim}
-export type MembranesEntryVariantVouch = {vouch: Vouch}
+export type MembranesEntryVariantThreshold = {Threshold: MembraneThreshold}
+export type MembranesEntryVariantMembrane = {Membrane: Membrane}
+export type MembranesEntryVariantMembraneCrossedClaim = {MembraneCrossedClaim: MembraneCrossedClaim}
+export type MembranesEntryVariantRole = {Role: MembraneRole}
+export type MembranesEntryVariantRoleClaim = {RoleClaim: RoleClaim}
+export type MembranesEntryVariantVouch = {Vouch: Vouch}
 export type MembranesEntry = 
  | MembranesEntryVariantThreshold | MembranesEntryVariantMembrane | MembranesEntryVariantMembraneCrossedClaim | MembranesEntryVariantRole | MembranesEntryVariantRoleClaim | MembranesEntryVariantVouch;
 
