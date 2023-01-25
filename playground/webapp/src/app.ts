@@ -10,9 +10,9 @@ import {
 import {AgentDirectoryList} from "@ddd-qc/agent-directory";
 import { TaskerDvm } from "./viewModel/tasker.dvm";
 import {
-  HvmDef, HappElement, HCL, ViewCellContext, CellDef, CellContext, delay
+  HvmDef, HappElement, HCL, ViewCellContext, CellDef, CellContext, delay, Cell
 } from "@ddd-qc/lit-happ";
-import {AdminWebsocket, AgentPubKeyB64, Cell} from "@holochain/client";
+import {AdminWebsocket, AgentPubKeyB64, RoleName} from "@holochain/client";
 
 
 /**
@@ -34,7 +34,7 @@ export class TaskerApp extends HappElement {
   /** QoL */
   get taskerDvm(): TaskerDvm { return this.hvm.getDvm(TaskerDvm.DEFAULT_BASE_ROLE_NAME)! as TaskerDvm }
   get taskerDvmClones(): TaskerDvm[] {return this.hvm.getClones(TaskerDvm.DEFAULT_BASE_ROLE_NAME)! as TaskerDvm[]}
-  taskerDvmClone(cloneName: string): TaskerDvm { return this.hvm.getDvm(new HCL(this.hvm.appId, TaskerDvm.DEFAULT_BASE_ROLE_NAME, cloneName))! as TaskerDvm }
+  taskerDvmClone(cloneId: RoleName): TaskerDvm { return this.hvm.getDvm(new HCL(this.hvm.appId, TaskerDvm.DEFAULT_BASE_ROLE_NAME, cloneId))! as TaskerDvm }
 
   /** -- Fields -- */
 
@@ -77,16 +77,16 @@ export class TaskerApp extends HappElement {
   /** */
   async cloneTasker() {
     const cellDef: CellDef = {
-      cloneName: "0",
+      cloneName: "My Kingdom",
       modifiers: {
         properties: {
-          progenitors: [this.taskerDvm.agentPubKey],
+          progenitors: [this.taskerDvm.cell.agentPubKey],
         },
       }
     }
     await this.createClone(TaskerDvm.DEFAULT_BASE_ROLE_NAME, cellDef);
     console.log({clones: this.taskerDvmClones});
-    const myWorldDvm = this.taskerDvmClone('0');
+    const myWorldDvm = this.taskerDvmClone(TaskerDvm.DEFAULT_BASE_ROLE_NAME + '.0');
     this._cell = myWorldDvm.cell;
   }
 
@@ -125,7 +125,7 @@ export class TaskerApp extends HappElement {
         </div>
         <input type="button" value="Make me king!" @click=${() => {this.cloneTasker()}}>
         <button type="button" @click=${this.refresh}>Refresh</button>
-        <span><b>Agent:</b> ${this.taskerDvm.agentPubKey}</span>
+        <span><b>Agent:</b> ${this.taskerDvm.cell.agentPubKey}</span>
         <hr class="solid">      
         ${page}
       </cell-context>        

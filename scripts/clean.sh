@@ -3,6 +3,7 @@
 rm .running
 rm .hc_live*
 rm Cargo.lock
+rm -rf target
 # WEBCOMPONENTS
 rm -rf webcomponents/dist
 rm webcomponents/tsconfig.tsbuildinfo
