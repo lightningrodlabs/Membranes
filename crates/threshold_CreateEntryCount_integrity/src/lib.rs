@@ -5,8 +5,7 @@
 #![allow(unused_attributes)]
 #![allow(unused_imports)]
 
-//mod validate;
-//mod CreateEntryCountThreshold;
+mod validate;
 
 use hdi::prelude::*;
 use membranes_types::*;

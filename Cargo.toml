@@ -1,7 +1,9 @@
 [workspace]
 resolver = "2"
 members = [
-  "crates/iz_membranes_threshold_CreateEntryCount",
+  "crates/threshold_CreateEntryCount_types",
+  "crates/threshold_CreateEntryCount_integrity",
+  "crates/threshold_CreateEntryCount",
   "crates/membranes_types",
   "crates/membranes_integrity",
   #"crates/membranes",

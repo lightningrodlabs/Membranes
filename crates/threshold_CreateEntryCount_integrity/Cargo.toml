@@ -1,0 +1,14 @@
+[package]
+name = "threshold_CreateEntryCount_integrity"
+version.workspace = true
+edition.workspace = true
+
+[lib]
+crate-type = [ "cdylib", "rlib" ]
+
+[dependencies]
+serde.workspace = true
+hdi.workspace = true
+
+membranes_types = { path = "../membranes_types" }
+threshold_CreateEntryCount_types = { path = "../threshold_CreateEntryCount_types"}

@@ -1,5 +1,9 @@
 use hdi::prelude::*;
 
+use membranes_types::*;
+use threshold_CreateEntryCount_types::*;
+
+
 ///
 #[hdk_extern]
 pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
@@ -8,7 +12,7 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
       Op::StoreRecord ( _ ) => Ok(ValidateCallbackResult::Valid),
       Op::StoreEntry(storeEntry) => {
          let creation_action = storeEntry.action.hashed.into_inner().0;
-         return validate_entry(creation_action, storeEntry.entry, Some(creation_action.entry_type()));
+         return validate_entry(creation_action.clone(), storeEntry.entry, Some(creation_action.entry_type()));
       },
       Op::RegisterCreateLink(_) => Ok(ValidateCallbackResult::Valid),
       Op::RegisterDeleteLink (_)=> Ok(ValidateCallbackResult::Invalid("Deleting links isn't allowed".to_string())),
@@ -50,7 +54,7 @@ pub(crate) fn validate_app_entry(creation_action: EntryCreationAction, entry_def
    return match entry_def_index.into() {
       0 /* CreateEntryCountThresholdClaim */ => {
          let proof = ThresholdReachedProof::try_from(entry)?;
-         return validate_CreateEntryCountThreshold_claim(creation_action.author(), proof);
+         return validate_CreateEntryCountThreshold_proof(creation_action.author().to_owned(), proof);
 
       },
       _ => Ok(ValidateCallbackResult::Valid),
@@ -59,13 +63,13 @@ pub(crate) fn validate_app_entry(creation_action: EntryCreationAction, entry_def
 
 
 ///
-fn validate_CreateEntryCountThreshold_claim(author: AgentPubKey, proof: ThresholdReachedProof) -> ExternResult<ValidateCallbackResult> {
-   let threshold_entry = must_get_entry(proof.threshold.clone().into())?.as_content().to_owned();
+fn validate_CreateEntryCountThreshold_proof(author: AgentPubKey, proof: ThresholdReachedProof) -> ExternResult<ValidateCallbackResult> {
+   let threshold_entry = must_get_entry(proof.threshold_eh.clone().into())?.as_content().to_owned();
    let threshold = MembraneThreshold::try_from(threshold_entry)?;
-   if threshold.type_name != "CreateEntryCountThreshold" { return Ok(false);}
-   let Ok(cec)  = CreateEntryCountThreshold::try_from(threshold.data) else {
-      return Ok(false);
+   if threshold.type_name != "CreateEntryCountThreshold" { return Ok(ValidateCallbackResult::Invalid(format!("Threshold not a CreateEntryCountThreshold"))); }
+   let Ok(cec) = CreateEntryCountThreshold::try_from(threshold.data) else {
+      return Ok(ValidateCallbackResult::Invalid(format!("Threshold not a CreateEntryCountThreshold")));
    };
    let pass = cec.verify(author, proof.signed_actions)?;
-   Ok(if pass { ValidateCallbackResult::Valid} else {ValidateCallbackResult::Invalid(format!("Threshold not reached"))})
+   Ok(if pass { ValidateCallbackResult::Valid } else { ValidateCallbackResult::Invalid(format!("Threshold not reached")) })
 }
