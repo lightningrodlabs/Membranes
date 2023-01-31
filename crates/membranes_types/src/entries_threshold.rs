@@ -1,14 +1,19 @@
 use hdi::prelude::*;
 
+//
+// #[hdk_entry_helper]
+// #[derive(Clone, PartialEq)]
+// #[serde(rename_all = "camelCase")]
+// pub enum MembraneThreshold {
+//    CreateEntryCount(CreateEntryCountThreshold),
+//    Vouch(VouchThreshold),
+//    Progenitor,
+// }
 
-#[hdk_entry_helper]
-#[derive(Clone, PartialEq)]
-#[serde(rename_all = "camelCase")]
-pub enum MembraneThreshold {
-   CreateEntryCount(CreateEntryCountThreshold),
-   Vouch(VouchThreshold),
-   Progenitor,
-}
+// pub trait MembraneThreshold {
+//    fn verify(&self, subject: AgentPubKey, signed_actions: Vec<SignedActionHashed>) -> ExternResult<bool>;
+// }
+
 
 #[derive(Clone, PartialEq, Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -37,26 +42,9 @@ impl MyAppEntryType {
 }
 
 
-//#[hdk_entry_helper]
-#[derive(Clone, PartialEq, Debug, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct CreateEntryCountThreshold {
-   pub entry_type: MyAppEntryType,
-   pub required_count: usize,
-}
-
-//#[hdk_entry_helper]
-#[derive(Clone, PartialEq, Debug, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct VouchThreshold {
-   pub required_count: usize,
-   pub by_role: String,
-   pub for_role: String,
-}
-
-
 ///
-#[derive(Clone, PartialEq, Debug, Serialize, Deserialize)]
+#[hdk_entry_helper]
+#[derive(Clone, PartialEq)]
 #[serde(rename_all = "camelCase")]
 pub struct ThresholdReachedProof {
    pub threshold_eh: EntryHash,

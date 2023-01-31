@@ -16,8 +16,10 @@ use membranes_types::*;
 #[hdk_entry_defs]
 #[unit_enum(MembranesEntryTypes)]
 pub enum MembranesEntry {
-   #[entry_def(required_validations = 3, visibility = "public")]
-   Threshold(MembraneThreshold),
+   // #[entry_def(required_validations = 3, visibility = "public")]
+   // Threshold(MembraneThreshold),
+   // #[entry_def(required_validations = 3, visibility = "public")]
+   // Vouch(Vouch),
    #[entry_def(required_validations = 3, visibility = "public")]
    Membrane(Membrane),
    #[entry_def(required_validations = 3, visibility = "public")]
@@ -26,8 +28,6 @@ pub enum MembranesEntry {
    Role(MembraneRole),
    #[entry_def(required_validations = 3, visibility = "public")]
    RoleClaim(RoleClaim),
-   #[entry_def(required_validations = 3, visibility = "public")]
-   Vouch(Vouch),
 }
 
 
@@ -35,7 +35,7 @@ pub enum MembranesEntry {
 pub fn get_index(wtf: MembranesEntryTypes) -> ExternResult<u8> {
    let mut i = 0;
    for variant in MembranesEntry::unit_iter() {
-      debug!("get_index() variant = {:?}", variant);
+      //debug!("get_index() variant = {:?}", variant);
       if variant == wtf {
          return Ok(i);
       }

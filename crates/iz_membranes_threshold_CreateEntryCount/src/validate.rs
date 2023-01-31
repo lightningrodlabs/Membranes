@@ -1,5 +1,4 @@
 use hdi::prelude::*;
-use crate::validate_app_entry::validate_app_entry;
 
 ///
 #[hdk_extern]
@@ -9,11 +8,9 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
       Op::StoreRecord ( _ ) => Ok(ValidateCallbackResult::Valid),
       Op::StoreEntry(storeEntry) => {
          let creation_action = storeEntry.action.hashed.into_inner().0;
-         return validate_entry(creation_action.clone(), storeEntry.entry, Some(creation_action.entry_type()));
+         return validate_entry(creation_action, storeEntry.entry, Some(creation_action.entry_type()));
       },
-      Op::RegisterCreateLink(reg_create_link) => {
-         return validate_create_link(reg_create_link.create_link);
-      },
+      Op::RegisterCreateLink(_) => Ok(ValidateCallbackResult::Valid),
       Op::RegisterDeleteLink (_)=> Ok(ValidateCallbackResult::Invalid("Deleting links isn't allowed".to_string())),
       Op::RegisterUpdate { .. } => Ok(ValidateCallbackResult::Valid),
       Op::RegisterDelete { .. } => Ok(ValidateCallbackResult::Invalid("Deleting entries isn't allowed".to_string())),
@@ -43,38 +40,32 @@ pub fn validate_entry(creation_action: EntryCreationAction, entry: Entry, maybe_
 }
 
 
-/// Validation sub callback
-pub fn validate_create_link(_signed_create_link: SignedHashed<CreateLink>)
+///
+#[allow(unreachable_patterns)]
+//pub(crate) fn validate_app_entry(entry_def_index: EntryDefIndex, entry_bytes: AppEntryBytes)
+pub(crate) fn validate_app_entry(creation_action: EntryCreationAction, entry_def_index: EntryDefIndex, entry: Entry)
    -> ExternResult<ValidateCallbackResult>
 {
-   //let create_link = signed_create_link.hashed.into_inner().0;
-   //let tag_str = String::from_utf8_lossy(&create_link.tag.0);
-   //debug!("*** `validate_create_link()` called: {}", tag_str);
+   debug!("*** validate_app_entry() callback called!");
+   return match entry_def_index.into() {
+      0 /* CreateEntryCountThresholdClaim */ => {
+         let proof = ThresholdReachedProof::try_from(entry)?;
+         return validate_CreateEntryCountThreshold_claim(creation_action.author(), proof);
 
-   //for link_kind in LinkKind::iter() {
-      /// Get the entries linked
-      // let base =
-      //    must_get_entry(create_link.base_address.clone().into())?
-      //       .as_content()
-      //       .to_owned();
-      // let target =
-      //    must_get_entry(create_link.target_address.clone().into())?
-      //       .as_content()
-      //       .to_owned();
+      },
+      _ => Ok(ValidateCallbackResult::Valid),
+   }
+}
 
-      // FIXME
-      // /// Try validating static link kind
-      // if tag_str == link_kind.as_static() {
-      //    return link_kind.validate_types(base, target, None);
-      // }
-      // /// Or try validating dynamic link kind
-      // let maybe_hash: ExternResult<AgentPubKey> = link_kind.unconcat_hash(&create_link.tag);
-      // //debug!("*** maybe_hash of {} = {:?}", link_kind.as_static(), maybe_hash);
-      // if let Ok(from) = maybe_hash {
-      //    return link_kind.validate_types(base, target, Some(from));
-      // }
-  // }
 
-   //Ok(ValidateCallbackResult::Invalid(format!("Unknown tag: {}", tag_str).into()))
-   Ok(ValidateCallbackResult::Valid)
+///
+fn validate_CreateEntryCountThreshold_claim(author: AgentPubKey, proof: ThresholdReachedProof) -> ExternResult<ValidateCallbackResult> {
+   let threshold_entry = must_get_entry(proof.threshold.clone().into())?.as_content().to_owned();
+   let threshold = MembraneThreshold::try_from(threshold_entry)?;
+   if threshold.type_name != "CreateEntryCountThreshold" { return Ok(false);}
+   let Ok(cec)  = CreateEntryCountThreshold::try_from(threshold.data) else {
+      return Ok(false);
+   };
+   let pass = cec.verify(author, proof.signed_actions)?;
+   Ok(if pass { ValidateCallbackResult::Valid} else {ValidateCallbackResult::Invalid(format!("Threshold not reached"))})
 }
