@@ -155,7 +155,7 @@ export interface Membrane {
 
 export interface MembraneThreshold {
   typeName: string
-  data: SerializedBytes
+  data: Uint8Array
 }
 
 /**  */

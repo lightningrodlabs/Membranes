@@ -10,8 +10,6 @@ export interface MembranesPerspective {
     roles: Record<string, TypedMembraneRole>,
     myRoleClaims: Record<string, TypedRoleClaim>,
     myMembraneClaims: Record<string, TypedMembraneCrossedClaim>,
-    /** RoleName -> [[emitted],[[received,author]]] */
-    myVouches: Record<string, [TypedVouch[], [TypedVouch, AgentPubKeyB64][]]>
 }
 
 
@@ -22,14 +20,7 @@ export function defaultPerspective(): MembranesPerspective {
         roles: {},
         myRoleClaims: {},
         myMembraneClaims: {},
-        myVouches: {},
     }
-}
-
-
-export interface TypedVouch {
-    subject: AgentPubKeyB64,
-    forRole: string,
 }
 
 

@@ -179,6 +179,10 @@ export class MembranesProxy extends ZomeProxy {
     return this.call('claim_all_roles', null);
   }
 
+  async getProof(ah: ActionHash): Promise<ThresholdReachedProof | null> {
+    return this.call('get_proof', ah);
+  }
+
   async getThreshold(eh: EntryHash): Promise<MembraneThreshold | null> {
     return this.call('get_threshold', eh);
   }

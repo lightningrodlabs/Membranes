@@ -4,6 +4,16 @@ use membranes_types::*;
 use crate::anchors;
 
 
+///
+#[hdk_extern]
+pub fn get_proof(ah: ActionHash) -> ExternResult<Option<ThresholdReachedProof>> {
+   let maybe_typed = zome_utils::get_typed_from_ah::<ThresholdReachedProof>(ah);
+   match maybe_typed {
+      Ok((_eh, typed)) => Ok(Some(typed)),
+      Err(_e) => Ok(None),
+   }
+}
+
 
 ///
 #[hdk_extern]

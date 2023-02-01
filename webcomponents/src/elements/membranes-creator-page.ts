@@ -1,10 +1,11 @@
 import {css, html} from "lit";
 import {property, state} from "lit/decorators.js";
 import {describe_threshold, MembranesZvm} from "../viewModel/membranes.zvm";
-import {MembraneThresholdType, MyAppEntryType} from "../bindings/membranes.types";
 import {MembranesPerspective} from "../viewModel/membranes.perspective";
 import { ZomeElement } from "@ddd-qc/lit-happ";
 import {EntryHashB64} from "@holochain/client";
+import {MembraneThresholdType} from "../../dist";
+import {MyAppEntryType} from "../bindings/createEntryCount.types";
 
 
 /**

@@ -1,21 +1,20 @@
 import {css, html} from "lit";
 import {property, state} from "lit/decorators.js";
-import {MembranesZvm} from "../viewModel/membranes.zvm";
-import {MyAppEntryType} from "../bindings/membranes.types";
 import { ZomeElement } from "@ddd-qc/lit-happ";
-import { MembranesPerspective } from "../viewModel/membranes.perspective";
 import {AgentPubKeyB64} from "@holochain/client";
+import {MyAppEntryType} from "../bindings/createEntryCount.types";
+import {CreateEntryCountZvm} from "../viewModel/createEntryCount.zvm";
 
 
 
 /**
  * @element create-entry-dashboard
  */
-export class CreateEntryDashboard extends ZomeElement<MembranesPerspective, MembranesZvm> {
+export class CreateEntryDashboard extends ZomeElement<void, CreateEntryCountZvm> {
 
   /** */
   constructor() {
-    super(MembranesZvm.DEFAULT_ZOME_NAME)
+    super(CreateEntryCountZvm.DEFAULT_ZOME_NAME)
   }
 
   /** -- Fields -- */
