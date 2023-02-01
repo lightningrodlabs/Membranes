@@ -1,0 +1,18 @@
+[package]
+name = "threshold_Vouch"
+version.workspace = true
+edition.workspace = true
+
+[lib]
+crate-type = [ "cdylib", "rlib" ]
+
+[dependencies]
+serde.workspace = true
+hdk.workspace = true
+zome_utils.workspace = true
+
+#membranes_integrity = { path = "../membranes_integrity" }
+membranes_types = { path = "../membranes_types" }
+#membranes = { path = "../membranes" }
+threshold_Vouch_types = { path = "../threshold_Vouch_types"}
+threshold_Vouch_integrity = {path = "../threshold_Vouch_integrity"}

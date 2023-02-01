@@ -12,6 +12,8 @@ extern crate zome_utils;
 
 use hdk::prelude::*;
 use threshold_CreateEntryCount_types::*;
+use membranes_types::*;
+
 
 #[hdk_extern]
 fn get_create_count(input: GetCreateCountInput) -> ExternResult<usize> {

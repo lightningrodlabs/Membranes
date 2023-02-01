@@ -12,4 +12,5 @@ hdk.workspace = true
 zome_utils.workspace = true
 
 membranes_types = {path = "../../../crates/membranes_types" }
+threshold_CreateEntryCount_types = {path = "../../../crates/threshold_CreateEntryCount_types" }
 tasker_model = {path = "../tasker_model" }

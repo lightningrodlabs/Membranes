@@ -6,6 +6,8 @@ integrity:
   zomes:
     - name: membranes_integrity
       bundled: ../../target/wasm32-unknown-unknown/release/membranes_integrity.wasm
+    - name: threshold_CreateEntryCount_integrity
+      bundled: ../../target/wasm32-unknown-unknown/release/threshold_CreateEntryCount_integrity.wasm
     - name: tasker_model
       bundled: ../../target/wasm32-unknown-unknown/release/tasker_model.wasm
     - name: agent_directory_integrity
@@ -16,6 +18,10 @@ coordinator:
       bundled: ../../target/wasm32-unknown-unknown/release/membranes.wasm
       dependencies:
         - name: membranes_integrity
+    - name: zThreshold_CreateEntryCount
+      bundled: ../../target/wasm32-unknown-unknown/release/threshold_CreateEntryCount.wasm
+      dependencies:
+        - name: threshold_CreateEntryCount_integrity
     - name: zTasker
       bundled: ../../target/wasm32-unknown-unknown/release/tasker.wasm
       dependencies:

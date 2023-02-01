@@ -3,34 +3,26 @@
 #![allow(non_camel_case_types)]
 #![allow(non_snake_case)]
 #![allow(unused_attributes)]
+#![allow(unused_imports)]
 
 mod validate;
-pub(crate) mod validate_app_entry;
-pub mod zome_properties;
-
-pub use zome_properties::*;
 
 use hdi::prelude::*;
 use membranes_types::*;
+use threshold_Vouch_types::*;
 
 #[hdk_entry_defs]
-#[unit_enum(MembranesEntryTypes)]
-pub enum MembranesEntry {
+#[unit_enum(VouchThresholdEntryTypes)]
+pub enum VouchThresholdEntry {
    #[entry_def(required_validations = 3, visibility = "public")]
-   Threshold(MembraneThreshold),
+   VouchProof(ThresholdReachedProof),
    #[entry_def(required_validations = 3, visibility = "public")]
-   Membrane(Membrane),
-   #[entry_def(required_validations = 3, visibility = "public")]
-   Role(MembraneRole),
-   #[entry_def(required_validations = 3, visibility = "public")]
-   MembraneCrossedClaim(MembraneCrossedClaim),
-   #[entry_def(required_validations = 3, visibility = "public")]
-   RoleClaim(RoleClaim),
+   Vouch(Vouch),
 }
 
 
 /// Get EntryDefIndex from a unit_enum
-pub fn get_index<T: UnitEnum>(unknown: T::Unit) -> ExternResult<u8> {
+pub(crate) fn get_index<T: UnitEnum>(unknown: T::Unit) -> ExternResult<u8> {
    let mut i = 0;
    for variant in T::unit_iter() {
       //debug!("get_index() variant = {:?}", variant);
@@ -42,13 +34,10 @@ pub fn get_index<T: UnitEnum>(unknown: T::Unit) -> ExternResult<u8> {
    return Err(wasm_error!(WasmErrorInner::Guest("Unknown variant".to_string())));
 }
 
-
 /// List of all Link kinds handled by this Zome
 #[hdk_link_types]
-pub enum MembranesLinkType {
-   MembranePassport,
-   RolePassport,
-   Role,
-   Membrane,
-   Threshold,
+pub enum VouchThresholdLinkType {
+   VouchCreated,
+   VouchEmitted,
+   VouchReceived,
 }

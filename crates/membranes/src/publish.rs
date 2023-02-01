@@ -10,60 +10,17 @@ use crate::anchors::get_role_by_name;
 use crate::get::{get_my_membrane_claims_details, get_my_role_claims_details};
 
 
-//#[hdk_extern]
-// pub fn publish_threshold(threshold: MembraneThreshold) -> ExternResult<EntryHash> {
-//    let eh = match threshold {
-//       MembraneThreshold::CreateEntryCount(th) => {
-//          publish_createEntryCountThreshold(th)?
-//       },
-//       MembraneThreshold::Vouch(th) => {
-//          publish_vouchThreshold(th)?
-//       },
-//    };
-//    let root_path = Path::from(path_kind::Thresholds).path_entry_hash()?;
-//    let _lah = create_link(root_path, eh.clone(), LinkKind::Threshold, LinkTag::from(()))?;
-//    /// Done
-//    Ok(eh)
-// }
-
-
 #[hdk_extern]
-pub fn publish_vouchThreshold(vouch_threshold: VouchThreshold) -> ExternResult<EntryHash> {
-   // /// Make sure role exists
-   // let maybe_for_role = path_kind::get_role(vouch_threshold.for_role.clone())?;
-   // if maybe_for_role.is_none() {
-   //    let msg = format!("Could not get Role declared in Vouch: {}", vouch.for_role);
-   //    return Err(wasm_error!(WasmErrorInner::Guest(msg)));
-   // }
-   // let maybe_from_role = path_kind::get_role(vouch_threshold.from_role.clone())?;
-   // if maybe_from_role.is_none() {
-   //    let msg = format!("Could not get Role declared in Vouch: {}", vouch.for_role);
-   //    return Err(wasm_error!(WasmErrorInner::Guest(msg)));
-   // }
-   /// Create Entry
-   let threshold = MembraneThreshold::Vouch(vouch_threshold);
-   let _ah = create_entry(MembranesEntry::Threshold(threshold.clone()))?;
-   let eh = hash_entry(threshold.clone())?;
-   /// Add to Index
-   let root_path = Path::from(anchors::Thresholds).path_entry_hash()?;
-   let _lah = create_link(root_path, eh.clone(), MembranesLinkType::Threshold, LinkTag::from("VouchThreshold".to_string().into_bytes()))?;
-   /// Done
-   Ok(eh)
-}
-
-
-#[hdk_extern]
-pub fn publish_createEntryCountThreshold(create_threshold: CreateEntryCountThreshold) -> ExternResult<EntryHash> {
-   debug!("publish_createEntryCountThreshold() called: {:?}", create_threshold);
+pub fn publish_threshold(threshold: MembraneThreshold) -> ExternResult<EntryHash> {
+   debug!("publish_threshold() called: {:?}", threshold);
    /// Make sure AppEntryDef exists
    /// FIXME
    /// Create Entry
-   let threshold = MembraneThreshold::CreateEntryCount(create_threshold);
    let _ah = create_entry(MembranesEntry::Threshold(threshold.clone()))?;
    let eh = hash_entry(threshold.clone())?;
    /// Add to Index
    let root_path = Path::from(anchors::Thresholds).path_entry_hash()?;
-   let _lah = create_link(root_path, eh.clone(), MembranesLinkType::Threshold, LinkTag::from("CreateEntryCountThreshold".to_string().into_bytes()))?;
+   let _lah = create_link(root_path, eh.clone(), MembranesLinkType::Threshold, LinkTag::from(()))?;
    /// Done
    Ok(eh)
 }

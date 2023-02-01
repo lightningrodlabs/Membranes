@@ -1,13 +1,34 @@
 use hdk::prelude::*;
-use membranes_integrity::*;
+//use membranes_integrity::*;
 use membranes_types::*;
 use crate::anchors::*;
+
+
+
+///
+#[hdk_extern]
+pub fn get_vouch_author(typed: Vouch) -> ExternResult<AgentPubKey> {
+   let eh = hash_entry(typed)?;
+   return zome_utils::get_author(&eh.into());
+}
+
+
+///
+#[hdk_extern]
+pub fn get_vouch(eh : EntryHash) -> ExternResult<Option<Vouch>> {
+   let maybe_typed = zome_utils::get_typed_from_eh::<Vouch>(eh);
+   match maybe_typed {
+      Ok(typed) => Ok(Some(typed)),
+      Err(_e) => Ok(None),
+   }
+}
 
 
 ///
 #[hdk_extern]
 pub fn publish_vouch(vouch: Vouch) -> ExternResult<EntryHash> {
-   let maybe_role = get_role_by_name(vouch.for_role.clone())?;
+   let maybe_role: ExternResult<Option<MembraneRole>> = None;
+   // Fixme do a external call to membranes zome: get_role_by_name(vouch.for_role.clone())?;
    if maybe_role.is_none() {
       let msg = format!("Could not get Role declared in Vouch: {}", vouch.for_role);
       return Err(wasm_error!(WasmErrorInner::Guest(msg)));

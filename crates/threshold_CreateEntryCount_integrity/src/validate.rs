@@ -54,7 +54,7 @@ pub(crate) fn validate_app_entry(creation_action: EntryCreationAction, entry_def
    return match entry_def_index.into() {
       0 /* CreateEntryCountThresholdClaim */ => {
          let proof = ThresholdReachedProof::try_from(entry)?;
-         return validate_CreateEntryCountThreshold_proof(creation_action.author().to_owned(), proof);
+         return validate_proof(creation_action.author().to_owned(), proof);
 
       },
       _ => Ok(ValidateCallbackResult::Valid),
@@ -63,7 +63,7 @@ pub(crate) fn validate_app_entry(creation_action: EntryCreationAction, entry_def
 
 
 ///
-fn validate_CreateEntryCountThreshold_proof(author: AgentPubKey, proof: ThresholdReachedProof) -> ExternResult<ValidateCallbackResult> {
+fn validate_proof(author: AgentPubKey, proof: ThresholdReachedProof) -> ExternResult<ValidateCallbackResult> {
    let threshold_entry = must_get_entry(proof.threshold_eh.clone().into())?.as_content().to_owned();
    let threshold = MembraneThreshold::try_from(threshold_entry)?;
    if threshold.type_name != "CreateEntryCountThreshold" { return Ok(ValidateCallbackResult::Invalid(format!("Threshold not a CreateEntryCountThreshold"))); }

@@ -4,16 +4,6 @@ use membranes_types::*;
 use crate::anchors;
 
 
-///
-#[hdk_extern]
-pub fn get_vouch(eh : EntryHash) -> ExternResult<Option<Vouch>> {
-   let maybe_typed = zome_utils::get_typed_from_eh::<Vouch>(eh);
-   match maybe_typed {
-      Ok(typed) => Ok(Some(typed)),
-      Err(_e) => Ok(None),
-   }
-}
-
 
 ///
 #[hdk_extern]

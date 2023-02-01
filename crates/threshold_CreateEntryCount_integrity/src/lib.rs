@@ -15,7 +15,7 @@ use membranes_types::*;
 #[unit_enum(MembranesEntryTypes)]
 pub enum CreateEntryCountThresholdEntry {
    #[entry_def(required_validations = 3, visibility = "public")]
-   CreateEntryCountThresholdClaim(ThresholdReachedProof),
+   CreateEntryCountProof(ThresholdReachedProof),
    // #[entry_def(required_validations = 3, visibility = "public")]
    // Vouch(Vouch),
 }
