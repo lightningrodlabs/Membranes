@@ -15,11 +15,9 @@ export const membranesFunctionNames: FunctionName[] = [
 
 	"claim_all_membranes",
 	"claim_membrane",
-	"get_create_count",
 	"claim_role_with_membrane",
 	"claim_role_by_name",
 	"claim_all_roles",
-	"get_vouch",
 	"get_threshold",
 	"get_membrane",
 	"get_role",
@@ -29,19 +27,14 @@ export const membranesFunctionNames: FunctionName[] = [
 	"has_crossed_membrane",
 	"dna_info_hack",
 	"echo_app_entry_def",
-	"get_vouch_author",
-	"publish_vouchThreshold",
-	"publish_createEntryCountThreshold",
+	"publish_threshold",
 	"publish_membrane",
 	"publish_role",
 	"publish_RoleClaim",
 	"publish_MembraneCrossedClaim",
 	"get_role_with_name",
 	"has_role",
-	"do_i_have_role",
-	"publish_vouch",
-	"get_my_emitted_vouches",
-	"get_my_received_vouches",];
+	"do_i_have_role",];
 
 
 /** Generate tuple array of function names with given zomeName */

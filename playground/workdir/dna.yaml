@@ -8,6 +8,8 @@ integrity:
       bundled: ../../target/wasm32-unknown-unknown/release/membranes_integrity.wasm
     - name: threshold_CreateEntryCount_integrity
       bundled: ../../target/wasm32-unknown-unknown/release/threshold_CreateEntryCount_integrity.wasm
+    - name: threshold_Vouch_integrity
+      bundled: ../../target/wasm32-unknown-unknown/release/threshold_Vouch_integrity.wasm
     - name: tasker_model
       bundled: ../../target/wasm32-unknown-unknown/release/tasker_model.wasm
     - name: agent_directory_integrity
@@ -22,6 +24,10 @@ coordinator:
       bundled: ../../target/wasm32-unknown-unknown/release/threshold_CreateEntryCount.wasm
       dependencies:
         - name: threshold_CreateEntryCount_integrity
+    - name: zThreshold_Vouch
+      bundled: ../../target/wasm32-unknown-unknown/release/threshold_Vouch.wasm
+      dependencies:
+        - name: threshold_Vouch_integrity
     - name: zTasker
       bundled: ../../target/wasm32-unknown-unknown/release/tasker.wasm
       dependencies:

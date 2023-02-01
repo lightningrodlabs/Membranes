@@ -126,14 +126,9 @@ ValidationStatus,
 ValidationReceipt,
    } from '@holochain-open-dev/core-types';
 
-export interface Vouch {
-  subject: AgentPubKey
-  forRole: string
-}
-
 /**  */
 export interface MembraneCrossedClaim {
-  proofs: ThresholdReachedProof[]
+  proofAhs: ActionHash[]
   membraneEh: EntryHash
   subject: AgentPubKey
 }
@@ -158,32 +153,9 @@ export interface Membrane {
   thresholdEhs: EntryHash[]
 }
 
-export enum MembraneThresholdType {
-	CreateEntryCount = 'CreateEntryCount',
-	Vouch = 'Vouch',
-	Progenitor = 'Progenitor',
-}
-export type MembraneThresholdVariantCreateEntryCount = {createEntryCount: CreateEntryCountThreshold}
-export type MembraneThresholdVariantVouch = {vouch: VouchThreshold}
-export type MembraneThresholdVariantProgenitor = {progenitor: null}
-export type MembraneThreshold = 
- | MembraneThresholdVariantCreateEntryCount | MembraneThresholdVariantVouch | MembraneThresholdVariantProgenitor;
-
-export interface MyAppEntryType {
-  entryIndex: number
-  zomeIndex: number
-  isPublic: boolean
-}
-
-export interface CreateEntryCountThreshold {
-  entryType: MyAppEntryType
-  requiredCount: number
-}
-
-export interface VouchThreshold {
-  requiredCount: number
-  byRole: string
-  forRole: string
+export interface MembraneThreshold {
+  typeName: string
+  data: SerializedBytes
 }
 
 /**  */
@@ -198,11 +170,6 @@ export type CrudType =
 export interface Privilege {
   entry_def: AppEntryDef
   crud: string
-}
-
-export interface GetCreateCountInput {
-  subject: AgentPubKey
-  entryType: MyAppEntryType
 }
 
 export interface HasRoleInput {
@@ -224,19 +191,17 @@ export interface MembraneInput {
 export enum MembranesEntryType {
 	Threshold = 'Threshold',
 	Membrane = 'Membrane',
-	MembraneCrossedClaim = 'MembraneCrossedClaim',
 	Role = 'Role',
+	MembraneCrossedClaim = 'MembraneCrossedClaim',
 	RoleClaim = 'RoleClaim',
-	Vouch = 'Vouch',
 }
 export type MembranesEntryVariantThreshold = {Threshold: MembraneThreshold}
 export type MembranesEntryVariantMembrane = {Membrane: Membrane}
-export type MembranesEntryVariantMembraneCrossedClaim = {MembraneCrossedClaim: MembraneCrossedClaim}
 export type MembranesEntryVariantRole = {Role: MembraneRole}
+export type MembranesEntryVariantMembraneCrossedClaim = {MembraneCrossedClaim: MembraneCrossedClaim}
 export type MembranesEntryVariantRoleClaim = {RoleClaim: RoleClaim}
-export type MembranesEntryVariantVouch = {Vouch: Vouch}
 export type MembranesEntry = 
- | MembranesEntryVariantThreshold | MembranesEntryVariantMembrane | MembranesEntryVariantMembraneCrossedClaim | MembranesEntryVariantRole | MembranesEntryVariantRoleClaim | MembranesEntryVariantVouch;
+ | MembranesEntryVariantThreshold | MembranesEntryVariantMembrane | MembranesEntryVariantRole | MembranesEntryVariantMembraneCrossedClaim | MembranesEntryVariantRoleClaim;
 
 export interface MembraneZomeProperties {
   progenitors: AgentPubKeyB64[]

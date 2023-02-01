@@ -3,6 +3,8 @@ use hdk::prelude::holo_hash::EntryHashB64;
 #[allow(unused_imports)]
 use tasker_model::*;
 use membranes_types::*;
+use threshold_Vouch_types::*;
+use threshold_CreateEntryCount_types::*;
 
 use crate::call_membranes_zome;
 
@@ -14,7 +16,7 @@ pub fn init_membranes(_: ()) -> ExternResult<()> {
 
    /// Thresholds
    //let _ah = create_entry(MembranesEntry::Threshold(MembraneThreshold::Progenitor))?;
-   let progenitor_th_eh = hash_entry(MembraneThreshold::Progenitor)?;
+   //let progenitor_th_eh = hash_entry(MembraneThreshold::Progenitor)?;
 
    let steererVouchThresholdEh: EntryHash = call_membranes_zome(
       "publish_vouchThreshold",
@@ -34,17 +36,17 @@ pub fn init_membranes(_: ()) -> ExternResult<()> {
    )?;
 
    /// Membranes
-   let progenitorMembraneEh: EntryHash = call_membranes_zome("publish_membrane",  Membrane {threshold_ehs: vec![progenitor_th_eh.clone()]})?;
+   //let progenitorMembraneEh: EntryHash = call_membranes_zome("publish_membrane",  Membrane {threshold_ehs: vec![progenitor_th_eh.clone()]})?;
    let createItemsMembraneEh: EntryHash = call_membranes_zome("publish_membrane",  Membrane {threshold_ehs: vec![createItemThresholdEh.clone()]})?;
    let participantVouchMembraneEh: EntryHash = call_membranes_zome("publish_membrane", Membrane {threshold_ehs: vec![participantVouchThresholdEh]})?;
    //let steererVouchMembraneEh: EntryHash = call_membranes_zome("publish_membrane", Membrane {threshold_ehs: vec![steererVouchThresholdEh]})?;
    let complexMembraneEh: EntryHash = call_membranes_zome( "publish_membrane", Membrane {threshold_ehs: vec![createManyItemThresholdEh, steererVouchThresholdEh]})?;
 
    /// Roles
-    let _progenitorRoleEh: EntryHash = call_membranes_zome(
-       "publish_role",
-      MembraneRole {name: "progenitor".to_string(), privileges: vec![/* FIXME */], entering_membrane_ehs: vec![progenitorMembraneEh.clone()]},
-    )?;
+   //  let _progenitorRoleEh: EntryHash = call_membranes_zome(
+   //     "publish_role",
+   //    MembraneRole {name: "progenitor".to_string(), privileges: vec![/* FIXME */], entering_membrane_ehs: vec![progenitorMembraneEh.clone()]},
+   //  )?;
    let participantRoleEh: EntryHash = call_membranes_zome(
       "publish_role",
       MembraneRole {name: "participant".to_string(), privileges: vec![/* FIXME */], entering_membrane_ehs: vec![createItemsMembraneEh.clone()]},
