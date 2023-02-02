@@ -1,9 +1,7 @@
 import {ZomeViewModel} from "@ddd-qc/lit-happ";
 import {VouchProxy} from "../bindings/vouch.proxy";
 import {AgentPubKey, AgentPubKeyB64, decodeHashFromBase64, encodeHashToBase64, EntryHash} from "@holochain/client";
-import {MembraneRole} from "../bindings/membranes.types";
 import {Vouch} from "../bindings/vouch.types";
-
 
 
 export interface TypedVouch {
@@ -13,6 +11,7 @@ export interface TypedVouch {
 
 
 export interface VouchPerspective {
+    roleNames: string[],
     /** RoleName -> [[emitted],[[received,author]]] */
     myVouches: Record<string, [TypedVouch[], [TypedVouch, AgentPubKeyB64][]]>
 }
@@ -26,6 +25,10 @@ export class VouchZvm extends ZomeViewModel {
     static readonly ZOME_PROXY = VouchProxy;
     get zomeProxy(): VouchProxy {return this._zomeProxy as VouchProxy;}
 
+
+    // constructor(cellProxy: CellProxy) {
+    //     super(cellProxy, "zThreshold_Vouch")
+    // }
 
     /** -- ViewModel -- */
 
@@ -43,14 +46,20 @@ export class VouchZvm extends ZomeViewModel {
 
     /** */
     async probeAll(): Promise<void> {
-        //const roleEntries = await this.probeRoles();
-        //await this.probeMyVouches(roleEntries);
+        await this.probeRoleNames();
+        await this.probeMyVouches();
     }
 
 
+    /** */
+    async probeRoleNames(): Promise<void> {
+        this._perspective.roleNames = await this.zomeProxy.getAllRoleNames();
+        this.notifySubscribers();
+    }
+
     /** -- Perspective -- */
 
-    private _perspective: VouchPerspective = {myVouches: {}}
+    private _perspective: VouchPerspective = {roleNames: [], myVouches: {}}
 
 
     /** -- Methods -- */
@@ -79,7 +88,7 @@ export class VouchZvm extends ZomeViewModel {
     }
 
 
-/* */
+    /* */
     async getVouchAuthor(vouch: TypedVouch): Promise<AgentPubKeyB64> {
         let entry: Vouch = {subject: decodeHashFromBase64(vouch.subject), forRole: vouch.forRole};
     let res = await this.zomeProxy.getVouchAuthor(entry);
@@ -88,10 +97,10 @@ export class VouchZvm extends ZomeViewModel {
 
 
     /** */
-    async probeMyVouches(roleEntries: [EntryHash, MembraneRole][]) {
-        for (const [eh, roleEntry] of roleEntries) {
-            const emittedEhs = await this.zomeProxy.getMyEmittedVouches(roleEntry.name);
-            const receivedPairs: [EntryHash, AgentPubKey][] = await this.zomeProxy.getMyReceivedVouches(roleEntry.name);
+    async probeMyVouches() {
+        for (const roleName of this.perspective.roleNames) {
+            const emittedEhs = await this.zomeProxy.getMyEmittedVouches(roleName);
+            const receivedPairs: [EntryHash, AgentPubKey][] = await this.zomeProxy.getMyReceivedVouches(roleName);
             /* */
             let emitted: TypedVouch[] = [];
             for (const eh of emittedEhs) {
@@ -110,7 +119,7 @@ export class VouchZvm extends ZomeViewModel {
                 }
             }
             /* */
-            this._perspective.myVouches[roleEntry.name] = [emitted, received];
+            this._perspective.myVouches[roleName] = [emitted, received];
         }
         this.notifySubscribers();
     }

@@ -136,21 +136,4 @@ export class MembranesDashboard extends ZomeElement<MembranesPerspective, Membra
       </div>
     `;
   }
-
-
-  /** */
-  static get scopedElements() {
-    return {
-      //"place-snapshot": PlaceSnapshot,
-      //'sl-tooltip': SlTooltip,
-      //'sl-badge': SlBadge,
-    };
-  }
-
-
-  static get styles() {
-    return [
-      css``,
-    ];
-  }
 }

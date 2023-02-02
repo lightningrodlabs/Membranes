@@ -134,7 +134,7 @@ import {createEntryCountFunctionNames} from './createEntryCount.fn';
  *
  */
 export class CreateEntryCountProxy extends ZomeProxy {
-  static readonly DEFAULT_ZOME_NAME = "createEntryCount"
+  static readonly DEFAULT_ZOME_NAME = "zThreshold_CreateEntryCount"
   static readonly FN_NAMES = createEntryCountFunctionNames
  
 

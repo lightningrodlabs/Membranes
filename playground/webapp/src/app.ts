@@ -93,7 +93,7 @@ export class TaskerApp extends HappElement {
 
   /** */
   render() {
-    console.log("<tasker-app> render()", this._loaded)
+    console.log("*** <tasker-app> render()", this._loaded, this.taskerDvm.membranesZvm.perspective)
     if (!this._loaded) {
       return html`<span>Loading...</span>`;
     }
@@ -104,7 +104,7 @@ export class TaskerApp extends HappElement {
       case 0: page = html`<tasker-page style="flex: 1;"></tasker-page>` ; break;
       case 1: page = html`<membranes-dashboard .allAppEntryTypes=${this._allAppEntryTypes} style="flex: 1;"></membranes-dashboard>`; break;
       case 2: page = html`<membranes-creator-page .allAppEntryTypes=${this._allAppEntryTypes} style="flex: 1;"></membranes-creator-page>`; break;
-      case 3: page = html`<vouch-dashboard .knownAgents=${knownAgents} style="flex: 1;"></vouch-dashboard>`; break;
+      case 3: page = html`<vouch-dashboard .knownAgents=${knownAgents} .roles=${this.taskerDvm.membranesZvm.perspective.roles} style="flex: 1;"></vouch-dashboard>`; break;
       case 4: page = html`<create-entry-dashboard .knownAgents=${knownAgents} .allAppEntryTypes=${this._allAppEntryTypes} style="flex: 1;"></create-entry-dashboard>`; break;
       case 5: page = html`<agent-directory-list style="flex: 1;"></agent-directory-list>`; break;
 

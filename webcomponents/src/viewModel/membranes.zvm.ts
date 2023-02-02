@@ -102,6 +102,7 @@ export class MembranesZvm extends ZomeViewModel {
     await this.probeThresholds();
     await this.probeMembranes();
     await this.probeMyClaims();
+    await this.probeRoles();
   }
 
 

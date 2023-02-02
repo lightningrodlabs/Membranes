@@ -134,9 +134,13 @@ import {vouchFunctionNames} from './vouch.fn';
  *
  */
 export class VouchProxy extends ZomeProxy {
-  static readonly DEFAULT_ZOME_NAME = "vouch"
+  static readonly DEFAULT_ZOME_NAME = "zThreshold_Vouch"
   static readonly FN_NAMES = vouchFunctionNames
  
+
+  async getAllRoleNames(): Promise<string[]> {
+    return this.call('get_all_role_names', null);
+  }
 
   async getVouchAuthor(typed: Vouch): Promise<AgentPubKey> {
     return this.call('get_vouch_author', typed);

@@ -20,5 +20,5 @@ export function generateCreateEntryCountZomeFunctionsArray(zomeName: ZomeName): 
 }
 
 
-/** Tuple array of all zome function names with default zome name "createEntryCount" */
-export const createEntryCountZomeFunctions: [ZomeName, FunctionName][] = generateCreateEntryCountZomeFunctionsArray("createEntryCount");
+/** Tuple array of all zome function names with default zome name "zThreshold_CreateEntryCount" */
+export const createEntryCountZomeFunctions: [ZomeName, FunctionName][] = generateCreateEntryCountZomeFunctionsArray("zThreshold_CreateEntryCount");

@@ -33,6 +33,8 @@ export const membranesFunctionNames: FunctionName[] = [
 	"publish_role",
 	"publish_RoleClaim",
 	"publish_MembraneCrossedClaim",
+	"register_threshold_type",
+	"get_all_registered_threshold_types",
 	"get_role_with_name",
 	"has_role",
 	"do_i_have_role",];

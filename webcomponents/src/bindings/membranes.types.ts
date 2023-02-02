@@ -127,6 +127,12 @@ ValidationReceipt,
    } from '@holochain-open-dev/core-types';
 
 /**  */
+export interface ThresholdType {
+  name: string
+  zomeName: string
+}
+
+/**  */
 export interface MembraneCrossedClaim {
   proofAhs: ActionHash[]
   membraneEh: EntryHash
@@ -194,14 +200,16 @@ export enum MembranesEntryType {
 	Role = 'Role',
 	MembraneCrossedClaim = 'MembraneCrossedClaim',
 	RoleClaim = 'RoleClaim',
+	ThresholdType = 'ThresholdType',
 }
 export type MembranesEntryVariantThreshold = {Threshold: MembraneThreshold}
 export type MembranesEntryVariantMembrane = {Membrane: Membrane}
 export type MembranesEntryVariantRole = {Role: MembraneRole}
 export type MembranesEntryVariantMembraneCrossedClaim = {MembraneCrossedClaim: MembraneCrossedClaim}
 export type MembranesEntryVariantRoleClaim = {RoleClaim: RoleClaim}
+export type MembranesEntryVariantThresholdType = {ThresholdType: ThresholdType}
 export type MembranesEntry = 
- | MembranesEntryVariantThreshold | MembranesEntryVariantMembrane | MembranesEntryVariantRole | MembranesEntryVariantMembraneCrossedClaim | MembranesEntryVariantRoleClaim;
+ | MembranesEntryVariantThreshold | MembranesEntryVariantMembrane | MembranesEntryVariantRole | MembranesEntryVariantMembraneCrossedClaim | MembranesEntryVariantRoleClaim | MembranesEntryVariantThresholdType;
 
 export interface MembraneZomeProperties {
   progenitors: AgentPubKeyB64[]

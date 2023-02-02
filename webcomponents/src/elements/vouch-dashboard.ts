@@ -4,8 +4,7 @@ import {AgentPubKeyB64} from "@holochain/client";
 
 import { ZomeElement } from "@ddd-qc/lit-happ";
 import {VouchPerspective, VouchZvm} from "../viewModel/vouch.zvm";
-import {defaultPerspective, MembranesPerspective} from "../viewModel/membranes.perspective";
-
+import {TypedMembraneRole} from "../viewModel/membranes.perspective";
 
 
 /**
@@ -18,15 +17,20 @@ export class VouchDashboard extends ZomeElement<VouchPerspective, VouchZvm> {
     super(VouchZvm.DEFAULT_ZOME_NAME)
   }
 
+
   /** -- Fields -- */
+
   @state() private _initialized = false;
 
   @property()
   knownAgents: AgentPubKeyB64[] = []
 
 
-  @property({type: Object, attribute: false})
-  membranesPerspective: MembranesPerspective = defaultPerspective();
+  //@property({type: Object, attribute: true})
+  //roles!: Record<string, TypedMembraneRole>;
+
+
+  /** -- Methods -- */
 
   /** After first render only */
   async firstUpdated() {
@@ -41,6 +45,7 @@ export class VouchDashboard extends ZomeElement<VouchPerspective, VouchZvm> {
     await this._zvm.probeAll();
   }
 
+
   /** */
   async onVouch(e: any) {
     console.log("onVouch() CALLED", e)
@@ -52,7 +57,7 @@ export class VouchDashboard extends ZomeElement<VouchPerspective, VouchZvm> {
 
   /** */
   render() {
-    console.log("<vouch-dashboard> render()", this._initialized);
+    console.log("<vouch-dashboard> render()", this._initialized, this.perspective.roleNames);
     if (!this._initialized) {
       return html`<span>Loading...</span>`;
     }
@@ -65,10 +70,10 @@ export class VouchDashboard extends ZomeElement<VouchPerspective, VouchZvm> {
         }
     )
     /* Roles */
-    const roleOptions = Object.entries(this.membranesPerspective.roles).map(
-        ([index, role]) => {
+    const roleOptions = Object.values(this.perspective.roleNames).map(
+        (roleName) => {
           //console.log("" + index + ". " + agentIdB64)
-          return html `<option value="${role.name}">${role.name}</option>`
+          return html `<option value="${roleName}">${roleName}</option>`
         }
     )
     /* My Emitted Vouches */
