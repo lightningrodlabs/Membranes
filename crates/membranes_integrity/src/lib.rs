@@ -26,6 +26,8 @@ pub enum MembranesEntry {
    MembraneCrossedClaim(MembraneCrossedClaim),
    #[entry_def(required_validations = 3, visibility = "public")]
    RoleClaim(RoleClaim),
+   #[entry_def(required_validations = 3, visibility = "public")]
+   ThresholdType(ThresholdType),
 }
 
 

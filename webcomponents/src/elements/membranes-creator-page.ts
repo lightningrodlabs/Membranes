@@ -1,12 +1,11 @@
 import {css, html} from "lit";
 import {property, state} from "lit/decorators.js";
+import {EntryHashB64} from "@holochain/client";
+
+import { ZomeElement } from "@ddd-qc/lit-happ";
 import {describe_threshold, MembranesZvm} from "../viewModel/membranes.zvm";
 import {MembranesPerspective} from "../viewModel/membranes.perspective";
-import { ZomeElement } from "@ddd-qc/lit-happ";
-import {EntryHashB64} from "@holochain/client";
-import {MembraneThresholdType} from "../../dist";
-import {MyAppEntryType} from "../bindings/createEntryCount.types";
-
+import {MembranesEntryType} from "../bindings/membranes.types";
 
 /**
  * @element membranes-creator-page
@@ -23,7 +22,7 @@ export class MembranesCreatorPage extends ZomeElement<MembranesPerspective, Memb
     @state() private _selectedZomeName = ""
     @state() private _membranesForCurrentRole: EntryHashB64[] = [];
     @state() private _thresholdsForCurrentMembrane: EntryHashB64[] = [];
-    @state() private _selectedKind?: MembraneThresholdType;
+    @state() private _selectedKind?: string;
 
     @property()
     allAppEntryTypes: Record<string, [string, boolean][]> = {};
@@ -110,40 +109,40 @@ export class MembranesCreatorPage extends ZomeElement<MembranesPerspective, Memb
     }
 
 
-    /** */
-    onCreateThreshold(e: any) {
-        console.log("onCreateThreshold() CALLED", e);
-        switch (this._selectedKind) {
-            case MembraneThresholdType.CreateEntryCount: {
-                const zomeSelector = this.shadowRoot!.getElementById("selectedZome") as HTMLSelectElement;
-                const entrySelector = this.shadowRoot!.getElementById("selectedEntryType") as HTMLSelectElement;
-                const entryType: MyAppEntryType = {entryIndex: entrySelector.selectedIndex, zomeIndex: zomeSelector.selectedIndex, isPublic: true};  // FIXME
-                const input = this.shadowRoot!.getElementById("createEntryCountNumber") as HTMLInputElement;
-                const count = Number(input.value);
-                const _res = this._zvm.createCreateEntryCountThreshold(entryType, count);
-                break;
-            }
-            case MembraneThresholdType.Vouch: {
-                const input = this.shadowRoot!.getElementById("requiredVouchCount") as HTMLInputElement;
-                const count = Number(input.value);
-                const input2 = this.shadowRoot!.getElementById("forRoleInput") as HTMLInputElement;
-                const forRole = input2.value;
-                const input3 = this.shadowRoot!.getElementById("byRoleInput") as HTMLInputElement;
-                const byRole = input3.value;
-                let _res = this._zvm.createVouchThreshold(count, byRole, forRole);
-                break;
-            }
-            default:
-                break;
-        }
-        this._selectedZomeName = "";
-    }
+    // /** */
+    // onCreateThreshold(e: any) {
+    //     console.log("onCreateThreshold() CALLED", e);
+    //     switch (this._selectedKind) {
+    //         case MembraneThresholdType.CreateEntryCount: {
+    //             const zomeSelector = this.shadowRoot!.getElementById("selectedZome") as HTMLSelectElement;
+    //             const entrySelector = this.shadowRoot!.getElementById("selectedEntryType") as HTMLSelectElement;
+    //             const entryType: MyAppEntryType = {entryIndex: entrySelector.selectedIndex, zomeIndex: zomeSelector.selectedIndex, isPublic: true};  // FIXME
+    //             const input = this.shadowRoot!.getElementById("createEntryCountNumber") as HTMLInputElement;
+    //             const count = Number(input.value);
+    //             const _res = this._zvm.createCreateEntryCountThreshold(entryType, count);
+    //             break;
+    //         }
+    //         case MembraneThresholdType.Vouch: {
+    //             const input = this.shadowRoot!.getElementById("requiredVouchCount") as HTMLInputElement;
+    //             const count = Number(input.value);
+    //             const input2 = this.shadowRoot!.getElementById("forRoleInput") as HTMLInputElement;
+    //             const forRole = input2.value;
+    //             const input3 = this.shadowRoot!.getElementById("byRoleInput") as HTMLInputElement;
+    //             const byRole = input3.value;
+    //             let _res = this._zvm.createVouchThreshold(count, byRole, forRole);
+    //             break;
+    //         }
+    //         default:
+    //             break;
+    //     }
+    //     this._selectedZomeName = "";
+    // }
 
 
-    /** */
+    /** FIXME */
     renderThresholdForm() {
         switch(this._selectedKind) {
-            case MembraneThresholdType.CreateEntryCount: {
+            case "CreateEntryCount": {
                 const zomeOptions = Object.entries(this.allAppEntryTypes).map(
                     ([zomeName, _entryDef]) => {
                         return html`
@@ -177,7 +176,7 @@ export class MembranesCreatorPage extends ZomeElement<MembranesPerspective, Memb
                 `;
                 break;
             }
-            case MembraneThresholdType.Vouch:  {
+            case "Vouch":  {
                 return html`
                     <label for="requiredVouchCount">Receive</label>
                     <input type="number" id="requiredVouchCount" style="width: 40px;">
@@ -229,7 +228,7 @@ export class MembranesCreatorPage extends ZomeElement<MembranesPerspective, Memb
             }
         )
 
-        const kindOptions = Object.keys(MembraneThresholdType)
+        const kindOptions = Object.keys(MembranesEntryType)
             .filter((item) => {return isNaN(Number(item));})
             .map((kind) => {
                 return html `<option value="${kind}">${kind}</option>`
@@ -283,7 +282,7 @@ export class MembranesCreatorPage extends ZomeElement<MembranesPerspective, Memb
                     ${thresholdForm}
                 </div>                    
                 <div>
-                    <input type="button" value="create" @click=${this.onCreateThreshold}>
+                    <input type="button" value="create" @click={}>
                 </div>
             </form>
             <!-- NEW Privilege -->

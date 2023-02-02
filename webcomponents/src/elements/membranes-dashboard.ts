@@ -1,8 +1,9 @@
 import {css, html} from "lit";
 import {property, state} from "lit/decorators.js";
+import { ZomeElement } from "@ddd-qc/lit-happ";
+
 import {describe_threshold, MembranesZvm} from "../viewModel/membranes.zvm";
 import {MembranesPerspective} from "../viewModel/membranes.perspective";
-import { ZomeElement } from "@ddd-qc/lit-happ";
 
 
 /**

@@ -1,21 +1,21 @@
 import {css, html} from "lit";
 import {property, state} from "lit/decorators.js";
-
-import {MembranesZvm} from "../viewModel/membranes.zvm";
-import {MembranesPerspective} from "../viewModel/membranes.perspective";
-import { ZomeElement } from "@ddd-qc/lit-happ";
 import {AgentPubKeyB64} from "@holochain/client";
+
+import { ZomeElement } from "@ddd-qc/lit-happ";
+import {VouchPerspective, VouchZvm} from "../viewModel/vouch.zvm";
+import {defaultPerspective, MembranesPerspective} from "../viewModel/membranes.perspective";
 
 
 
 /**
  * @element vouch-dashboard
  */
-export class VouchDashboard extends ZomeElement<MembranesPerspective, MembranesZvm> {
+export class VouchDashboard extends ZomeElement<VouchPerspective, VouchZvm> {
 
   /** */
   constructor() {
-    super(MembranesZvm.DEFAULT_ZOME_NAME)
+    super(VouchZvm.DEFAULT_ZOME_NAME)
   }
 
   /** -- Fields -- */
@@ -24,6 +24,9 @@ export class VouchDashboard extends ZomeElement<MembranesPerspective, MembranesZ
   @property()
   knownAgents: AgentPubKeyB64[] = []
 
+
+  @property({type: Object, attribute: false})
+  membranesPerspective: MembranesPerspective = defaultPerspective();
 
   /** After first render only */
   async firstUpdated() {
@@ -62,7 +65,7 @@ export class VouchDashboard extends ZomeElement<MembranesPerspective, MembranesZ
         }
     )
     /* Roles */
-    const roleOptions = Object.entries(this.perspective.roles).map(
+    const roleOptions = Object.entries(this.membranesPerspective.roles).map(
         ([index, role]) => {
           //console.log("" + index + ". " + agentIdB64)
           return html `<option value="${role.name}">${role.name}</option>`

@@ -13,7 +13,7 @@ pub(crate) fn validate_app_entry(_creation_action: EntryCreationAction, entry_de
 {
    //debug!("*** validate_app_entry() callback called!");
    return match entry_def_index.into() {
-      2 /* MembraneCrossedClaim*/ => {
+      3 /* MembraneCrossedClaim*/ => {
          //assert_eq!(2, get_index(MembranesEntryTypes::MembraneCrossedClaim));
          //debug!("validate_app_entry() membrane_claim index = {:?}", get_index(MembranesEntryTypes::MembraneCrossedClaim));
          let membrane_claim = MembraneCrossedClaim::try_from(entry)?;

@@ -7,6 +7,16 @@ use crate::*;
 #[hdk_entry_helper]
 #[derive(Clone, PartialEq)]
 #[serde(rename_all = "camelCase")]
+pub struct ThresholdType {
+   pub name: String,
+   pub zome_name: String,
+}
+
+
+///
+#[hdk_entry_helper]
+#[derive(Clone, PartialEq)]
+#[serde(rename_all = "camelCase")]
 pub struct MembraneCrossedClaim {
    pub proof_ahs: Vec<ActionHash>, // of ThresholdReachedProof
    pub membrane_eh: EntryHash, // of a Membrane

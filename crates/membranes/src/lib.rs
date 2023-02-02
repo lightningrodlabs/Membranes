@@ -17,6 +17,7 @@ mod get;
 mod misc;
 mod claim_role;
 mod claim_membrane;
+mod register;
 
 
 #[macro_use]
