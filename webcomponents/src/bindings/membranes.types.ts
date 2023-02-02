@@ -194,6 +194,11 @@ export interface MembraneInput {
   membraneEh: EntryHash
 }
 
+export interface ClaimThresholdInput {
+  subject: AgentPubKey
+  threshold: MembraneThreshold
+}
+
 export enum MembranesEntryType {
 	Threshold = 'Threshold',
 	Membrane = 'Membrane',

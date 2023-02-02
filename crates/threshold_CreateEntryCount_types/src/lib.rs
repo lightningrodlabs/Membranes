@@ -8,6 +8,9 @@
 use hdi::prelude::*;
 
 
+pub const CREATE_ENTRY_COUNT_THRESHOLD_NAME: &str = "CreateEntryCount";
+
+
 #[derive(Clone, PartialEq, Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct MyAppEntryType {

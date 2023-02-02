@@ -30,21 +30,21 @@ pub fn get_role_with_name(name: String) -> ExternResult<Option<(EntryHash, Membr
 #[hdk_extern]
 pub fn has_role(input: HasRoleInput) -> ExternResult<Option<SignedActionHashed>> {
    std::panic::set_hook(Box::new(zome_utils::zome_panic_hook));
-   debug!("has_role() CALLED");
+   debug!("has_role()");
    let agent_id: AgentPubKey = input.subject.into();
    let role_eh: EntryHash = input.role_eh.into();
    let link_pairs  = zome_utils::get_typed_from_links::<RoleClaim>(agent_id, MembranesLinkType::RolePassport, None)?;
    for (claim, link) in link_pairs {
       if &claim.role_eh == &role_eh {
          // let eh = hash_entry(claim)?;
-         let target: holo_hash::AnyDhtHash = link.target.into_entry_hash().unwrap().into();
+         let target: AnyDhtHash = link.target.into_entry_hash().unwrap().into();
          let claim_record = get(target, GetOptions::content())?
             .expect("Should be able to 'get' Claim targeted by link");
          debug!("has_role() DONE signed_action: {:?}", claim_record.signed_action);
          return Ok(Some(claim_record.signed_action))
       }
    }
-   debug!("has_role() DONE");
+   debug!("has_role() DONE - None");
    Ok(None)
 }
 

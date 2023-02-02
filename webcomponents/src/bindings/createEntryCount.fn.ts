@@ -7,7 +7,9 @@ import {ZomeName, FunctionName} from '@holochain/client';
 export const createEntryCountFunctionNames: FunctionName[] = [
 	"entry_defs",
 
-	"get_create_count",];
+
+	"get_create_count",
+	"claim_threshold_CreateEntryCount",];
 
 
 /** Generate tuple array of function names with given zomeName */

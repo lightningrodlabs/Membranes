@@ -20,6 +20,24 @@ use zome_utils::call_self_cell;
 //use crate::anchors::*;
 
 
+/// Zome Callback
+#[hdk_extern]
+fn init(_: ()) -> ExternResult<InitCallbackResult> {
+   debug!("*** Vouch.init() callback - START");
+   let res: ExternResult<ActionHash> = call_self_cell(
+      "zMembranes",
+      "register_threshold_type",
+      ThresholdType { name: VOUCH_THRESHOLD_NAME.to_string(), zome_name: zome_info()?.name.to_string()});
+   if let Err(e) = res {
+      return Ok(InitCallbackResult::Fail(format!("Failed to register threshold type \"{}\": {:?}", VOUCH_THRESHOLD_NAME, e)));
+   }
+   /// Done
+   debug!("*** Vouch.init() callback - DONE");
+   Ok(InitCallbackResult::Pass)
+}
+
+
+
 ///
 #[hdk_extern]
 pub fn get_all_role_names(_ : ()) -> ExternResult<Vec<String>> {
@@ -33,9 +51,17 @@ pub fn get_all_role_names(_ : ()) -> ExternResult<Vec<String>> {
 }
 
 
-/// Proof of vouchThreshold is SAH of Vouchs and RoleClaims by Vouchers.
+/// Check if subject reached threshold.
+/// Commit ThresholdReachedProof on success
+/// Returns action hash of ThresholdProof on successful claim.
 /// Returns None if claim failed.
-fn claim_vouchThreshold(subject: AgentPubKey, th: VouchThreshold) -> ExternResult<Option<Vec<SignedActionHashed>>> {
+#[hdk_extern]
+fn claim_threshold_Vouch(input: ClaimThresholdInput) -> ExternResult<Option<ActionHash>> {
+   if input.threshold.type_name != VOUCH_THRESHOLD_NAME {
+      return zome_error!("Invalid type name. Claiming \"{}\" with input \"{}\"", VOUCH_THRESHOLD_NAME, input.threshold.type_name);
+   }
+   let th: VouchThreshold = VouchThreshold::try_from(input.threshold.data.clone())
+      .expect("Corrupt threshold data");
    /// Get Threshold's by role entry
    let maybe_th_by_role: Option<MembraneRole> = call_self_cell("zMembranes", "get_role_by_name", th.by_role.clone())?;
    if maybe_th_by_role.is_none() {
@@ -44,20 +70,20 @@ fn claim_vouchThreshold(subject: AgentPubKey, th: VouchThreshold) -> ExternResul
    }
    let by_role_eh = hash_entry(maybe_th_by_role.unwrap())?;
    ///  FIXME filter by role name
-   let link_pairs  = zome_utils::get_typed_from_links::<Vouch>(subject.clone(), VouchThresholdLinkType::VouchReceived, None)?;
+   let link_pairs  = zome_utils::get_typed_from_links::<Vouch>(input.subject.clone(), VouchThresholdLinkType::VouchReceived, None)?;
    /// First pass: Get vouches from unique authors
    let mut author_map: BTreeMap<AgentPubKey, (Vouch, Link)> = BTreeMap::new();
    for (vouch, link) in link_pairs {
       /// Vouch must be for this subject
-      if vouch.subject != subject { continue }
+      if vouch.subject != input.subject { continue }
       /// Vouch must be for the right role
       if vouch.for_role != th.for_role { continue }
       /// Get vouch's author
-      let target: holo_hash::AnyDhtHash = link.target.clone().into_entry_hash().unwrap().into();
+      let target: AnyDhtHash = link.target.clone().into_entry_hash().unwrap().into();
       let vouch_author = zome_utils::get_author(&target)?;
       author_map.insert(vouch_author, (vouch, link));
    }
-   debug!("claim_vouchThreshold() author_map.len 1 = {:?}", author_map.len());
+   debug!("claim_threshold_Vouch() author_map.len 1 = {:?}", author_map.len());
    /// Second pass: Vouch author must have required Role
    let mut signed_actions = Vec::new();
    author_map = author_map.into_iter().filter(|(author, (_vouch, link))| {
@@ -67,7 +93,7 @@ fn claim_vouchThreshold(subject: AgentPubKey, th: VouchThreshold) -> ExternResul
       if maybe_role_claim.is_err() || maybe_role_claim.as_ref().unwrap().is_none() { return false; }
       let role_claim = maybe_role_claim.unwrap().unwrap();
       /// Get Vouch's SignedActionHashed
-      let target: holo_hash::AnyDhtHash = link.target.clone().into_entry_hash().unwrap().into();
+      let target: AnyDhtHash = link.target.clone().into_entry_hash().unwrap().into();
       let maybe_vouch_sah = get(target, GetOptions::content());
       if maybe_vouch_sah.is_err() || maybe_vouch_sah.as_ref().unwrap().is_none() {
          let msg = format!("Could not get VouchReceived link's target entry {}", link.target);
@@ -83,11 +109,15 @@ fn claim_vouchThreshold(subject: AgentPubKey, th: VouchThreshold) -> ExternResul
    if author_map.len() < th.required_count {
       return Ok(None);
    }
+   /// Create ThresholdReachedProof
+   let proof = ThresholdReachedProof {
+      threshold_eh: hash_entry(input.threshold)?,
+      signed_actions
+   };
+   let ah = create_entry(VouchThresholdEntry::VouchProof(proof))?;
    /// Done
-   Ok(Some(signed_actions))
+   Ok(Some(ah))
 }
-
-
 
 
 ///

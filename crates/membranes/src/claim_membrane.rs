@@ -2,6 +2,7 @@ use std::collections::BTreeMap;
 use hdk::prelude::*;
 use hdk::prelude::holo_hash::{ActionHashB64, AgentPubKeyB64, EntryHashB64};
 use serde::__private::de::Content::String;
+use zome_utils::{call_self_cell, get_typed_from_eh};
 #[allow(unused_imports)]
 use membranes_integrity::*;
 use membranes_types::*;
@@ -9,6 +10,7 @@ use membranes_types::*;
 use crate::{anchors::*, constants::*};
 use crate::anchors::get_role_by_name;
 use crate::publish::{publish_MembraneCrossedClaim};
+use crate::register::get_zome_for_threshold;
 use crate::role::{has_role};
 
 
@@ -65,10 +67,15 @@ pub fn claim_membrane(input: MembraneInput) -> ExternResult<Option<EntryHashB64>
 
 
 /// Returns ActionHash of ThresholdProof, None if claim failed
-fn claim_threshold(_subject: AgentPubKey, _threshold_eh: EntryHash) -> ExternResult<Option<ActionHash>> {
-   // FIXME
-   // Solution A: Call "claim_threshold_<thresholdTypeName>" on threshold zome ?
-   // Solution B: Thresholds must already be claimed by other zomes :(
+fn claim_threshold(subject: AgentPubKey, threshold_eh: EntryHash) -> ExternResult<Option<ActionHash>> {
+   let threshold: MembraneThreshold = get_typed_from_eh(threshold_eh)?;
+   /// Call "claim_threshold_<thresholdTypeName>" on threshold's zome
+   let zome_name = get_zome_for_threshold(threshold.type_name.clone())?;
+   let maybe_ah: Option<ActionHash> = call_self_cell(
+      &zome_name,
+      &format!("claim_threshold_{}", threshold.type_name),
+      ClaimThresholdInput {subject, threshold},
+   )?;
    /// Done
-   Ok(None)
+   Ok(maybe_ah)
 }

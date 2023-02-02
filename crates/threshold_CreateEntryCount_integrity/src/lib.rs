@@ -12,10 +12,8 @@ use membranes_types::*;
 
 
 #[hdk_entry_defs]
-#[unit_enum(MembranesEntryTypes)]
+#[unit_enum(CreateEntryCountThresholdEntryTypes)]
 pub enum CreateEntryCountThresholdEntry {
    #[entry_def(required_validations = 3, visibility = "public")]
    CreateEntryCountProof(ThresholdReachedProof),
-   // #[entry_def(required_validations = 3, visibility = "public")]
-   // Vouch(Vouch),
 }

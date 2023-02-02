@@ -35,6 +35,7 @@ export const membranesFunctionNames: FunctionName[] = [
 	"publish_MembraneCrossedClaim",
 	"register_threshold_type",
 	"get_all_registered_threshold_types",
+	"get_zome_for_threshold",
 	"get_role_with_name",
 	"has_role",
 	"do_i_have_role",];

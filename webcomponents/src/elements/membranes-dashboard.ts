@@ -52,9 +52,19 @@ export class MembranesDashboard extends ZomeElement<MembranesPerspective, Membra
           return html`<span>Loading...</span>`;
       }
     /* Grab data */
-    const allZomeTypes: [string, boolean][][] = Object.entries(this.allAppEntryTypes)
+    const allZomeEntryTypes: [string, boolean][][] = Object.entries(this.allAppEntryTypes)
         .map(([_name, types]) => {return types;})
     //console.log(roles)
+      /* Roles Li */
+      const typesLi = Object.entries(this.perspective.thresholdTypes).map(
+          ([typeName, zomeName]) => {
+              //console.log("MembraneLi", MembraneLi)
+              return html `
+              <li style="margin-top:10px;" title=${typeName}>
+                  <b>${typeName}</b> from zome <i>${zomeName}</i>
+              </li>`
+          }
+      )
     /* Roles Li */
     const rolesLi = Object.entries(this.perspective.roles).map(
         ([ehB64, role]) => {
@@ -81,7 +91,7 @@ export class MembranesDashboard extends ZomeElement<MembranesPerspective, Membra
           //console.log("membrane:", membrane)
           const thresholdLi = Object.entries(membrane.thresholds).map(
               ([_index, th]) => {
-                return html `<li>${describe_threshold(th, allZomeTypes)}</li>`
+                return html `<li>${describe_threshold(th, allZomeEntryTypes)}</li>`
               }
           )
           return html `
@@ -99,7 +109,7 @@ export class MembranesDashboard extends ZomeElement<MembranesPerspective, Membra
     const thresholdsLi = Object.entries(this.perspective.thresholds).map(
         ([ehB64, threshold]) => {
           //console.log({threshold})
-          let desc = describe_threshold(threshold, allZomeTypes);
+          let desc = describe_threshold(threshold, allZomeEntryTypes);
           return html `<li title=${ehB64}><abbr>${desc}</abbr></li>`
         }
     )
@@ -121,6 +131,8 @@ export class MembranesDashboard extends ZomeElement<MembranesPerspective, Membra
     return html`
       <div>
         <h1>Membranes Dashboard</h1>
+        <h2>Registered threshold types</h2>
+        <ul>${typesLi}</ul>
         <h2>Roles</h2>
         <ul>${rolesLi}</ul>        
         <h2>Membranes</h2>

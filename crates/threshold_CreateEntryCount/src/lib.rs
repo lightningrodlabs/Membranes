@@ -11,8 +11,30 @@ extern crate zome_utils;
 
 
 use hdk::prelude::*;
+use zome_utils::call_self_cell;
 use threshold_CreateEntryCount_types::*;
 use membranes_types::*;
+use threshold_CreateEntryCount_integrity::CreateEntryCountThresholdEntry;
+use threshold_CreateEntryCount_integrity::CreateEntryCountThresholdEntry::CreateEntryCountProof;
+
+
+
+/// Zome Callback
+#[hdk_extern]
+fn init(_: ()) -> ExternResult<InitCallbackResult> {
+   debug!("*** Vouch.init() callback - START");
+   let res: ExternResult<ActionHash> = call_self_cell(
+      "zMembranes",
+      "register_threshold_type",
+      ThresholdType { name: CREATE_ENTRY_COUNT_THRESHOLD_NAME.to_string(), zome_name: zome_info()?.name.to_string()},
+   );
+   if let Err(e) = res {
+      return Ok(InitCallbackResult::Fail(format!("Failed to register threshold type \"{}\": {:?}", CREATE_ENTRY_COUNT_THRESHOLD_NAME, e)));
+   }
+   /// Done
+   debug!("*** Vouch.init() callback - DONE");
+   Ok(InitCallbackResult::Pass)
+}
 
 
 #[hdk_extern]
@@ -37,19 +59,34 @@ fn get_create_entries(subject: AgentPubKey, entry_type: MyAppEntryType) -> Exter
 }
 
 
-/// Returns None if claim failed
-fn claim_createEntryCountThreshold(subject: AgentPubKey, th: CreateEntryCountThreshold) -> ExternResult<Option<Vec<SignedActionHashed>>> {
-   let actions = get_create_entries(subject, th.entry_type)?;
-   if actions.len() < th.required_count {
+/// Check if subject reached threshold.
+/// Commit ThresholdReachedProof on success
+/// Returns action hash of ThresholdProof on successful claim.
+/// Returns None if claim failed.
+#[hdk_extern]
+fn claim_threshold_CreateEntryCount(input: ClaimThresholdInput) -> ExternResult<Option<ActionHash>> {
+   if input.threshold.type_name != CREATE_ENTRY_COUNT_THRESHOLD_NAME {
+      return zome_error!("Invalid type name. Claiming \"{}\" with input \"{}\"", CREATE_ENTRY_COUNT_THRESHOLD_NAME, input.threshold.type_name);
+   }
+   let cec_th: CreateEntryCountThreshold = CreateEntryCountThreshold::try_from(input.threshold.data.clone())
+      .expect("Corrupt threshold data");
+   let actions = get_create_entries(input.subject, cec_th.entry_type)?;
+   if actions.len() < cec_th.required_count {
       return Ok(None);
    }
    /// Convert actions to signed actions (-_-)
-   let mut signed_entries = Vec::new();
+   let mut signed_actions = Vec::new();
    for (_index, ah) in actions {
       let record = get(ah, GetOptions::content())?
          .expect("Should be able to get the action found in agent activity");
-      signed_entries.push(record.signed_action)
+      signed_actions.push(record.signed_action)
    }
+   /// Create ThresholdReachedProof
+   let proof = ThresholdReachedProof {
+      threshold_eh: hash_entry(input.threshold)?,
+      signed_actions
+   };
+   let ah = create_entry(CreateEntryCountThresholdEntry::CreateEntryCountProof(proof))?;
    /// Done
-   Ok(Some(signed_entries))
+   Ok(Some(ah))
 }

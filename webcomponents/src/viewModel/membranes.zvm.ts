@@ -11,7 +11,7 @@ import {
   MembraneCrossedClaim,
   MembraneRole,
   MembraneThreshold,
-  RoleClaim,
+  RoleClaim, ThresholdType,
 } from "../bindings/membranes.types";
 import {
   TypedMembrane,
@@ -99,6 +99,7 @@ export class MembranesZvm extends ZomeViewModel {
 
   /** */
   async probeAll(): Promise<void> {
+    await this.probeThresholdTypes();
     await this.probeThresholds();
     await this.probeMembranes();
     await this.probeMyClaims();
@@ -246,6 +247,20 @@ export class MembranesZvm extends ZomeViewModel {
     const role = await this.convertRoleEntry(maybeEntry!)
     this._perspective.roles[b64] = role!;
     return role;
+  }
+
+
+  /** */
+  async probeThresholdTypes() {
+    const thresholdTypes = await this.zomeProxy.getAllRegisteredThresholdTypes();
+    console.log("probeThresholdTypes()", thresholdTypes);
+    let thStore: Record<string, string> = {};
+    for (const tt of thresholdTypes) {
+      thStore[tt.name] = tt.zomeName;
+    }
+    this._perspective.thresholdTypes = thStore!;
+    this.notifySubscribers();
+    //console.log({allThresholds: this._perspective.thresholds})
   }
 
 

@@ -7,7 +7,9 @@ import {ZomeName, FunctionName} from '@holochain/client';
 export const vouchFunctionNames: FunctionName[] = [
 	"entry_defs",
 
+
 	"get_all_role_names",
+	"claim_threshold_Vouch",
 	"get_vouch_author",
 	"get_vouch",
 	"publish_vouch",

@@ -4,6 +4,8 @@ import {AgentPubKeyB64} from "@holochain/client";
 
 /** */
 export interface MembranesPerspective {
+    /** type_name -> zome_name */
+    thresholdTypes: Record<string, string>,
     /** EntryHashB64 -> <typed> */
     thresholds: Record<string, MembraneThreshold>,
     membranes: Record<string, TypedMembrane>,
@@ -15,6 +17,7 @@ export interface MembranesPerspective {
 
 export function defaultPerspective(): MembranesPerspective {
     return {
+        thresholdTypes: {},
         thresholds: {},
         membranes: {},
         roles: {},

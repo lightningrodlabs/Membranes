@@ -20,14 +20,14 @@ coordinator:
       bundled: ../../target/wasm32-unknown-unknown/release/membranes.wasm
       dependencies:
         - name: membranes_integrity
-    - name: zThreshold_CreateEntryCount
-      bundled: ../../target/wasm32-unknown-unknown/release/threshold_CreateEntryCount.wasm
-      dependencies:
-        - name: threshold_CreateEntryCount_integrity
     - name: zThreshold_Vouch
       bundled: ../../target/wasm32-unknown-unknown/release/threshold_Vouch.wasm
       dependencies:
         - name: threshold_Vouch_integrity
+    - name: zThreshold_CreateEntryCount
+      bundled: ../../target/wasm32-unknown-unknown/release/threshold_CreateEntryCount.wasm
+      dependencies:
+        - name: threshold_CreateEntryCount_integrity
     - name: zTasker
       bundled: ../../target/wasm32-unknown-unknown/release/tasker.wasm
       dependencies:

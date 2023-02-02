@@ -7,6 +7,9 @@
 
 use hdi::prelude::*;
 
+pub const VOUCH_THRESHOLD_NAME: &'static str = "Vouch";
+
+
 #[hdk_entry_helper]
 #[derive(Clone, PartialEq)]
 #[serde(rename_all = "camelCase")]

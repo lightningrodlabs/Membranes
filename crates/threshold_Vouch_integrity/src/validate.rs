@@ -67,20 +67,19 @@ pub(crate) fn validate_app_entry(creation_action: EntryCreationAction, entry_def
 fn validate_proof(author: AgentPubKey, proof: ThresholdReachedProof) -> ExternResult<ValidateCallbackResult> {
    let threshold_entry = must_get_entry(proof.threshold_eh.clone().into())?.as_content().to_owned();
    let threshold = MembraneThreshold::try_from(threshold_entry)?;
-   if threshold.type_name != "VouchThreshold" { return Ok(ValidateCallbackResult::Invalid(format!("Threshold not a VouchThreshold"))); }
+   if threshold.type_name != VOUCH_THRESHOLD_NAME { return Ok(ValidateCallbackResult::Invalid(format!("Threshold not a VouchThreshold"))); }
    let Ok(threshold) = VouchThreshold::try_from(threshold.data) else {
       return Ok(ValidateCallbackResult::Invalid(format!("Threshold not a VouchThreshold")));
    };
    let pass = verify_vouch_threshold(&threshold, author, proof.signed_actions)?;
-   Ok(if pass { ValidateCallbackResult::Valid } else { ValidateCallbackResult::Invalid(format!("Threshold not reached")) })
+   Ok(if pass { ValidateCallbackResult::Valid } else { ValidateCallbackResult::Invalid(format!("Failed validating proof for \"{}\" threshold.", VOUCH_THRESHOLD_NAME)) })
 }
 
 
 ///
 pub fn verify_vouch_threshold(vt: &VouchThreshold, subject: AgentPubKey, signed_actions: Vec<SignedActionHashed>) -> ExternResult<bool> {
-   let this_zome_id = zome_info()?.id;
-   let vouch_entry_id = get_index::<VouchThresholdEntry>(VouchThresholdEntryTypes::Vouch)?;
-   let role_claim_entry_id = 2; // FIXME should not be hardcoded // get_index(MembranesEntryTypes::RoleClaim)?;
+   let vouch_entry_index = get_index::<VouchThresholdEntry>(VouchThresholdEntryTypes::Vouch)?;
+   let role_claim_entry_index = 4; // FIXME should not be hardcoded // get_index(MembranesEntryTypes::RoleClaim)?;
    // return Ok(signed_actions.len() >= th.required_count); // FIXME
    /// First pass: Sort SAH into action maps
    /// FIXME: change to Sets as we dont actually need the SAHs at this stage
@@ -89,29 +88,28 @@ pub fn verify_vouch_threshold(vt: &VouchThreshold, subject: AgentPubKey, signed_
    for signed_action in signed_actions {
       let action = signed_action.action().clone();
       /// Must find enough Vouch CreateEntry actions with the correct "for_role" by authors who have the "by_role" role
-      if let Action::Create(create) = action.clone() {
-         if let EntryType::App(app_entry_def) = create.entry_type.clone() {
-            if app_entry_def.zome_index != this_zome_id { continue; }
-            if app_entry_def.entry_index.0 == vouch_entry_id {
-               let vouch_entry = must_get_entry(create.entry_hash.clone())?;
-               let vouch = Vouch::try_from(vouch_entry)?;
-               if vouch.for_role != vt.for_role { continue; }
-               if vouch.subject != subject { continue; }
-               // FIXME verify signature?
-               vouch_map.insert(create.author, signed_action);
-               continue;
-            }
-            if app_entry_def.entry_index.0 == role_claim_entry_id {
-               let role_claim_entry = must_get_entry(create.entry_hash.clone())?;
-               let role_claim = RoleClaim::try_from(role_claim_entry)?;
-               let role_entry = must_get_entry(role_claim.role_eh)?;
-               let role = MembraneRole::try_from(role_entry)?;
-               if role.name != vt.by_role { continue; }
-               // FIXME verify signature?
-               claim_map.insert(role_claim.subject, signed_action);
-               continue;
-            }
-         }
+      let Action::Create(create) = action.clone()
+         else { continue; };
+      let EntryType::App(app_entry_def) = create.entry_type.clone()
+         else { continue; };
+      if app_entry_def.entry_index.0 == vouch_entry_index {
+         let vouch_entry = must_get_entry(create.entry_hash.clone())?;
+         let vouch = Vouch::try_from(vouch_entry)?;
+         if vouch.for_role != vt.for_role { continue; }
+         if vouch.subject != subject { continue; }
+         // FIXME verify signature?
+         vouch_map.insert(create.author, signed_action);
+         continue;
+      }
+      if app_entry_def.entry_index.0 == role_claim_entry_index {
+         let role_claim_entry = must_get_entry(create.entry_hash.clone())?;
+         let role_claim = RoleClaim::try_from(role_claim_entry)?;
+         let role_entry = must_get_entry(role_claim.role_eh)?;
+         let role = MembraneRole::try_from(role_entry)?;
+         if role.name != vt.by_role { continue; }
+         // FIXME verify signature?
+         claim_map.insert(role_claim.subject, signed_action);
+         continue;
       }
    }
    debug!("verify_vouch_threshold() vouches = {}", vouch_map.len());

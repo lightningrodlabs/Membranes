@@ -66,10 +66,10 @@ pub(crate) fn validate_app_entry(creation_action: EntryCreationAction, entry_def
 fn validate_proof(author: AgentPubKey, proof: ThresholdReachedProof) -> ExternResult<ValidateCallbackResult> {
    let threshold_entry = must_get_entry(proof.threshold_eh.clone().into())?.as_content().to_owned();
    let threshold = MembraneThreshold::try_from(threshold_entry)?;
-   if threshold.type_name != "CreateEntryCountThreshold" { return Ok(ValidateCallbackResult::Invalid(format!("Threshold not a CreateEntryCountThreshold"))); }
+   if threshold.type_name != CREATE_ENTRY_COUNT_THRESHOLD_NAME { return Ok(ValidateCallbackResult::Invalid(format!("Threshold not of type CreateEntryCountThreshold"))); }
    let Ok(cec) = CreateEntryCountThreshold::try_from(threshold.data) else {
       return Ok(ValidateCallbackResult::Invalid(format!("Threshold not a CreateEntryCountThreshold")));
    };
    let pass = cec.verify(author, proof.signed_actions)?;
-   Ok(if pass { ValidateCallbackResult::Valid } else { ValidateCallbackResult::Invalid(format!("Threshold not reached")) })
+   Ok(if pass { ValidateCallbackResult::Valid } else { ValidateCallbackResult::Invalid(format!("Validation failed for proving \"{}\" threshold.", CREATE_ENTRY_COUNT_THRESHOLD_NAME)) })
 }
