@@ -26,10 +26,6 @@ export class VouchDashboard extends ZomeElement<VouchPerspective, VouchZvm> {
   knownAgents: AgentPubKeyB64[] = []
 
 
-  //@property({type: Object, attribute: true})
-  //roles!: Record<string, TypedMembraneRole>;
-
-
   /** -- Methods -- */
 
   /** After first render only */

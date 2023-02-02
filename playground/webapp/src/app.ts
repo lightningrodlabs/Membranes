@@ -12,7 +12,7 @@ import { TaskerDvm } from "./viewModel/tasker.dvm";
 import {
   HvmDef, HappElement, HCL, ViewCellContext, CellDef, CellContext, delay, Cell
 } from "@ddd-qc/lit-happ";
-import {AdminWebsocket, AgentPubKeyB64, RoleName} from "@holochain/client";
+import {AdminWebsocket, AgentPubKeyB64, DnaDefinition, RoleName} from "@holochain/client";
 
 
 /**
@@ -48,6 +48,8 @@ export class TaskerApp extends HappElement {
   @state() private _cell?: Cell;
 
 
+  private _dnaDef?: DnaDefinition;
+
   /** */
   async happInitialized() {
     console.log("happInitialized()")
@@ -57,11 +59,13 @@ export class TaskerApp extends HappElement {
     console.log({adminWs});
     await this.hvm.authorizeAllZomeCalls(adminWs);
     console.log("*** Zome call authorization complete");
-    await delay(2000);
+    this._dnaDef = await adminWs.getDnaDefinition(this.taskerDvm.cell.id[0]);
+    console.log("happInitialized() dnaDef", this._dnaDef);
     /** Probe */    
     this._cell = this.taskerDvm.cell;
     await this.hvm.probeAll();
     this._allAppEntryTypes = await this.taskerDvm.fetchAllEntryDefs();
+    console.log("happInitialized(), _allAppEntryTypes", this._allAppEntryTypes);
     /** Done */
     this._loaded = true;
   }
@@ -104,8 +108,8 @@ export class TaskerApp extends HappElement {
       case 0: page = html`<tasker-page style="flex: 1;"></tasker-page>` ; break;
       case 1: page = html`<membranes-dashboard .allAppEntryTypes=${this._allAppEntryTypes} style="flex: 1;"></membranes-dashboard>`; break;
       case 2: page = html`<membranes-creator-page .allAppEntryTypes=${this._allAppEntryTypes} style="flex: 1;"></membranes-creator-page>`; break;
-      case 3: page = html`<vouch-dashboard .knownAgents=${knownAgents} .roles=${this.taskerDvm.membranesZvm.perspective.roles} style="flex: 1;"></vouch-dashboard>`; break;
-      case 4: page = html`<create-entry-dashboard .knownAgents=${knownAgents} .allAppEntryTypes=${this._allAppEntryTypes} style="flex: 1;"></create-entry-dashboard>`; break;
+      case 3: page = html`<vouch-dashboard .knownAgents=${knownAgents} style="flex: 1;"></vouch-dashboard>`; break;
+      case 4: page = html`<create-entry-dashboard .knownAgents=${knownAgents} .zomeIndexes="${this._dnaDef?.coordinator_zomes}" .allAppEntryTypes=${this._allAppEntryTypes} style="flex: 1;"></create-entry-dashboard>`; break;
       case 5: page = html`<agent-directory-list style="flex: 1;"></agent-directory-list>`; break;
 
       default: page = html`unknown page index`;
