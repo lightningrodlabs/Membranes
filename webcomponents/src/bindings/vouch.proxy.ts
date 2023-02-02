@@ -145,6 +145,10 @@ export class VouchProxy extends ZomeProxy {
     return this.call('get_all_role_names', null);
   }
 
+  async publishVouchThreshold(vouchTh: VouchThreshold): Promise<EntryHash> {
+    return this.call('publish_vouch_threshold', vouchTh);
+  }
+
   async getThresholdVouch(eh: EntryHash): Promise<VouchThreshold | null> {
     return this.call('get_threshold_Vouch', eh);
   }

@@ -5,7 +5,7 @@ import {
   VouchDashboard,
   MembranesDashboard,
   MembranesCreatorPage,
-  CreateEntryDashboard,
+  CreateEntryDashboard, CreateVouchThreshold,
 } from "@membranes/elements";
 import {AgentDirectoryList} from "@ddd-qc/agent-directory";
 import { TaskerDvm } from "./viewModel/tasker.dvm";
@@ -110,7 +110,8 @@ export class TaskerApp extends HappElement {
       case 2: page = html`<membranes-creator-page .allAppEntryTypes=${this._allAppEntryTypes} style="flex: 1;"></membranes-creator-page>`; break;
       case 3: page = html`<vouch-dashboard .knownAgents=${knownAgents} style="flex: 1;"></vouch-dashboard>`; break;
       case 4: page = html`<create-entry-dashboard .knownAgents=${knownAgents} .zomeIndexes="${this._dnaDef?.coordinator_zomes}" .allAppEntryTypes=${this._allAppEntryTypes} style="flex: 1;"></create-entry-dashboard>`; break;
-      case 5: page = html`<agent-directory-list style="flex: 1;"></agent-directory-list>`; break;
+      case 5: page = html`<create-vouch-threshold style="flex: 1;"></create-vouch-threshold>`; break;
+      case 6: page = html`<agent-directory-list style="flex: 1;"></agent-directory-list>`; break;
 
       default: page = html`unknown page index`;
     };
@@ -125,7 +126,8 @@ export class TaskerApp extends HappElement {
           <input type="button" value="Membranes Creator" @click=${() => {this._pageDisplayIndex = 2; this.requestUpdate()}} >
           <input type="button" value="Vouch Dashboard" @click=${() => {this._pageDisplayIndex = 3; this.requestUpdate()}} >
           <input type="button" value="CreateEntry Dashboard" @click=${() => {this._pageDisplayIndex = 4; this.requestUpdate()}} >
-          <input type="button" value="Agent Directory" @click=${() => {this._pageDisplayIndex = 5; this.requestUpdate()}} >
+          <input type="button" value="Create Vouch Threshold" @click=${() => {this._pageDisplayIndex = 5; this.requestUpdate()}} >          
+          <input type="button" value="Agent Directory" @click=${() => {this._pageDisplayIndex = 6; this.requestUpdate()}} >
         </div>
         <input type="button" value="Make me king!" @click=${() => {this.cloneTasker()}}>
         <button type="button" @click=${this.refresh}>Refresh</button>
@@ -143,6 +145,7 @@ export class TaskerApp extends HappElement {
       "membranes-dashboard": MembranesDashboard,
       "membranes-creator-page": MembranesCreatorPage,
       "vouch-dashboard": VouchDashboard,
+      "create-vouch-threshold": CreateVouchThreshold,
       "create-entry-dashboard": CreateEntryDashboard,
       "agent-directory-list": AgentDirectoryList,
       "view-cell-context": ViewCellContext,

@@ -1,7 +1,7 @@
+import {css, html} from "lit";
+import {state} from "lit/decorators.js";
 import {ZomeElement} from "@ddd-qc/lit-happ";
 import {VouchPerspective, VouchZvm} from "../viewModel/vouch.zvm";
-import {html} from "lit/development";
-import {state} from "lit/decorators";
 import {VouchThreshold} from "../bindings/vouch.types";
 
 /**

@@ -9,6 +9,7 @@ export const vouchFunctionNames: FunctionName[] = [
 
 
 	"get_all_role_names",
+	"publish_vouch_threshold",
 	"get_threshold_Vouch",
 	"get_all_thresholds_Vouch",
 	"claim_threshold_Vouch",
