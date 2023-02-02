@@ -9,6 +9,9 @@ export const createEntryCountFunctionNames: FunctionName[] = [
 
 
 	"get_create_count",
+	"publish_CreateEntryCount_threshold",
+	"get_threshold_CreateEntryCount",
+	"get_all_thresholds_CreateEntryCount",
 	"claim_threshold_CreateEntryCount",];
 
 

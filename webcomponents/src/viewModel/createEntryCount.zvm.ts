@@ -1,7 +1,14 @@
 import {ZomeViewModel} from "@ddd-qc/lit-happ";
 import {CreateEntryCountProxy} from "../bindings/createEntryCount.proxy";
-import {MyAppEntryType} from "../bindings/createEntryCount.types";
-import {AgentPubKeyB64, decodeHashFromBase64} from "@holochain/client";
+import {CreateEntryCountThreshold, MyAppEntryType} from "../bindings/createEntryCount.types";
+import {AgentPubKeyB64, decodeHashFromBase64, EntryHash} from "@holochain/client";
+
+
+/** */
+export interface CreateEntryCountPerspective {
+    thresholds: CreateEntryCountThreshold[],
+}
+
 
 /**
  *
@@ -17,10 +24,14 @@ export class CreateEntryCountZvm extends ZomeViewModel {
 
     /** -- ViewModel -- */
 
+    private _perspective: CreateEntryCountPerspective = {thresholds: []}
+
+
     /* */
-    get perspective(): {} {
-        return {};
+    get perspective(): CreateEntryCountPerspective {
+        return this._perspective;
     }
+
 
     /* */
     protected hasChanged(): boolean {
@@ -31,26 +42,29 @@ export class CreateEntryCountZvm extends ZomeViewModel {
 
     /** */
     async probeAll(): Promise<void> {
+        await this.probeThresholds();
     }
 
 
-    /** -- Perspective -- */
+    /** */
+    async probeThresholds(): Promise<void> {
+        this._perspective.thresholds = await this.zomeProxy.getAllThresholdsCreateEntryCount();
+        this.notifySubscribers();
+    }
 
-    private _perspective = {}
 
+    /** -- Methods -- */
 
-    /** -- methods -- */
-
-    // /** */
-    // async createCreateEntryCountThreshold(entryType: MyAppEntryType, requiredCount: number): Promise<EntryHash> {
-    //     const typed: CreateEntryCountThreshold = {
-    //         entryType: entryType,
-    //         requiredCount: requiredCount,
-    //     };
-    //     let res = await this.zomeProxy.publishCreateEntryCountThreshold(typed);
-    //     this.probeThresholds();
-    //     return res;
-    // }
+    /** */
+    async createThreshold(entryType: MyAppEntryType, requiredCount: number): Promise<EntryHash> {
+        const typed: CreateEntryCountThreshold = {
+            entryType: entryType,
+            requiredCount: requiredCount,
+        };
+        let res = await this.zomeProxy.publishCreateEntryCountThreshold(typed);
+        this.probeThresholds();
+        return res;
+    }
 
 
     /** */

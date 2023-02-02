@@ -11,5 +11,5 @@ export * from './elements/create-entry-dashboard';
 export * from './elements/vouch-dashboard';
 export * from './viewModel/vouch.zvm';
 export * from './elements/create-vouch-threshold';
-
+export * from './elements/create-cec-threshold';
 export * from './viewModel/createEntryCount.zvm';

@@ -42,7 +42,7 @@ export class VouchZvm extends ZomeViewModel {
     /** -- ViewModel -- */
 
     /* */
-    get perspective(): VouchPerspective{
+    get perspective(): VouchPerspective {
         return this._perspective;
     }
 

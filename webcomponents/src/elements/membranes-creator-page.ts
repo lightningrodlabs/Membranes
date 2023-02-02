@@ -22,7 +22,6 @@ export class MembranesCreatorPage extends ZomeElement<MembranesPerspective, Memb
     @state() private _selectedZomeName = ""
     @state() private _membranesForCurrentRole: EntryHashB64[] = [];
     @state() private _thresholdsForCurrentMembrane: EntryHashB64[] = [];
-    @state() private _selectedKind?: string;
 
     @property()
     allAppEntryTypes: Record<string, [string, boolean][]> = {};
@@ -97,104 +96,61 @@ export class MembranesCreatorPage extends ZomeElement<MembranesPerspective, Memb
     }
 
 
-    /** */
-    onKindSelect(e: any) {
-        console.log("onKindSelect() CALLED", e);
-        let kindName;
-        if (!e.hasOwnProperty('originalTarget')) {
-            const kindSelector = this.shadowRoot!.getElementById("kindList") as HTMLSelectElement;
-            kindName = kindSelector.value;
-        } else { kindName = e.originalTarget.value }
-        this._selectedKind = kindName
-    }
-
-
-    // /** */
-    // onCreateThreshold(e: any) {
-    //     console.log("onCreateThreshold() CALLED", e);
-    //     switch (this._selectedKind) {
-    //         case MembraneThresholdType.CreateEntryCount: {
-    //             const zomeSelector = this.shadowRoot!.getElementById("selectedZome") as HTMLSelectElement;
-    //             const entrySelector = this.shadowRoot!.getElementById("selectedEntryType") as HTMLSelectElement;
-    //             const entryType: MyAppEntryType = {entryIndex: entrySelector.selectedIndex, zomeIndex: zomeSelector.selectedIndex, isPublic: true};  // FIXME
-    //             const input = this.shadowRoot!.getElementById("createEntryCountNumber") as HTMLInputElement;
-    //             const count = Number(input.value);
-    //             const _res = this._zvm.createCreateEntryCountThreshold(entryType, count);
+    // renderThresholdForm() {
+    //     switch(this._selectedKind) {
+    //         case "CreateEntryCount": {
+    //             const zomeOptions = Object.entries(this.allAppEntryTypes).map(
+    //                 ([zomeName, _entryDef]) => {
+    //                     return html`
+    //                         <option>${zomeName}</option>`
+    //                 }
+    //             )
+    //             let zomeTypes = Object.entries(this.allAppEntryTypes)
+    //                 .filter((item) => {return item[0] == this._selectedZomeName;})
+    //                 .map((item) => {return item[1]});
+    //             console.log({zomeTypes})
+    //             let entryTypeOptions = null;
+    //             if (zomeTypes.length > 0) {
+    //                 entryTypeOptions = Object.entries(zomeTypes[0]).map(
+    //                     ([_zomeName, pair]) => {
+    //                         return html`
+    //                             <option>${pair[0]}</option>`;
+    //                     });
+    //             }
+    //             console.log({entryTypeOptions})
+    //             return html`
+    //                 <label for="createEntryCountNumber">Create</label>
+    //                 <input type="number" id="createEntryCountNumber" style="width: 40px;">
+    //                 <select name="selectedZome" id="selectedZome" @click=${this.onZomeSelect}>
+    //                     ${zomeOptions}
+    //                 </select>
+    //                 <span>::</span>
+    //                 <select name="selectedEntryType" id="selectedEntryType">
+    //                     ${entryTypeOptions}
+    //                 </select>
+    //                 <span>entries.</span>
+    //             `;
     //             break;
     //         }
-    //         case MembraneThresholdType.Vouch: {
-    //             const input = this.shadowRoot!.getElementById("requiredVouchCount") as HTMLInputElement;
-    //             const count = Number(input.value);
-    //             const input2 = this.shadowRoot!.getElementById("forRoleInput") as HTMLInputElement;
-    //             const forRole = input2.value;
-    //             const input3 = this.shadowRoot!.getElementById("byRoleInput") as HTMLInputElement;
-    //             const byRole = input3.value;
-    //             let _res = this._zvm.createVouchThreshold(count, byRole, forRole);
+    //         case "Vouch":  {
+    //             return html`
+    //                 <label for="requiredVouchCount">Receive</label>
+    //                 <input type="number" id="requiredVouchCount" style="width: 40px;">
+    //                 <input type="text" id="forRoleInput" style="width: 80px;">
+    //                 <label for="byRoleInput">vouch(es) by a</label>
+    //                 <input type="text" id="byRoleInput" style="width: 80px;">
+    //             `;
     //             break;
     //         }
     //         default:
-    //             break;
-    //     }
-    //     this._selectedZomeName = "";
+    //     };
+    //     return html ``
     // }
-
-
-    /** FIXME */
-    renderThresholdForm() {
-        switch(this._selectedKind) {
-            case "CreateEntryCount": {
-                const zomeOptions = Object.entries(this.allAppEntryTypes).map(
-                    ([zomeName, _entryDef]) => {
-                        return html`
-                            <option>${zomeName}</option>`
-                    }
-                )
-                let zomeTypes = Object.entries(this.allAppEntryTypes)
-                    .filter((item) => {return item[0] == this._selectedZomeName;})
-                    .map((item) => {return item[1]});
-                console.log({zomeTypes})
-                let entryTypeOptions = null;
-                if (zomeTypes.length > 0) {
-                    entryTypeOptions = Object.entries(zomeTypes[0]).map(
-                        ([_zomeName, pair]) => {
-                            return html`
-                                <option>${pair[0]}</option>`;
-                        });
-                }
-                console.log({entryTypeOptions})
-                return html`
-                    <label for="createEntryCountNumber">Create</label>
-                    <input type="number" id="createEntryCountNumber" style="width: 40px;">
-                    <select name="selectedZome" id="selectedZome" @click=${this.onZomeSelect}>
-                        ${zomeOptions}
-                    </select>
-                    <span>::</span>
-                    <select name="selectedEntryType" id="selectedEntryType">
-                        ${entryTypeOptions}
-                    </select>
-                    <span>entries.</span>
-                `;
-                break;
-            }
-            case "Vouch":  {
-                return html`
-                    <label for="requiredVouchCount">Receive</label>
-                    <input type="number" id="requiredVouchCount" style="width: 40px;">
-                    <input type="text" id="forRoleInput" style="width: 80px;">
-                    <label for="byRoleInput">vouch(es) by a</label>
-                    <input type="text" id="byRoleInput" style="width: 80px;">
-                `;
-                break;
-            }
-            default:
-        };
-        return html ``
-    }
 
 
     /** */
     render() {
-        console.log("<membranes-creator-page> render()", this._initialized, this._selectedKind);
+        console.log("<membranes-creator-page> render()", this._initialized);
         if (!this._initialized) {
             return html`<span>Loading...</span>`;
         }

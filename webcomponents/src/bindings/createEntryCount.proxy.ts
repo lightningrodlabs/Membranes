@@ -145,6 +145,18 @@ export class CreateEntryCountProxy extends ZomeProxy {
     return this.call('get_create_count', input);
   }
 
+  async publishCreateEntryCountThreshold(th: CreateEntryCountThreshold): Promise<EntryHash> {
+    return this.call('publish_CreateEntryCount_threshold', th);
+  }
+
+  async getThresholdCreateEntryCount(eh: EntryHash): Promise<CreateEntryCountThreshold | null> {
+    return this.call('get_threshold_CreateEntryCount', eh);
+  }
+
+  async getAllThresholdsCreateEntryCount(): Promise<CreateEntryCountThreshold[]> {
+    return this.call('get_all_thresholds_CreateEntryCount', null);
+  }
+
   async claimThresholdCreateEntryCount(input: ClaimThresholdInput): Promise<ActionHash | null> {
     return this.call('claim_threshold_CreateEntryCount', input);
   }

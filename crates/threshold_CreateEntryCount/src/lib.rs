@@ -6,6 +6,9 @@
 #![allow(unused_imports)]
 
 
+mod threshold;
+
+
 #[macro_use]
 extern crate zome_utils;
 
@@ -58,35 +61,3 @@ fn get_create_entries(subject: AgentPubKey, entry_type: MyAppEntryType) -> Exter
    Ok(actions)
 }
 
-
-/// Check if subject reached threshold.
-/// Commit ThresholdReachedProof on success
-/// Returns action hash of ThresholdProof on successful claim.
-/// Returns None if claim failed.
-#[hdk_extern]
-fn claim_threshold_CreateEntryCount(input: ClaimThresholdInput) -> ExternResult<Option<ActionHash>> {
-   if input.threshold.type_name != CREATE_ENTRY_COUNT_THRESHOLD_NAME {
-      return zome_error!("Invalid type name. Claiming \"{}\" with input \"{}\"", CREATE_ENTRY_COUNT_THRESHOLD_NAME, input.threshold.type_name);
-   }
-   let cec_th: CreateEntryCountThreshold = CreateEntryCountThreshold::try_from(input.threshold.data.clone())
-      .expect("Corrupt threshold data");
-   let actions = get_create_entries(input.subject, cec_th.entry_type)?;
-   if actions.len() < cec_th.required_count {
-      return Ok(None);
-   }
-   /// Convert actions to signed actions (-_-)
-   let mut signed_actions = Vec::new();
-   for (_index, ah) in actions {
-      let record = get(ah, GetOptions::content())?
-         .expect("Should be able to get the action found in agent activity");
-      signed_actions.push(record.signed_action)
-   }
-   /// Create ThresholdReachedProof
-   let proof = ThresholdReachedProof {
-      threshold_eh: hash_entry(input.threshold)?,
-      signed_actions
-   };
-   let ah = create_entry(CreateEntryCountThresholdEntry::CreateEntryCountProof(proof))?;
-   /// Done
-   Ok(Some(ah))
-}

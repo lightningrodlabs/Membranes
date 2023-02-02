@@ -31,12 +31,6 @@ export function describe_threshold(th: MembraneThreshold, allZomeTypes: [string,
 // /** Output a human-readable phrase out of a Threshold */
 // export function describe_threshold(th: MembraneThreshold, allZomeTypes: [string, boolean][][]): string {
 //   let desc = "<unknown>";
-//   if (th.hasOwnProperty('vouch')) {
-//     let typed = (th as any).vouch as VouchThreshold;
-//     desc = "Receive " + typed.requiredCount + " \"" + typed.forRole + "\" vouch(es) by a \"" + typed.byRole + "\""
-//     //console.log(desc)
-//     return desc;
-//   }
 //   if (th.hasOwnProperty('progenitor')) {
 //     return "Progenitor";
 //   }
