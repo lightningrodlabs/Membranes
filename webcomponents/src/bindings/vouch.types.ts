@@ -128,6 +128,8 @@ ValidationStatus,
 ValidationReceipt,
    } from '@holochain-open-dev/core-types';
 
+export const VOUCH_THRESHOLD_NAME = "Vouch";
+
 export interface Vouch {
   subject: AgentPubKey
   forRole: string

@@ -4,7 +4,6 @@ import {AgentPubKeyB64} from "@holochain/client";
 
 import { ZomeElement } from "@ddd-qc/lit-happ";
 import {VouchPerspective, VouchZvm} from "../viewModel/vouch.zvm";
-import {TypedMembraneRole} from "../viewModel/membranes.perspective";
 
 
 /**

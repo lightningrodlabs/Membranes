@@ -1,7 +1,14 @@
 import {ZomeViewModel} from "@ddd-qc/lit-happ";
 import {VouchProxy} from "../bindings/vouch.proxy";
-import {AgentPubKey, AgentPubKeyB64, decodeHashFromBase64, encodeHashToBase64, EntryHash} from "@holochain/client";
-import {Vouch} from "../bindings/vouch.types";
+import {
+    ActionHashB64,
+    AgentPubKey,
+    AgentPubKeyB64,
+    decodeHashFromBase64,
+    encodeHashToBase64,
+    EntryHash
+} from "@holochain/client";
+import {Vouch, VouchThreshold} from "../bindings/vouch.types";
 
 
 export interface TypedVouch {
@@ -13,7 +20,9 @@ export interface TypedVouch {
 export interface VouchPerspective {
     roleNames: string[],
     /** RoleName -> [[emitted],[[received,author]]] */
-    myVouches: Record<string, [TypedVouch[], [TypedVouch, AgentPubKeyB64][]]>
+    myVouches: Record<string, [TypedVouch[], [TypedVouch, AgentPubKeyB64][]]>,
+
+    thresholds: VouchThreshold[],
 }
 
 
@@ -48,8 +57,15 @@ export class VouchZvm extends ZomeViewModel {
     async probeAll(): Promise<void> {
         await this.probeRoleNames();
         await this.probeMyVouches();
+        await this.probeThresholds();
     }
 
+
+    /** */
+    async probeThresholds(): Promise<void> {
+        this._perspective.thresholds = await this.zomeProxy.getAllThresholdsVouch();
+        this.notifySubscribers();
+    }
 
     /** */
     async probeRoleNames(): Promise<void> {
@@ -59,7 +75,7 @@ export class VouchZvm extends ZomeViewModel {
 
     /** -- Perspective -- */
 
-    private _perspective: VouchPerspective = {roleNames: [], myVouches: {}}
+    private _perspective: VouchPerspective = {roleNames: [], myVouches: {}, thresholds: []}
 
 
     /** -- Methods -- */
@@ -70,15 +86,15 @@ export class VouchZvm extends ZomeViewModel {
     }
 
 
-    // /** */
-    // async createVouchThreshold(requiredCount: number, byRole: string, forRole: string): Promise<EntryHash> {
-    //     const typed: VouchThreshold = {
-    //     requiredCount, byRole, forRole
-    // };
-    // let res = await this.zomeProxy.publishVouchThreshold(typed);
-    // this.probeThresholds();
-    // return res;
-    // }
+    /** */
+    async createThreshold(requiredCount: number, byRole: string, forRole: string): Promise<EntryHash> {
+        const typed: VouchThreshold = {
+        requiredCount, byRole, forRole
+    };
+      let res = await this.zomeProxy.publishVouchThreshold(typed);
+      this.probeThresholds();
+      return res;
+    }
 
 
     async vouchAgent(agent: AgentPubKeyB64, forRole: string): Promise<EntryHash> {

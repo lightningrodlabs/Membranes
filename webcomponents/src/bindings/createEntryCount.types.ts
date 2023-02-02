@@ -128,6 +128,8 @@ ValidationStatus,
 ValidationReceipt,
    } from '@holochain-open-dev/core-types';
 
+export const CREATE_ENTRY_COUNT_THRESHOLD_NAME = "CreateEntryCount";
+
 export interface MyAppEntryType {
   entryIndex: number
   zomeIndex: number

@@ -11,22 +11,22 @@ use crate::call_membranes_zome;
 
 
 ///
-pub fn publish_typedTreshold<T: TryFrom<SerializedBytes>>(type_name: &str, typed: T) -> ExternResult<EntryHash>
-   where hdk::prelude::SerializedBytes: From<T>
-{
-   let mth = MembraneThreshold {
-      type_name:  type_name.to_string(),
-      data: SerializedBytes::try_from(typed).unwrap(),
-   };
-   return call_membranes_zome("publish_threshold", mth);
-}
+// pub fn publish_typedTreshold<T: TryFrom<SerializedBytes>>(type_name: &str, typed: T) -> ExternResult<EntryHash>
+//    where hdk::prelude::SerializedBytes: From<T>
+// {
+//    let mth = MembraneThreshold {
+//       type_name:  type_name.to_string(),
+//       data: SerializedBytes::try_from(typed).unwrap(),
+//    };
+//    return call_membranes_zome("publish_threshold", mth);
+// }
 
 
 ///
 pub fn publish_vouchTreshold(required_count: usize, by_role: &str, for_role: &str) -> ExternResult<EntryHash> {
    let vouch_th = VouchThreshold {required_count, by_role: by_role.to_string(), for_role: for_role.to_string()};
    let mth = MembraneThreshold {
-      type_name:  "Vouch".to_string(),
+      type_name:  VOUCH_THRESHOLD_NAME.to_string(),
       data: SerializedBytes::try_from(vouch_th).unwrap(),
    };
    return call_membranes_zome("publish_threshold", mth);
@@ -38,7 +38,7 @@ pub fn publish_vouchTreshold(required_count: usize, by_role: &str, for_role: &st
 pub fn publish_createEntryCountThreshold(entry_type: MyAppEntryType, required_count: usize) -> ExternResult<EntryHash> {
    let vouch_th = CreateEntryCountThreshold {required_count, entry_type};
    let mth = MembraneThreshold {
-      type_name:  "CreateEntryCount".to_string(),
+      type_name:  CREATE_ENTRY_COUNT_THRESHOLD_NAME.to_string(),
       data: SerializedBytes::try_from(vouch_th).unwrap(),
    };
    return call_membranes_zome("publish_threshold", mth);

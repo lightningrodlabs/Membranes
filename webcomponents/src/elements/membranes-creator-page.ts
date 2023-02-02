@@ -5,7 +5,7 @@ import {EntryHashB64} from "@holochain/client";
 import { ZomeElement } from "@ddd-qc/lit-happ";
 import {describe_threshold, MembranesZvm} from "../viewModel/membranes.zvm";
 import {MembranesPerspective} from "../viewModel/membranes.perspective";
-import {MembranesEntryType} from "../bindings/membranes.types";
+
 
 /**
  * @element membranes-creator-page
@@ -103,7 +103,7 @@ export class MembranesCreatorPage extends ZomeElement<MembranesPerspective, Memb
         let kindName;
         if (!e.hasOwnProperty('originalTarget')) {
             const kindSelector = this.shadowRoot!.getElementById("kindList") as HTMLSelectElement;
-            kindName = kindSelector.value;    
+            kindName = kindSelector.value;
         } else { kindName = e.originalTarget.value }
         this._selectedKind = kindName
     }
@@ -218,23 +218,15 @@ export class MembranesCreatorPage extends ZomeElement<MembranesPerspective, Memb
 
         const thresholdsLi = Object.entries(this._thresholdsForCurrentMembrane).map(
             ([_index, ehB64]) => {
-                return html `<li>${describe_threshold(thresholds[ehB64], allZomeTypes)}</li>`
+                return html `<li>${describe_threshold(thresholds[ehB64], allZomeTypes)}: ${ehB64}</li>`
             }
         )
 
         const thresholdOptions = Object.entries(thresholds).map(
             ([ehB64, th]) => {
-                return html `<option value="${ehB64}">${describe_threshold(th, allZomeTypes)}</option>`
+                return html `<option value="${ehB64}">${describe_threshold(th, allZomeTypes)}: ${ehB64}</option>`
             }
         )
-
-        const kindOptions = Object.keys(MembranesEntryType)
-            .filter((item) => {return isNaN(Number(item));})
-            .map((kind) => {
-                return html `<option value="${kind}">${kind}</option>`
-            });
-
-        const thresholdForm = this.renderThresholdForm();
 
         /** render all */
         return html`
@@ -272,19 +264,9 @@ export class MembranesCreatorPage extends ZomeElement<MembranesPerspective, Memb
             <!-- NEW Threshold -->
             <hr class="solid">
             <h2>
-                New Threshold:
-                <select name="kindList" id="kindList" @click=${this.onKindSelect}>
-                    ${kindOptions}
-                </select>
+                New Threshold
             </h2>
-            <form>
-                <div style="padding:15px;">
-                    ${thresholdForm}
-                </div>                    
-                <div>
-                    <input type="button" value="create" @click={}>
-                </div>
-            </form>
+            <span>New thresholds can only be created in threshold-plugin UI</span>
             <!-- NEW Privilege -->
             <hr class="solid">
             <h2>New Privilege</h2>

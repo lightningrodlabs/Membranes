@@ -18,6 +18,7 @@ export const membranesFunctionNames: FunctionName[] = [
 	"claim_role_with_membrane",
 	"claim_role_by_name",
 	"claim_all_roles",
+	"get_all_thresholds",
 	"get_proof",
 	"get_threshold",
 	"get_membrane",

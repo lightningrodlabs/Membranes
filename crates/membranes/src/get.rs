@@ -1,7 +1,21 @@
 use hdk::prelude::*;
+use zome_utils::get_all_typed_local;
 use membranes_integrity::MembranesLinkType;
 use membranes_types::*;
-use crate::anchors;
+use crate::{anchors, get_all_thresholds_details};
+
+///
+#[hdk_extern]
+pub fn get_all_thresholds(maybe_type_name: Option<String>) -> ExternResult<Vec<MembraneThreshold>> {
+   let res = get_all_thresholds_details(())?;
+   let mut thresholds: Vec<MembraneThreshold> = res.into_iter().map(|(_eh, th)| th).collect();
+   if let Some(type_name) = maybe_type_name {
+      thresholds.retain(|th| {
+         th.type_name == type_name
+      });
+   }
+   Ok(thresholds)
+}
 
 
 ///
