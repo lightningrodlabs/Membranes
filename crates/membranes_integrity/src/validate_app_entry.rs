@@ -14,7 +14,7 @@ pub(crate) fn validate_app_entry(_creation_action: EntryCreationAction, entry_de
    //debug!("*** validate_app_entry() callback called!");
    return match entry_def_index.into() {
       3 /* MembraneCrossedClaim*/ => {
-         //assert_eq!(2, get_index(MembranesEntryTypes::MembraneCrossedClaim));
+         //assert_eq!(3, get_index(MembranesEntryTypes::MembraneCrossedClaim));
          //debug!("validate_app_entry() membrane_claim index = {:?}", get_index(MembranesEntryTypes::MembraneCrossedClaim));
          let membrane_claim = MembraneCrossedClaim::try_from(entry)?;
          return validate_membrane_claim(membrane_claim);
@@ -54,24 +54,27 @@ fn validate_role_claim(role_claim: RoleClaim) -> ExternResult<ValidateCallbackRe
 }
 
 
-/// FIXME
-fn validate_membrane_claim(_membrane_claim: MembraneCrossedClaim) -> ExternResult<ValidateCallbackResult> {
-   //let membrane_entry = must_get_entry(membrane_claim.membrane_eh.clone().into())?.as_content().to_owned();
-   //let membrane = Membrane::try_from(membrane_entry)?;
-   //let mut i = 0;
-   //for threshold_eh in membrane.threshold_ehs.iter() {
-      //let threshold_entry = must_get_entry(threshold_eh.clone().into())?.as_content().to_owned();
-      //let threshold = MembraneThreshold::try_from(threshold_entry)?;
-      //debug!("validate_app_entry() threshold = {:?}", threshold);
-      //let proof = membrane_claim.proofs[i].clone();
-      // if proof.threshold_eh != hash_entry(threshold.clone())? {
-      //    return Ok(ValidateCallbackResult::Invalid(format!("Threshold proof mismatch ({})", i)));
-      // }
-      //let success = verify_threshold_proof(membrane_claim.subject.clone(), proof.signed_actions, threshold_entry)?;
-      // if !success {
-      //    return Ok(ValidateCallbackResult::Invalid(format!("Failed to verify threshold {}", i)));
-      // }
-      //i+= 1;
-   //}
+///
+fn validate_membrane_claim(membrane_claim: MembraneCrossedClaim) -> ExternResult<ValidateCallbackResult> {
+   let membrane_entry = must_get_entry(membrane_claim.membrane_eh.clone().into())?.as_content().to_owned();
+   let membrane = Membrane::try_from(membrane_entry)?;
+   let mut i = 0;
+   for threshold_eh in membrane.threshold_ehs.iter() {
+      let threshold_entry = must_get_entry(threshold_eh.clone().into())?.as_content().to_owned();
+      let threshold = MembraneThreshold::try_from(threshold_entry)?;
+      //debug!("validate_membrane_claim() threshold = {:?}", threshold);
+      let proof_ah = membrane_claim.proof_ahs[i].clone();
+      let Ok(proof_record) = must_get_valid_record(proof_ah)
+         else { return Ok(ValidateCallbackResult::Invalid(format!("Threshold proof record not found ({})", i))); };
+      let RecordEntry::Present(entry) = proof_record.entry
+         else { return Ok(ValidateCallbackResult::Invalid(format!("Threshold proof entry not present ({})", i))); };
+      // let Entry::App(bytes) = entry
+      //    else { return Ok(ValidateCallbackResult::Invalid(format!("Threshold proof entry not an App Entry ({})", i))); };
+      let proof = ThresholdReachedProof::try_from(entry)?;
+      if proof.threshold_eh != hash_entry(threshold.clone())? {
+         return Ok(ValidateCallbackResult::Invalid(format!("Threshold proof EntryHash mismatch ({})", i)));
+      }
+      i+= 1;
+   }
    Ok(ValidateCallbackResult::Valid)
 }
