@@ -200,7 +200,7 @@ export class MembranesCreatorPage extends ZomeElement<MembranesPerspective, Memb
                       ${membraneOptions}
                   </select>
                   <input type="button" value="Add" @click=${this.onAddMembrane}>
-                  <div>
+                  <div style="margin-top:10px;">
                       <input type="button" value="create" @click=${this.onCreateRole}>                      
                   </div>
               </form>
@@ -208,12 +208,13 @@ export class MembranesCreatorPage extends ZomeElement<MembranesPerspective, Memb
             <!-- NEW Membrane -->
             <h2>New Membrane</h2>
             <form>
+                Thresholds:
                 <ul id="thresholdsList">${thresholdsLi}</ul>
                 <select name="thresholdSelectedList" id="thresholdSelectedList">
                     ${thresholdOptions}
                 </select>
                 <input type="button" value="Add" @click=${this.onAddThreshold}>
-                <div>
+                <div style="margin-top:10px;">
                     <input type="button" value="create" @click=${this.onCreateMembrane}>
                 </div>
             </form>            

@@ -54,7 +54,7 @@ fn validate_role_claim(role_claim: RoleClaim) -> ExternResult<ValidateCallbackRe
 }
 
 
-///
+/// FIXME
 fn validate_membrane_claim(_membrane_claim: MembraneCrossedClaim) -> ExternResult<ValidateCallbackResult> {
    //let membrane_entry = must_get_entry(membrane_claim.membrane_eh.clone().into())?.as_content().to_owned();
    //let membrane = Membrane::try_from(membrane_entry)?;
@@ -75,15 +75,3 @@ fn validate_membrane_claim(_membrane_claim: MembraneCrossedClaim) -> ExternResul
    //}
    Ok(ValidateCallbackResult::Valid)
 }
-
-
-//
-// ///
-// fn verify_threshold_proof(subject: AgentPubKey, threshold: MembraneThreshold, signed_actions: Vec<SignedActionHashed>) -> ExternResult<bool> {
-//    match threshold {
-//       MembraneThreshold::Progenitor => {
-//          return is_progenitor(subject);
-//       },
-//    }
-//    Ok(true)
-// }
