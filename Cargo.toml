@@ -1,26 +1,39 @@
 [workspace]
 resolver = "2"
 members = [
+  # Membranes Zome
   "crates/membranes_types",
   "crates/membranes_integrity",
   "crates/membranes",
+  # Threshold Plugins
+  "crates/threshold_CreateEntryCount_types",
+  "crates/threshold_CreateEntryCount_integrity",
+  "crates/threshold_CreateEntryCount",
+  "crates/threshold_Vouch_types",
+  "crates/threshold_Vouch_integrity",
+  "crates/threshold_Vouch",
+  "crates/threshold_Progenitor",
+  "crates/threshold_Progenitor_integrity",
+  "crates/threshold_Progenitor_types",
+  # Playground
   "playground/zomes/tasker_model",
-  "playground/zomes/tasker",  
+  "playground/zomes/tasker",
   "playground/zomes/agent_directory",
   "playground/zomes/agent_directory_integrity",
   #"sweettest",
 ]
 
 [workspace.package]
-version = "0.2.0-hdk-brc.3"
+version = "0.2.0-hdk-beta.1.0"
 rust-version = "1.65.0"
 edition = "2021"
 
 [workspace.dependencies]
 serde = { version = "1.0", default-features = false }
-hdi = { version = "0.2.0-beta-rc.3", default-features = false }
-hdk = { version = "0.1.0-beta-rc.3", default-features = false }
-zome_utils = { git = "https://github.com/ddd-mtl/zome-utils", branch = "beta-rc.3" }
+hdi = { version = "0.2.0", default-features = false }
+hdk = { version = "0.1.0", default-features = false }
+holo_hash = { version = "0.1.0", features =["encoding"] }
+zome_utils = { git = "https://github.com/ddd-mtl/zome-utils", branch = "beta.1.0" }
 
 [profile.dev]
 lto = false

@@ -3,12 +3,13 @@ use hdi::prelude::*;
 
 use crate::*;
 
+///
 #[hdk_entry_helper]
 #[derive(Clone, PartialEq)]
 #[serde(rename_all = "camelCase")]
-pub struct Vouch {
-   pub subject: AgentPubKey,
-   pub for_role: String,
+pub struct ThresholdType {
+   pub name: String,
+   pub zome_name: String,
 }
 
 
@@ -17,8 +18,8 @@ pub struct Vouch {
 #[derive(Clone, PartialEq)]
 #[serde(rename_all = "camelCase")]
 pub struct MembraneCrossedClaim {
-   pub proofs: Vec<ThresholdReachedProof>,
-   pub membrane_eh: EntryHash, // to a Membrane entry
+   pub proof_ahs: Vec<ActionHash>, // of ThresholdReachedProof
+   pub membrane_eh: EntryHash, // of a Membrane
    pub subject: AgentPubKey,
 }
 
@@ -30,8 +31,8 @@ pub struct MembraneCrossedClaim {
 pub struct RoleClaim {
    pub subject: AgentPubKey,
    pub membrane_index: usize,
-   pub role_eh: EntryHash, // to Role entry
-   pub membrane_claim_eh: EntryHash, // to MembraneCrossedClaim entry
+   pub role_eh: EntryHash, // of a Role
+   pub membrane_claim_eh: EntryHash, // of a MembraneCrossedClaim
 }
 
 
@@ -43,7 +44,7 @@ pub struct RoleClaim {
 pub struct MembraneRole {
    pub name: String,
    pub privileges: Vec<Privilege>,
-   pub entering_membrane_ehs: Vec<EntryHash> // to a Membrane entry
+   pub entering_membrane_ehs: Vec<EntryHash> // of Membrane
 }
 
 
@@ -52,5 +53,5 @@ pub struct MembraneRole {
 #[derive(Clone, PartialEq)]
 #[serde(rename_all = "camelCase")]
 pub struct Membrane {
-   pub threshold_ehs: Vec<EntryHash>, // To a Threshold entry
+   pub threshold_ehs: Vec<EntryHash>, // of MembraneThreshold
 }

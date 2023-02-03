@@ -1,29 +1,31 @@
 import {css, html} from "lit";
 import {property, state} from "lit/decorators.js";
-
-import {MembranesZvm} from "../viewModel/membranes.zvm";
-import {MembranesPerspective} from "../viewModel/membranes.perspective";
-import { ZomeElement } from "@ddd-qc/lit-happ";
 import {AgentPubKeyB64} from "@holochain/client";
 
+import { ZomeElement } from "@ddd-qc/lit-happ";
+import {VouchPerspective, VouchZvm} from "../viewModel/vouch.zvm";
 
 
 /**
  * @element vouch-dashboard
  */
-export class VouchDashboard extends ZomeElement<MembranesPerspective, MembranesZvm> {
+export class VouchDashboard extends ZomeElement<VouchPerspective, VouchZvm> {
 
   /** */
   constructor() {
-    super(MembranesZvm.DEFAULT_ZOME_NAME)
+    super(VouchZvm.DEFAULT_ZOME_NAME)
   }
 
+
   /** -- Fields -- */
+
   @state() private _initialized = false;
 
   @property()
   knownAgents: AgentPubKeyB64[] = []
 
+
+  /** -- Methods -- */
 
   /** After first render only */
   async firstUpdated() {
@@ -38,6 +40,7 @@ export class VouchDashboard extends ZomeElement<MembranesPerspective, MembranesZ
     await this._zvm.probeAll();
   }
 
+
   /** */
   async onVouch(e: any) {
     console.log("onVouch() CALLED", e)
@@ -49,7 +52,7 @@ export class VouchDashboard extends ZomeElement<MembranesPerspective, MembranesZ
 
   /** */
   render() {
-    console.log("<vouch-dashboard> render()", this._initialized);
+    console.log("<vouch-dashboard> render()", this._initialized, this.perspective.roleNames);
     if (!this._initialized) {
       return html`<span>Loading...</span>`;
     }
@@ -62,10 +65,10 @@ export class VouchDashboard extends ZomeElement<MembranesPerspective, MembranesZ
         }
     )
     /* Roles */
-    const roleOptions = Object.entries(this.perspective.roles).map(
-        ([index, role]) => {
+    const roleOptions = Object.values(this.perspective.roleNames).map(
+        (roleName) => {
           //console.log("" + index + ". " + agentIdB64)
-          return html `<option value="${role.name}">${role.name}</option>`
+          return html `<option value="${roleName}">${roleName}</option>`
         }
     )
     /* My Emitted Vouches */

@@ -15,9 +15,9 @@ mod membrane;
 mod anchors;
 mod get;
 mod misc;
-mod vouch;
 mod claim_role;
 mod claim_membrane;
+mod register;
 
 
 #[macro_use]
@@ -35,3 +35,5 @@ pub use publish::*;
 pub use membrane::*;
 use membranes_types::ClaimRoleInput;
 pub use role::*;
+pub use get::*;
+pub use anchors::*;

@@ -1,21 +1,20 @@
 import {css, html} from "lit";
 import {property, state} from "lit/decorators.js";
-import {MembranesZvm} from "../viewModel/membranes.zvm";
-import {MyAppEntryType} from "../bindings/membranes.types";
 import { ZomeElement } from "@ddd-qc/lit-happ";
-import { MembranesPerspective } from "../viewModel/membranes.perspective";
-import {AgentPubKeyB64} from "@holochain/client";
+import {AgentPubKeyB64, CoordinatorZome} from "@holochain/client";
+import {MyAppEntryType} from "../bindings/createEntryCount.types";
+import {CreateEntryCountZvm} from "../viewModel/createEntryCount.zvm";
 
 
 
 /**
  * @element create-entry-dashboard
  */
-export class CreateEntryDashboard extends ZomeElement<MembranesPerspective, MembranesZvm> {
+export class CreateEntryDashboard extends ZomeElement<void, CreateEntryCountZvm> {
 
   /** */
   constructor() {
-    super(MembranesZvm.DEFAULT_ZOME_NAME)
+    super(CreateEntryCountZvm.DEFAULT_ZOME_NAME)
   }
 
   /** -- Fields -- */
@@ -28,6 +27,18 @@ export class CreateEntryDashboard extends ZomeElement<MembranesPerspective, Memb
   allAppEntryTypes: Record<string, [string, boolean][]> = {};
 
 
+  @property()
+  zomeIndexes: CoordinatorZome[] = [];
+
+
+  getZomeIndex(zomeName: string): number {
+    for (let i = 0; i < this.zomeIndexes.length; i += 1) {
+      if (this.zomeIndexes[i][0] == zomeName) {
+        return i;
+      }
+    }
+    throw Error("Zome not found");
+  }
 
 
   /** */
@@ -44,7 +55,8 @@ export class CreateEntryDashboard extends ZomeElement<MembranesPerspective, Memb
     const agentSelector = this.shadowRoot!.getElementById("agentSelector") as HTMLSelectElement;
     const zomeSelector = this.shadowRoot!.getElementById("selectedZome") as HTMLSelectElement;
     const entrySelector = this.shadowRoot!.getElementById("selectedEntryType") as HTMLSelectElement;
-    const entryType: MyAppEntryType = {entryIndex: entrySelector.selectedIndex, zomeIndex: zomeSelector.selectedIndex, isPublic: true};  // FIXME
+    const zomeIndex = this.getZomeIndex(zomeSelector.value);
+    const entryType: MyAppEntryType = {entryIndex: entrySelector.selectedIndex, zomeIndex, isPublic: true};  // FIXME
     this._queryResult = await this._zvm.getCreateCount(agentSelector.value, entryType);
   }
 

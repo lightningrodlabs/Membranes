@@ -9,3 +9,4 @@ crate-type = [ "cdylib", "rlib" ]
 [dependencies]
 serde.workspace = true
 hdi.workspace = true
+holo_hash.workspace = true

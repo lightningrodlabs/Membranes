@@ -1,14 +1,6 @@
 use hdi::prelude::*;
 use holo_hash::{/*ActionHashB64,*/ AgentPubKeyB64, EntryHashB64};
-use crate::MyAppEntryType;
-
-
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct GetCreateCountInput {
-   pub subject: AgentPubKey,
-   pub entry_type: MyAppEntryType,
-}
+use crate::MembraneThreshold;
 
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -32,4 +24,12 @@ pub struct ClaimRoleInput {
 pub struct MembraneInput {
    pub subject: AgentPubKey,
    pub membrane_eh: EntryHash,
+}
+
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ClaimThresholdInput {
+   pub subject: AgentPubKey,
+   pub threshold: MembraneThreshold,
 }

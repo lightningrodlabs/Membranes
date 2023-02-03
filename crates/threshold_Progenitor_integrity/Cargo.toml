@@ -1,0 +1,14 @@
+[package]
+name = "threshold_Progenitor_integrity"
+version.workspace = true
+edition.workspace = true
+
+[lib]
+crate-type = [ "cdylib", "rlib" ]
+
+[dependencies]
+serde.workspace = true
+hdi.workspace = true
+
+membranes_types = { path = "../membranes_types" }
+threshold_Progenitor_types = { path = "../threshold_Progenitor_types"}

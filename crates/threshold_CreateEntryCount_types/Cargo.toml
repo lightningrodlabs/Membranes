@@ -1,0 +1,11 @@
+[package]
+name = "threshold_CreateEntryCount_types"
+version.workspace = true
+edition.workspace = true
+
+[lib]
+crate-type = [ "cdylib", "rlib" ]
+
+[dependencies]
+serde.workspace = true
+hdi.workspace = true

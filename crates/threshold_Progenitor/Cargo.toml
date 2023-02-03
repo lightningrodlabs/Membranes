@@ -1,0 +1,16 @@
+[package]
+name = "threshold_Progenitor"
+version.workspace = true
+edition.workspace = true
+
+[lib]
+crate-type = [ "cdylib", "rlib" ]
+
+[dependencies]
+serde.workspace = true
+hdk.workspace = true
+zome_utils.workspace = true
+
+membranes_types = { path = "../membranes_types" }
+threshold_Progenitor_types = { path = "../threshold_Progenitor_types"}
+threshold_Progenitor_integrity = {path = "../threshold_Progenitor_integrity"}

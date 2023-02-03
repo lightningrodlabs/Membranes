@@ -5,14 +5,14 @@ import {
   VouchDashboard,
   MembranesDashboard,
   MembranesCreatorPage,
-  CreateEntryDashboard,
+  CreateEntryDashboard, CreateVouchThreshold, CreateCecThreshold,
 } from "@membranes/elements";
 import {AgentDirectoryList} from "@ddd-qc/agent-directory";
 import { TaskerDvm } from "./viewModel/tasker.dvm";
 import {
   HvmDef, HappElement, HCL, ViewCellContext, CellDef, CellContext, delay, Cell
 } from "@ddd-qc/lit-happ";
-import {AdminWebsocket, AgentPubKeyB64, RoleName} from "@holochain/client";
+import {AdminWebsocket, AgentPubKeyB64, DnaDefinition, RoleName} from "@holochain/client";
 
 
 /**
@@ -48,6 +48,8 @@ export class TaskerApp extends HappElement {
   @state() private _cell?: Cell;
 
 
+  private _dnaDef?: DnaDefinition;
+
   /** */
   async happInitialized() {
     console.log("happInitialized()")
@@ -57,11 +59,13 @@ export class TaskerApp extends HappElement {
     console.log({adminWs});
     await this.hvm.authorizeAllZomeCalls(adminWs);
     console.log("*** Zome call authorization complete");
-    await delay(2000);
+    this._dnaDef = await adminWs.getDnaDefinition(this.taskerDvm.cell.id[0]);
+    console.log("happInitialized() dnaDef", this._dnaDef);
     /** Probe */    
     this._cell = this.taskerDvm.cell;
     await this.hvm.probeAll();
     this._allAppEntryTypes = await this.taskerDvm.fetchAllEntryDefs();
+    console.log("happInitialized(), _allAppEntryTypes", this._allAppEntryTypes);
     /** Done */
     this._loaded = true;
   }
@@ -93,20 +97,24 @@ export class TaskerApp extends HappElement {
 
   /** */
   render() {
-    console.log("<tasker-app> render()", this._loaded)
+    console.log("*** <tasker-app> render()", this._loaded, this.taskerDvm.membranesZvm.perspective)
     if (!this._loaded) {
       return html`<span>Loading...</span>`;
     }
     let knownAgents: AgentPubKeyB64[] = this.taskerDvm.AgentDirectoryZvm.perspective.agents;
-
+    //console.log({coordinator_zomes: this._dnaDef?.coordinator_zomes})
+    const zomeNames = this._dnaDef?.coordinator_zomes.map((zome) => { return zome[0]; });
+    console.log({zomeNames})
     let page;
     switch (this._pageDisplayIndex) {
       case 0: page = html`<tasker-page style="flex: 1;"></tasker-page>` ; break;
       case 1: page = html`<membranes-dashboard .allAppEntryTypes=${this._allAppEntryTypes} style="flex: 1;"></membranes-dashboard>`; break;
       case 2: page = html`<membranes-creator-page .allAppEntryTypes=${this._allAppEntryTypes} style="flex: 1;"></membranes-creator-page>`; break;
       case 3: page = html`<vouch-dashboard .knownAgents=${knownAgents} style="flex: 1;"></vouch-dashboard>`; break;
-      case 4: page = html`<create-entry-dashboard .knownAgents=${knownAgents} .allAppEntryTypes=${this._allAppEntryTypes} style="flex: 1;"></create-entry-dashboard>`; break;
-      case 5: page = html`<agent-directory-list style="flex: 1;"></agent-directory-list>`; break;
+      case 4: page = html`<create-entry-dashboard .knownAgents=${knownAgents} .zomeIndexes="${this._dnaDef?.coordinator_zomes}" .allAppEntryTypes=${this._allAppEntryTypes} style="flex: 1;"></create-entry-dashboard>`; break;
+      case 5: page = html`<create-vouch-threshold style="flex: 1;"></create-vouch-threshold>`; break;
+      case 6: page = html`<create-cec-threshold .allAppEntryTypes=${this._allAppEntryTypes} .zomeNames=${zomeNames} style="flex: 1;"></create-cec-threshold>`; break;
+      case 7: page = html`<agent-directory-list style="flex: 1;"></agent-directory-list>`; break;
 
       default: page = html`unknown page index`;
     };
@@ -121,7 +129,9 @@ export class TaskerApp extends HappElement {
           <input type="button" value="Membranes Creator" @click=${() => {this._pageDisplayIndex = 2; this.requestUpdate()}} >
           <input type="button" value="Vouch Dashboard" @click=${() => {this._pageDisplayIndex = 3; this.requestUpdate()}} >
           <input type="button" value="CreateEntry Dashboard" @click=${() => {this._pageDisplayIndex = 4; this.requestUpdate()}} >
-          <input type="button" value="Agent Directory" @click=${() => {this._pageDisplayIndex = 5; this.requestUpdate()}} >
+          <input type="button" value="Create Vouch Threshold" @click=${() => {this._pageDisplayIndex = 5; this.requestUpdate()}} >
+          <input type="button" value="Create CEC Threshold" @click=${() => {this._pageDisplayIndex = 6; this.requestUpdate()}} >
+          <input type="button" value="Agent Directory" @click=${() => {this._pageDisplayIndex = 7; this.requestUpdate()}} >
         </div>
         <input type="button" value="Make me king!" @click=${() => {this.cloneTasker()}}>
         <button type="button" @click=${this.refresh}>Refresh</button>
@@ -139,6 +149,8 @@ export class TaskerApp extends HappElement {
       "membranes-dashboard": MembranesDashboard,
       "membranes-creator-page": MembranesCreatorPage,
       "vouch-dashboard": VouchDashboard,
+      "create-vouch-threshold": CreateVouchThreshold,
+      "create-cec-threshold": CreateCecThreshold,
       "create-entry-dashboard": CreateEntryDashboard,
       "agent-directory-list": AgentDirectoryList,
       "view-cell-context": ViewCellContext,
