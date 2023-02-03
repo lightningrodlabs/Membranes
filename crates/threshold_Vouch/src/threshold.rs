@@ -96,8 +96,8 @@ fn claim_threshold_Vouch(input: ClaimThresholdInput) -> ExternResult<Option<Acti
       signed_ahs.push(SignedActionHash {signature: role_claim_sah.signature.clone(), ah: role_claim_sah.action_address().to_owned()});
       return true;
    }).collect();
-   debug!("claim_vouchThreshold() author_map.len 2 = {:?}", author_map.len());
-   debug!("claim_vouchThreshold() signed_ahs = {:?}", signed_ahs);
+   debug!("claim_threshold_Vouch() author_map.len 2 = {:?}", author_map.len());
+   debug!("claim_threshold_Vouch() signed_ahs = {:?}", signed_ahs);
    if author_map.len() < th.required_count {
       return Ok(None);
    }
