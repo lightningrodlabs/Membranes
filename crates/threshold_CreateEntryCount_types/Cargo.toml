@@ -9,3 +9,5 @@ crate-type = [ "cdylib", "rlib" ]
 [dependencies]
 serde.workspace = true
 hdi.workspace = true
+
+membranes_types = { path = "../membranes_types" }

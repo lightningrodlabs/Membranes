@@ -71,22 +71,24 @@ fn validate_proof(author: AgentPubKey, proof: ThresholdReachedProof) -> ExternRe
    let Ok(threshold) = VouchThreshold::try_from(threshold.data) else {
       return Ok(ValidateCallbackResult::Invalid(format!("Threshold not a VouchThreshold")));
    };
-   let pass = verify_vouch_threshold(&threshold, author, proof.signed_actions)?;
+   let pass = verify_vouch_threshold(&threshold, author, proof.signed_ahs)?;
    Ok(if pass { ValidateCallbackResult::Valid } else { ValidateCallbackResult::Invalid(format!("Failed validating proof for \"{}\" threshold.", VOUCH_THRESHOLD_NAME)) })
 }
 
 
 ///
-pub fn verify_vouch_threshold(vt: &VouchThreshold, subject: AgentPubKey, signed_actions: Vec<SignedActionHashed>) -> ExternResult<bool> {
+pub fn verify_vouch_threshold(vt: &VouchThreshold, subject: AgentPubKey, signed_ahs: Vec<SignedActionHash>) -> ExternResult<bool> {
    let vouch_entry_index = get_variant_index::<VouchThresholdEntry>(VouchThresholdEntryTypes::Vouch)?;
    let role_claim_entry_index = 4; // FIXME should not be hardcoded // get_variant_index(MembranesEntryTypes::RoleClaim)?;
-   // return Ok(signed_actions.len() >= th.required_count); // FIXME
+   // return Ok(signed_ahs.len() >= th.required_count); // FIXME
    /// First pass: Sort SAH into action maps
    /// FIXME: change to Sets as we dont actually need the SAHs at this stage
-   let mut claim_map: BTreeMap<AgentPubKey, SignedActionHashed> = BTreeMap::new();
-   let mut vouch_map: BTreeMap<AgentPubKey, SignedActionHashed> = BTreeMap::new();
-   for signed_action in signed_actions {
-      let action = signed_action.action().clone();
+   let mut claim_map: BTreeMap<AgentPubKey, SignedActionHash> = BTreeMap::new();
+   let mut vouch_map: BTreeMap<AgentPubKey, SignedActionHash> = BTreeMap::new();
+   for signed_ah in signed_ahs {
+      let Ok(record) = must_get_valid_record(signed_ah.ah.clone())
+         else { return Ok(false); };
+      let action = record.action().clone();
       /// Must find enough Vouch CreateEntry actions with the correct "for_role" by authors who have the "by_role" role
       let Action::Create(create) = action.clone()
          else { continue; };
@@ -98,7 +100,7 @@ pub fn verify_vouch_threshold(vt: &VouchThreshold, subject: AgentPubKey, signed_
          if vouch.for_role != vt.for_role { continue; }
          if vouch.subject != subject { continue; }
          // FIXME verify signature?
-         vouch_map.insert(create.author, signed_action);
+         vouch_map.insert(create.author, signed_ah);
          continue;
       }
       if app_entry_def.entry_index.0 == role_claim_entry_index {
@@ -108,7 +110,7 @@ pub fn verify_vouch_threshold(vt: &VouchThreshold, subject: AgentPubKey, signed_
          let role = MembraneRole::try_from(role_entry)?;
          if role.name != vt.by_role { continue; }
          // FIXME verify signature?
-         claim_map.insert(role_claim.subject, signed_action);
+         claim_map.insert(role_claim.subject, signed_ah);
          continue;
       }
    }

@@ -6,6 +6,7 @@
 #![allow(unused_imports)]
 
 use hdi::prelude::*;
+use membranes_types::SignedActionHash;
 
 
 pub const CREATE_ENTRY_COUNT_THRESHOLD_NAME: &str = "CreateEntryCount";
@@ -49,13 +50,15 @@ pub struct CreateEntryCountThreshold {
 ///
 impl CreateEntryCountThreshold {
    ///
-   pub fn verify(&self, subject: AgentPubKey, signed_actions: Vec<SignedActionHashed>) -> ExternResult<bool> {
+   pub fn verify(&self, subject: AgentPubKey, signed_ahs: Vec<SignedActionHash>) -> ExternResult<bool> {
       let threshold_entry_type = self.entry_type.clone().into_typed();
       /// Must find enough CreateEntry actions by the subject for the correct entry type
       let mut confirmed_count = 0;
-      for signed_action in signed_actions {
-         let action = signed_action.action().clone();
-         let valid_signature = verify_signature(subject.clone(), signed_action.signature, action.clone())?;
+      for signed_ah in signed_ahs {
+         let Ok(record) = must_get_valid_record(signed_ah.ah)
+            else { return Ok(false); };
+         let action = record.action().clone();
+         let valid_signature = verify_signature(subject.clone(), signed_ah.signature, action.clone())?;
          if !valid_signature {
             continue;
          }

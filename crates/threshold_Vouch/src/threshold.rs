@@ -76,13 +76,13 @@ fn claim_threshold_Vouch(input: ClaimThresholdInput) -> ExternResult<Option<Acti
    }
    debug!("claim_threshold_Vouch() author_map.len 1 = {:?}", author_map.len());
    /// Second pass: Vouch author must have required Role
-   let mut signed_actions = Vec::new();
+   let mut signed_ahs = Vec::new();
    author_map = author_map.into_iter().filter(|(author, (_vouch, link))| {
       let subject: AgentPubKey = author.to_owned().into();
       let payload = HasRoleInput {subject, role_eh: by_role_eh.clone()};
-      let maybe_role_claim: ExternResult<Option<SignedActionHashed>> = call_self_cell("zMembranes","has_role", payload);
-      if maybe_role_claim.is_err() || maybe_role_claim.as_ref().unwrap().is_none() { return false; }
-      let role_claim = maybe_role_claim.unwrap().unwrap();
+      let maybe_role_claim_sah: ExternResult<Option<SignedActionHashed>> = call_self_cell("zMembranes", "has_role", payload);
+      if maybe_role_claim_sah.is_err() || maybe_role_claim_sah.as_ref().unwrap().is_none() { return false; }
+      let role_claim_sah = maybe_role_claim_sah.unwrap().unwrap();
       /// Get Vouch's SignedActionHashed
       let target: AnyDhtHash = link.target.clone().into_entry_hash().unwrap().into();
       let maybe_vouch_sah = get(target, GetOptions::content());
@@ -91,19 +91,20 @@ fn claim_threshold_Vouch(input: ClaimThresholdInput) -> ExternResult<Option<Acti
          warn!(msg);
          return false;
       }
-      signed_actions.push(maybe_vouch_sah.unwrap().unwrap().signed_action);
-      signed_actions.push(role_claim);
+      let vouch_sah = maybe_vouch_sah.unwrap().unwrap().signed_action;
+      signed_ahs.push(SignedActionHash {signature: vouch_sah.signature.clone(), ah: vouch_sah.action_address().to_owned()});
+      signed_ahs.push(SignedActionHash {signature: role_claim_sah.signature.clone(), ah: role_claim_sah.action_address().to_owned()});
       return true;
    }).collect();
    debug!("claim_vouchThreshold() author_map.len 2 = {:?}", author_map.len());
-   debug!("claim_vouchThreshold() signed_actions = {:?}", signed_actions);
+   debug!("claim_vouchThreshold() signed_ahs = {:?}", signed_ahs);
    if author_map.len() < th.required_count {
       return Ok(None);
    }
    /// Create ThresholdReachedProof
    let proof = ThresholdReachedProof {
       threshold_eh: hash_entry(input.threshold)?,
-      signed_actions
+      signed_ahs
    };
    let ah = create_entry(VouchThresholdEntry::VouchProof(proof))?;
    /// Done

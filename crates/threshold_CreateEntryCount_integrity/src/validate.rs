@@ -70,6 +70,6 @@ fn validate_proof(author: AgentPubKey, proof: ThresholdReachedProof) -> ExternRe
    let Ok(cec) = CreateEntryCountThreshold::try_from(threshold.data) else {
       return Ok(ValidateCallbackResult::Invalid(format!("Threshold not a CreateEntryCountThreshold")));
    };
-   let pass = cec.verify(author, proof.signed_actions)?;
+   let pass = cec.verify(author, proof.signed_ahs)?;
    Ok(if pass { ValidateCallbackResult::Valid } else { ValidateCallbackResult::Invalid(format!("Validation failed for proving \"{}\" threshold.", CREATE_ENTRY_COUNT_THRESHOLD_NAME)) })
 }

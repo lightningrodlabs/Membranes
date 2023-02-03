@@ -61,16 +61,16 @@ fn claim_threshold_CreateEntryCount(input: ClaimThresholdInput) -> ExternResult<
       return Ok(None);
    }
    /// Convert actions to signed actions (-_-)
-   let mut signed_actions = Vec::new();
+   let mut signed_ahs = Vec::new();
    for (_index, ah) in actions {
       let record = get(ah, GetOptions::content())?
          .expect("Should be able to get the action found in agent activity");
-      signed_actions.push(record.signed_action)
+      signed_ahs.push(SignedActionHash {signature: record.signature().to_owned(), ah: record.action_address().to_owned()});
    }
    /// Create ThresholdReachedProof
    let proof = ThresholdReachedProof {
       threshold_eh: hash_entry(input.threshold)?,
-      signed_actions
+      signed_ahs,
    };
    let ah = create_entry(CreateEntryCountThresholdEntry::CreateEntryCountProof(proof))?;
    /// Done

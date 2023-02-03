@@ -47,7 +47,7 @@ fn claim_threshold_Progenitor(input: ClaimThresholdInput) -> ExternResult<Option
    /// Create ThresholdReachedProof
    let proof = ThresholdReachedProof {
       threshold_eh: hash_entry(input.threshold)?,
-      signed_actions: Vec::new(),
+      signed_ahs: Vec::new(),
    };
    let ah = create_entry(ProgenitorThresholdEntry::ProgenitorProof(proof))?;
    /// Done
