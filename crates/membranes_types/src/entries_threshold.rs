@@ -1,19 +1,5 @@
 use hdi::prelude::*;
 
-//
-// #[hdk_entry_helper]
-// #[derive(Clone, PartialEq)]
-// #[serde(rename_all = "camelCase")]
-// pub enum MembraneThreshold {
-//    CreateEntryCount(CreateEntryCountThreshold),
-//    Vouch(VouchThreshold),
-//    Progenitor,
-// }
-
-// pub trait MembraneThreshold {
-//    fn verify(&self, subject: AgentPubKey, signed_actions: Vec<SignedActionHashed>) -> ExternResult<bool>;
-// }
-
 
 #[hdk_entry_helper]
 #[derive(Clone, PartialEq)]
