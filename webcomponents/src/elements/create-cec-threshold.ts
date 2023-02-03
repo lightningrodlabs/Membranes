@@ -49,7 +49,17 @@ export class CreateCecThreshold extends ZomeElement<CreateEntryCountPerspective,
         const zomeTypes = this.allAppEntryTypes[zomeName];
         console.log({zomeTypes})
         const entryType = zomeTypes[typed.entryType.entryIndex]
-        return `Create ${typed.requiredCount} ${zomeName}::${entryType[0]} entries`;
+        return `Create ${typed.requiredCount} entries of type "${zomeName}::${entryType[0]}"`;
+    }
+
+
+    getZomeIndex(zomeName: string): number {
+        for (let i = 0; i < this.zomeNames.length; i += 1) {
+            if (this.zomeNames[i] == zomeName) {
+                return i;
+            }
+        }
+        throw Error("Zome not found");
     }
 
 
@@ -57,7 +67,8 @@ export class CreateCecThreshold extends ZomeElement<CreateEntryCountPerspective,
     onCreateThreshold() {
         const zomeSelector = this.shadowRoot!.getElementById("selectedZome") as HTMLSelectElement;
         const entrySelector = this.shadowRoot!.getElementById("selectedEntryType") as HTMLSelectElement;
-        const entryType: MyAppEntryType = {entryIndex: entrySelector.selectedIndex, zomeIndex: zomeSelector.selectedIndex, isPublic: true};  // FIXME
+        const zomeIndex = this.getZomeIndex(zomeSelector.value);
+        const entryType: MyAppEntryType = {entryIndex: entrySelector.selectedIndex, zomeIndex, isPublic: true};
         const input = this.shadowRoot!.getElementById("createEntryCountNumber") as HTMLInputElement;
         const count = Number(input.value);
         const _res = this._zvm.createThreshold(entryType, count);
@@ -81,7 +92,7 @@ export class CreateCecThreshold extends ZomeElement<CreateEntryCountPerspective,
 
         const thresholdsLi = Object.values(this.perspective.thresholds).map(
             (vt) => {
-                return html `<ul>${this.describeThreshold(vt)}</ul>`
+                return html `<li>${this.describeThreshold(vt)}</li>`
             });
 
         const zomeOptions = Object.keys(this.allAppEntryTypes).map(
@@ -94,10 +105,9 @@ export class CreateCecThreshold extends ZomeElement<CreateEntryCountPerspective,
         console.log({zomeTypes})
         let entryTypeOptions = null;
         if (zomeTypes.length > 0) {
-            entryTypeOptions = Object.entries(zomeTypes[0]).map(
-                ([_zomeName, pair]) => {
-                    return html`
-                                <option>${pair[0]}</option>`;
+            entryTypeOptions = Object.values(zomeTypes[0]).map(
+                ([entryName, _isPublic]) => {
+                    return html`<option>${entryName}</option>`;
                 });
         }
 
@@ -105,14 +115,15 @@ export class CreateCecThreshold extends ZomeElement<CreateEntryCountPerspective,
         return html`
         <div>
           <h1>CreateEntryCount Threshold</h1>
-          <h2>Existing</h2>
+          <h2>Existing thresholds</h2>
             <ul>
               ${thresholdsLi}
             </ul>            
-          <h2>New CreateEntryCount Threshold</h2>
+          <h2>New threshold</h2>
           <form>
               <label for="createEntryCountNumber">Create</label>
               <input type="number" id="createEntryCountNumber" style="width: 40px;">
+              <span>entries of type </span>              
               <select name="selectedZome" id="selectedZome" @click=${this.onZomeSelect}>
                   ${zomeOptions}
               </select>
@@ -120,8 +131,7 @@ export class CreateCecThreshold extends ZomeElement<CreateEntryCountPerspective,
               <select name="selectedEntryType" id="selectedEntryType">
                   ${entryTypeOptions}
               </select>
-              <span>entries.</span>
-            <div>
+            <div style="margin-top:10px;">
               <input type="button" value="create" @click=${this.onCreateThreshold}>
             </div>
           </form>

@@ -1,6 +1,6 @@
 {
   "name": "tasker",
-  "version": "0.1.0-hc-brc.3",
+  "version": "0.1.0",
   "scripts": {
     "lint": "eslint --ext .ts .",
     "tsc": "tsc",
