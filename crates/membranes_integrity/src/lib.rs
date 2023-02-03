@@ -6,9 +6,6 @@
 
 mod validate;
 pub(crate) mod validate_app_entry;
-pub mod zome_properties;
-
-pub use zome_properties::*;
 
 use hdi::prelude::*;
 use membranes_types::*;
@@ -31,18 +28,18 @@ pub enum MembranesEntry {
 }
 
 
-/// Get EntryDefIndex from a unit_enum
-pub fn get_index<T: UnitEnum>(unknown: T::Unit) -> ExternResult<u8> {
-   let mut i = 0;
-   for variant in T::unit_iter() {
-      //debug!("get_index() variant = {:?}", variant);
-      if variant == unknown {
-         return Ok(i);
-      }
-      i += 1;
-   }
-   return Err(wasm_error!(WasmErrorInner::Guest("Unknown variant".to_string())));
-}
+// /// Get EntryDefIndex from a unit_enum
+// pub fn get_variant_index<T: UnitEnum>(unknown: T::Unit) -> ExternResult<u8> {
+//    let mut i = 0;
+//    for variant in T::unit_iter() {
+//       //debug!("get_index() variant = {:?}", variant);
+//       if variant == unknown {
+//          return Ok(i);
+//       }
+//       i += 1;
+//    }
+//    return Err(wasm_error!(WasmErrorInner::Guest("Unknown variant".to_string())));
+// }
 
 
 /// List of all Link kinds handled by this Zome

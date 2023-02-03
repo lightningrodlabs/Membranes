@@ -37,7 +37,7 @@ impl MyAppEntryType {
    }
 }
 
-//#[hdk_entry_helper]
+
 #[derive(Clone, PartialEq, Debug, Serialize, Deserialize, SerializedBytes)]
 #[serde(rename_all = "camelCase")]
 pub struct CreateEntryCountThreshold {

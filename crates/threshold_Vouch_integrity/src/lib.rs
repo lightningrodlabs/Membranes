@@ -22,7 +22,7 @@ pub enum VouchThresholdEntry {
 
 
 /// Get EntryDefIndex from a unit_enum
-pub(crate) fn get_index<T: UnitEnum>(unknown: T::Unit) -> ExternResult<u8> {
+pub(crate) fn get_variant_index<T: UnitEnum>(unknown: T::Unit) -> ExternResult<u8> {
    let mut i = 0;
    for variant in T::unit_iter() {
       //debug!("get_index() variant = {:?}", variant);

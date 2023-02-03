@@ -1,15 +1,21 @@
 [workspace]
 resolver = "2"
 members = [
+  # Membranes Zome
+  "crates/membranes_types",
+  "crates/membranes_integrity",
+  "crates/membranes",
+  # Threshold Plugins
   "crates/threshold_CreateEntryCount_types",
   "crates/threshold_CreateEntryCount_integrity",
   "crates/threshold_CreateEntryCount",
   "crates/threshold_Vouch_types",
   "crates/threshold_Vouch_integrity",
   "crates/threshold_Vouch",
-  "crates/membranes_types",
-  "crates/membranes_integrity",
-  "crates/membranes",
+  "crates/threshold_Progenitor",
+  "crates/threshold_Progenitor_integrity",
+  "crates/threshold_Progenitor_types",
+  # Playground
   "playground/zomes/tasker_model",
   "playground/zomes/tasker",
   "playground/zomes/agent_directory",

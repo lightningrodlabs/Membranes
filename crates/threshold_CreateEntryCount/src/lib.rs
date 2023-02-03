@@ -25,7 +25,7 @@ use threshold_CreateEntryCount_integrity::CreateEntryCountThresholdEntry::Create
 /// Zome Callback
 #[hdk_extern]
 fn init(_: ()) -> ExternResult<InitCallbackResult> {
-   debug!("*** Vouch.init() callback - START");
+   debug!("*** CreateEntryCount.init() callback - START");
    let res: ExternResult<ActionHash> = call_self_cell(
       "zMembranes",
       "register_threshold_type",
@@ -35,7 +35,7 @@ fn init(_: ()) -> ExternResult<InitCallbackResult> {
       return Ok(InitCallbackResult::Fail(format!("Failed to register threshold type \"{}\": {:?}", CREATE_ENTRY_COUNT_THRESHOLD_NAME, e)));
    }
    /// Done
-   debug!("*** Vouch.init() callback - DONE");
+   debug!("*** CreateEntryCount.init() callback - DONE");
    Ok(InitCallbackResult::Pass)
 }
 

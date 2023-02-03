@@ -78,8 +78,8 @@ fn validate_proof(author: AgentPubKey, proof: ThresholdReachedProof) -> ExternRe
 
 ///
 pub fn verify_vouch_threshold(vt: &VouchThreshold, subject: AgentPubKey, signed_actions: Vec<SignedActionHashed>) -> ExternResult<bool> {
-   let vouch_entry_index = get_index::<VouchThresholdEntry>(VouchThresholdEntryTypes::Vouch)?;
-   let role_claim_entry_index = 4; // FIXME should not be hardcoded // get_index(MembranesEntryTypes::RoleClaim)?;
+   let vouch_entry_index = get_variant_index::<VouchThresholdEntry>(VouchThresholdEntryTypes::Vouch)?;
+   let role_claim_entry_index = 4; // FIXME should not be hardcoded // get_variant_index(MembranesEntryTypes::RoleClaim)?;
    // return Ok(signed_actions.len() >= th.required_count); // FIXME
    /// First pass: Sort SAH into action maps
    /// FIXME: change to Sets as we dont actually need the SAHs at this stage

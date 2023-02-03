@@ -14,4 +14,5 @@ zome_utils.workspace = true
 membranes_types = {path = "../../../crates/membranes_types" }
 threshold_CreateEntryCount_types = {path = "../../../crates/threshold_CreateEntryCount_types" }
 threshold_Vouch_types = {path = "../../../crates/threshold_Vouch_types" }
+threshold_Progenitor_types = {path = "../../../crates/threshold_Progenitor_types" }
 tasker_model = {path = "../tasker_model" }
