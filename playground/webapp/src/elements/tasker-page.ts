@@ -1,5 +1,5 @@
 import {css, html} from "lit";
-import {property, state} from "lit/decorators.js";
+import {property, state, customElement} from "lit/decorators.js";
 import { DnaElement } from "@ddd-qc/lit-happ";
 import { TaskerDvm } from "../viewModel/tasker.dvm";
 import {TaskerPerspective, TaskListMaterialized} from "../viewModel/tasker.perspective";
@@ -7,8 +7,9 @@ import {AgentPubKeyB64, encodeHashToBase64, EntryHashB64} from "@holochain/clien
 
 
 /**
- * @element tasker-page
+ * @element
  */
+@customElement("tasker-page")
 export class TaskerPage extends DnaElement<unknown, TaskerDvm> {
 
   constructor() {

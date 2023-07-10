@@ -1,12 +1,13 @@
 import {css, html} from "lit";
-import {state} from "lit/decorators.js";
+import {state, customElement} from "lit/decorators.js";
 import {ZomeElement} from "@ddd-qc/lit-happ";
 import {VouchPerspective, VouchZvm} from "../viewModel/vouch.zvm";
 import {VouchThreshold} from "../bindings/vouch.types";
 
 /**
- * @element vouch-dashboard
+ * @element
  */
+@customElement("create-vouch-threshold")
 export class CreateVouchThreshold extends ZomeElement<VouchPerspective, VouchZvm> {
 
     /** */

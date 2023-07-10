@@ -131,6 +131,90 @@ ValidationStatus,
 ValidationReceipt,
    } from '@holochain-open-dev/core-types';
 
+/**  */
+export interface ThresholdType {
+  name: string
+  zomeName: string
+}
+
+/**  */
+export interface MembraneCrossedClaim {
+  proofAhs: ActionHash[]
+  membraneEh: EntryHash
+  subject: AgentPubKey
+}
+
+/**  */
+export interface RoleClaim {
+  subject: AgentPubKey
+  membraneIndex: number
+  roleEh: EntryHash
+  membraneClaimEh: EntryHash
+}
+
+/**  */
+export interface MembraneRole {
+  name: string
+  privileges: Privilege[]
+  enteringMembraneEhs: EntryHash[]
+}
+
+/**  */
+export interface Membrane {
+  thresholdEhs: EntryHash[]
+}
+
+export interface SignedActionHash {
+  ah: ActionHash
+  signature: Signature
+}
+
+export interface MembraneThreshold {
+  typeName: string
+  data: Uint8Array
+}
+
+/**  */
+export interface ThresholdReachedProof {
+  thresholdEh: EntryHash
+  signedAhs: SignedActionHash[]
+}
+
+export type CrudType =
+  | {Create: null} | {Read: null} | {Update: null} | {Delete: null};
+export enum CrudTypeType {
+	Create = 'Create',
+	Read = 'Read',
+	Update = 'Update',
+	Delete = 'Delete',
+}
+
+export interface Privilege {
+  entry_def: AppEntryDef
+  crud: string
+}
+
+export interface HasRoleInput {
+  subject: AgentPubKey
+  roleEh: EntryHash
+}
+
+export interface ClaimRoleInput {
+  subject: AgentPubKey
+  roleEh: EntryHash
+  membraneIndex: number
+}
+
+export interface MembraneInput {
+  subject: AgentPubKey
+  membraneEh: EntryHash
+}
+
+export interface ClaimThresholdInput {
+  subject: AgentPubKey
+  threshold: MembraneThreshold
+}
+
 export const VOUCH_THRESHOLD_NAME = "Vouch";
 
 export interface Vouch {

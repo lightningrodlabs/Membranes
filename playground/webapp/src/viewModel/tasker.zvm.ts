@@ -9,7 +9,7 @@ import {
 } from "@holochain/client";
 import {TaskerProxy} from '../bindings/tasker.proxy';
 import {TaskItem} from '../bindings/tasker.types';
-import {ZomeViewModel, CellProxy} from "@ddd-qc/lit-happ";
+import {ZomeViewModel, CellProxy, DnaViewModel} from "@ddd-qc/lit-happ";
 import {MembranesProxy} from "@membranes/elements";
 import {MEMBRANES_ZOME_NAME} from "./tasker.dvm";
 import {TaskerPerspective, TaskItemMaterialized, TaskListMaterialized} from "./tasker.perspective";
@@ -29,8 +29,8 @@ export class TaskerZvm extends ZomeViewModel {
   private _membranesProxy: MembranesProxy;
 
 
-  constructor(cellProxy: CellProxy, zomeName?: ZomeName) {
-    super(cellProxy, zomeName);
+  constructor(cellProxy: CellProxy, dvmParent: DnaViewModel, zomeName?: ZomeName) {
+    super(cellProxy, dvmParent, zomeName);
     this._membranesProxy = new MembranesProxy(cellProxy, MEMBRANES_ZOME_NAME);
   }
 

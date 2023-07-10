@@ -1,5 +1,5 @@
 import {css, html} from "lit";
-import {property, state} from "lit/decorators.js";
+import {property, state, customElement} from "lit/decorators.js";
 import { ZomeElement } from "@ddd-qc/lit-happ";
 import {AgentPubKeyB64, CoordinatorZome} from "@holochain/client";
 import {MyAppEntryType} from "../bindings/createEntryCount.types";
@@ -8,8 +8,9 @@ import {CreateEntryCountZvm} from "../viewModel/createEntryCount.zvm";
 
 
 /**
- * @element create-entry-dashboard
+ * @element
  */
+@customElement("create-entry-dashboard")
 export class CreateEntryDashboard extends ZomeElement<void, CreateEntryCountZvm> {
 
   /** */

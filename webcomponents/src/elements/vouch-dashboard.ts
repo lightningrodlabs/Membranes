@@ -1,5 +1,5 @@
 import {css, html} from "lit";
-import {property, state} from "lit/decorators.js";
+import {property, state, customElement} from "lit/decorators.js";
 import {AgentPubKeyB64} from "@holochain/client";
 
 import { ZomeElement } from "@ddd-qc/lit-happ";
@@ -7,8 +7,9 @@ import {VouchPerspective, VouchZvm} from "../viewModel/vouch.zvm";
 
 
 /**
- * @element vouch-dashboard
+ * @element
  */
+@customElement("vouch-dashboard")
 export class VouchDashboard extends ZomeElement<VouchPerspective, VouchZvm> {
 
   /** */

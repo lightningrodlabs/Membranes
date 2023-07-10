@@ -30,7 +30,7 @@ export default {
       browser: true,
       preferBuiltins: false,
     }),
-    typescript({ experimentalDecorators: true, outDir: DIST_FOLDER }),
+    //typescript({ experimentalDecorators: true, outDir: DIST_FOLDER }),
     /** Compile JS to a lower language target */
     babel({
       exclude: /node_modules/,

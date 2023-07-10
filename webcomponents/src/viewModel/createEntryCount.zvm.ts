@@ -49,6 +49,7 @@ export class CreateEntryCountZvm extends ZomeViewModel {
     /** */
     async probeThresholds(): Promise<void> {
         this._perspective.thresholds = await this.zomeProxy.getAllThresholdsCreateEntryCount();
+        console.log("probeThresholds()", this._perspective.thresholds);
         this.notifySubscribers();
     }
 
@@ -57,6 +58,7 @@ export class CreateEntryCountZvm extends ZomeViewModel {
 
     /** */
     async createThreshold(entryType: MyAppEntryType, requiredCount: number): Promise<EntryHash> {
+        console.log("createThreshold()", entryType);
         const typed: CreateEntryCountThreshold = {
             entryType: entryType,
             requiredCount: requiredCount,

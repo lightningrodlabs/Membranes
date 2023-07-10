@@ -1,5 +1,5 @@
 import {css, html} from "lit";
-import {state, property} from "lit/decorators.js";
+import {state, property, customElement} from "lit/decorators.js";
 import {ZomeElement} from "@ddd-qc/lit-happ";
 import {CreateEntryCountPerspective, CreateEntryCountZvm} from "../viewModel/createEntryCount.zvm";
 import {CreateEntryCountThreshold, MyAppEntryType} from "../bindings/createEntryCount.types";
@@ -7,8 +7,9 @@ import {CoordinatorZome} from "@holochain/client";
 
 
 /**
- * @element vouch-dashboard
+ * @element
  */
+@customElement("create-cec-threshold")
 export class CreateCecThreshold extends ZomeElement<CreateEntryCountPerspective, CreateEntryCountZvm> {
 
     /** */
@@ -27,10 +28,12 @@ export class CreateCecThreshold extends ZomeElement<CreateEntryCountPerspective,
     @property()
     zomeNames: string[] = [];
 
+
     /** -- Methods -- */
 
     /** After first render only */
     async firstUpdated() {
+        console.log("<create-cec-threshold>.firstUpdated()")
         await this.refresh();
         this._initialized = true;
     }
@@ -45,14 +48,21 @@ export class CreateCecThreshold extends ZomeElement<CreateEntryCountPerspective,
 
     /** */
     describeThreshold(typed: CreateEntryCountThreshold): string {
+        console.log("describeThreshold()", typed, this.allAppEntryTypes);
         const zomeName = this.zomeNames[typed.entryType.zomeIndex];
+        console.log({zomeName})
         const zomeTypes = this.allAppEntryTypes[zomeName];
         console.log({zomeTypes})
-        const entryType = zomeTypes[typed.entryType.entryIndex]
+        const entryType = zomeTypes[typed.entryType.entryIndex];
+        if (!entryType) {
+            console.warn("EntryType not found.")
+            return `Create ${typed.requiredCount} entries of type "${zomeName}::${typed.entryType.entryIndex}"`;
+        }
         return `Create ${typed.requiredCount} entries of type "${zomeName}::${entryType[0]}"`;
     }
 
 
+    /** */
     getZomeIndex(zomeName: string): number {
         for (let i = 0; i < this.zomeNames.length; i += 1) {
             if (this.zomeNames[i] == zomeName) {

@@ -51,8 +51,8 @@ export class TaskerApp extends HappElement {
   private _dnaDef?: DnaDefinition;
 
   /** */
-  async happInitialized() {
-    console.log("happInitialized()")
+  async hvmConstructed() {
+    console.log("hvmConstructed()")
     //new ContextProvider(this, cellContext, this.taskerDvm.cell);
     /** Authorize all zome calls */
     const adminWs = await AdminWebsocket.connect(`ws://localhost:${process.env.ADMIN_PORT}`);
@@ -66,6 +66,7 @@ export class TaskerApp extends HappElement {
     await this.hvm.probeAll();
     this._allAppEntryTypes = await this.taskerDvm.fetchAllEntryDefs();
     console.log("happInitialized(), _allAppEntryTypes", this._allAppEntryTypes);
+    // TODO: Fix issue: zTasker entry_defs() not found. Maybe confusion with integrity zome name?
     /** Done */
     this._loaded = true;
   }

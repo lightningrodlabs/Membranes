@@ -16,9 +16,13 @@ pub fn register_threshold_type(tt: ThresholdType) -> ExternResult<ActionHash> {
 #[hdk_extern]
 pub fn get_all_registered_threshold_types(_ : ()) -> ExternResult<Vec<ThresholdType>> {
    debug!("get_all_registered_threshold_types() zome_info = {:?}", zome_info()?);
-   let entry_type = MembranesEntryTypes::ThresholdType.try_into().unwrap();
+   let entry_type: EntryType = MembranesEntryTypes::ThresholdType.try_into().unwrap();
    debug!("get_all_registered_threshold_types() entry_type = {:?}", entry_type);
-   return get_all_typed_local(entry_type);
+   let tts = get_all_typed_local::<ThresholdType>(entry_type)?
+      .into_iter()
+      .map(|(_ah, _create, th)| th)
+      .collect();
+   Ok(tts)
 }
 
 

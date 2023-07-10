@@ -1,5 +1,5 @@
 import {css, html} from "lit";
-import {property, state} from "lit/decorators.js";
+import {property, state, customElement} from "lit/decorators.js";
 import {EntryHashB64} from "@holochain/client";
 
 import { ZomeElement } from "@ddd-qc/lit-happ";
@@ -8,8 +8,9 @@ import {MembranesPerspective} from "../viewModel/membranes.perspective";
 
 
 /**
- * @element membranes-creator-page
+ * @element
  */
+@customElement("membranes-creator-page")
 export class MembranesCreatorPage extends ZomeElement<MembranesPerspective, MembranesZvm> {
   /** */
   constructor() {
