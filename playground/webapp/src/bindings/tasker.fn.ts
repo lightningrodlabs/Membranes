@@ -5,7 +5,9 @@ import {ZomeName, FunctionName} from '@holochain/client';
 
 /** Array of all zome function names in "tasker" */
 export const taskerFunctionNames: FunctionName[] = [
-	"entry_defs",
+	"entry_defs", 
+	"get_zome_info", 
+	"get_dna_info",
 
 
 
@@ -22,7 +24,7 @@ export const taskerFunctionNames: FunctionName[] = [
 
 /** Generate tuple array of function names with given zomeName */
 export function generateTaskerZomeFunctionsArray(zomeName: ZomeName): [ZomeName, FunctionName][] {
-   let fns: [ZomeName, FunctionName][] = [];
+   const fns: [ZomeName, FunctionName][] = [];
    for (const fn of taskerFunctionNames) {
       fns.push([zomeName, fn]);
    }

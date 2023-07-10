@@ -5,7 +5,9 @@ import {ZomeName, FunctionName} from '@holochain/client';
 
 /** Array of all zome function names in "membranes" */
 export const membranesFunctionNames: FunctionName[] = [
-	"entry_defs",
+	"entry_defs", 
+	"get_zome_info", 
+	"get_dna_info",
 
 	"get_all_membranes_details",
 	"get_all_roles",
@@ -44,7 +46,7 @@ export const membranesFunctionNames: FunctionName[] = [
 
 /** Generate tuple array of function names with given zomeName */
 export function generateMembranesZomeFunctionsArray(zomeName: ZomeName): [ZomeName, FunctionName][] {
-   let fns: [ZomeName, FunctionName][] = [];
+   const fns: [ZomeName, FunctionName][] = [];
    for (const fn of membranesFunctionNames) {
       fns.push([zomeName, fn]);
    }

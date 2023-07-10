@@ -117,13 +117,6 @@ export class VouchDashboard extends ZomeElement<VouchPerspective, VouchZvm> {
 
 
   /** */
-  static get scopedElements() {
-    return {
-      //'sl-tooltip': SlTooltip,
-    };
-  }
-
-
   static get styles() {
     return [
       css``,

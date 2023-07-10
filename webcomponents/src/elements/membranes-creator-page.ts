@@ -234,13 +234,6 @@ export class MembranesCreatorPage extends ZomeElement<MembranesPerspective, Memb
 
 
     /** */
-    static get scopedElements() {
-        return {
-            //'sl-tooltip': SlTooltip,
-        };
-    }
-
-
     static get styles() {
         return [
             css``,

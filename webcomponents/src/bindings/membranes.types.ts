@@ -9,6 +9,7 @@ WasmHash,
 EntryHash,
 ActionHash,
 AnyDhtHash,
+ExternalHash,
 KitsuneAgent,
 KitsuneSpace,
 HoloHashB64,
@@ -23,11 +24,12 @@ Signature,
 CellId,
 DnaProperties,
 RoleName,
+InstalledCell,
 Timestamp,
 Duration,
 HoloHashed,
 NetworkInfo,
-FetchQueueInfo,
+FetchPoolInfo,
 /** hdk/action.ts */
 SignedActionHashed,
 ActionHashed,
@@ -47,10 +49,11 @@ Create,
 /** hdk/capabilities.ts */
 CapSecret,
 CapClaim,
+GrantedFunctionsType,
+GrantedFunctions,
 ZomeCallCapGrant,
 CapAccess,
 CapGrant,
-GrantedFunctionsType,
 ///** hdk/countersigning.ts */
 //CounterSigningSessionData,
 //PreflightRequest,
@@ -78,6 +81,8 @@ Record as HcRecord,
 RecordEntry as HcRecordEntry,
 /** api/admin/types.ts */
 InstalledAppInfoStatus,
+DeactivationReason,
+DisabledAppReason,
 StemCell,
 ProvisionedCell,
 ClonedCell,
@@ -159,6 +164,11 @@ export interface Membrane {
   thresholdEhs: EntryHash[]
 }
 
+export interface SignedActionHash {
+  ah: ActionHash
+  signature: Signature
+}
+
 export interface MembraneThreshold {
   typeName: string
   data: Uint8Array
@@ -167,11 +177,17 @@ export interface MembraneThreshold {
 /**  */
 export interface ThresholdReachedProof {
   thresholdEh: EntryHash
-  signedActions: SignedActionHashed[]
+  signedAhs: SignedActionHash[]
 }
 
 export type CrudType =
   | {Create: null} | {Read: null} | {Update: null} | {Delete: null};
+export enum CrudTypeType {
+	Create = 'Create',
+	Read = 'Read',
+	Update = 'Update',
+	Delete = 'Delete',
+}
 
 export interface Privilege {
   entry_def: AppEntryDef
@@ -215,10 +231,6 @@ export type MembranesEntryVariantRoleClaim = {RoleClaim: RoleClaim}
 export type MembranesEntryVariantThresholdType = {ThresholdType: ThresholdType}
 export type MembranesEntry = 
  | MembranesEntryVariantThreshold | MembranesEntryVariantMembrane | MembranesEntryVariantRole | MembranesEntryVariantMembraneCrossedClaim | MembranesEntryVariantRoleClaim | MembranesEntryVariantThresholdType;
-
-export interface MembraneZomeProperties {
-  progenitors: AgentPubKeyB64[]
-}
 
 /** Listing all Holochain Path used in this DNA */
 export const Roles = "Roles";

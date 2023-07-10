@@ -15,7 +15,7 @@
     "build:bindings"         : "bash scripts/ts-bindings.sh",
     "build:webcomponents"    : "npm run build -w @membranes/elements",
     "build:playground"       : "npm run build -w playground/webapp",
-    "build:all"              : "npm run clean:hc & npm run build:happ && npm run build:webcomponents && npm run build:playground",
+    "build:all"              : "npm run clean:hc & npm run build:happ && npm run build:bindings && npm run build:webcomponents && npm run build:playground",
 
     "devtest"                : "npm run build:all && concurrently \"npm run build:watch -w webcomponents\" \"npm run build:watch -w playground/webapp\" \"npm run start\"",
     "watch:webcomponents"    : "npm run build:watch -w webcomponents",
@@ -46,6 +46,14 @@
     "new-port-cli": "^1.0.0",
     "run-singleton-cli": "^0.0.5",
     "json-parse-better-errors": "^1.0.2"
+  },
+  "dependencies": {
+    "@ddd-qc/cell-proxy"            : "0.19.4",
+    "@ddd-qc/lit-happ"              : "0.19.4",
+    "@holochain-open-dev/core-types": "^0.6.3",
+    "@holochain/client"             : "=0.14.1",
+    "@lit-labs/context"             : "0.2.0",
+    "lit"                           : "2.6.0"
   },
   "engines": {
     "npm": ">=7.0.0"

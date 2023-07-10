@@ -5,7 +5,9 @@ import {ZomeName, FunctionName} from '@holochain/client';
 
 /** Array of all zome function names in "progenitor" */
 export const progenitorFunctionNames: FunctionName[] = [
-	"entry_defs",
+	"entry_defs", 
+	"get_zome_info", 
+	"get_dna_info",
 
 
 	"claim_threshold_Progenitor",];
@@ -13,7 +15,7 @@ export const progenitorFunctionNames: FunctionName[] = [
 
 /** Generate tuple array of function names with given zomeName */
 export function generateProgenitorZomeFunctionsArray(zomeName: ZomeName): [ZomeName, FunctionName][] {
-   let fns: [ZomeName, FunctionName][] = [];
+   const fns: [ZomeName, FunctionName][] = [];
    for (const fn of progenitorFunctionNames) {
       fns.push([zomeName, fn]);
    }
