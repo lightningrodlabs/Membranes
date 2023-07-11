@@ -3,6 +3,20 @@ use membranes_types::*;
 //use crate::{MembranesEntryTypes};
 //use crate::get_index;
 //use crate::zome_properties::is_progenitor;
+use crate::*;
+
+
+fn index_to_variant(entry_def_index: EntryDefIndex) -> ExternResult<MembranesEntryTypes> {
+   let mut i = 0;
+   for variant in MembranesEntryTypes::iter() {
+      if i == entry_def_index.0 {
+         return Ok(variant);
+      }
+      i += 1;
+   }
+   return Err(wasm_error!(format!("Unknown EntryDefIndex: {}", entry_def_index.0)));
+}
+
 
 
 ///
@@ -11,16 +25,15 @@ use membranes_types::*;
 pub(crate) fn validate_app_entry(_creation_action: EntryCreationAction, entry_def_index: EntryDefIndex, entry: Entry)
    -> ExternResult<ValidateCallbackResult>
 {
-   //debug!("*** validate_app_entry() callback called!");
-   return match entry_def_index.into() {
-      3 /* MembraneCrossedClaim*/ => {
+   let variant = index_to_variant(entry_def_index)?;
+   //debug!("*** index: {} => {:?}", entry_def_index.0, variant);
+   return match variant {
+      MembranesEntryTypes::MembraneCrossedClaim => {
          //assert_eq!(3, get_index(MembranesEntryTypes::MembraneCrossedClaim));
-         //debug!("validate_app_entry() membrane_claim index = {:?}", get_index(MembranesEntryTypes::MembraneCrossedClaim));
          let membrane_claim = MembraneCrossedClaim::try_from(entry)?;
          return validate_membrane_claim(membrane_claim);
-
       },
-      4 /* RoleClaim */ => {
+      MembranesEntryTypes::RoleClaim => {
          //debug!("validate_app_entry() role_claim index = {:?}", get_index(MembranesEntryTypes::RoleClaim));
          let role_claim = RoleClaim::try_from(entry)?;
          return validate_role_claim(role_claim);
