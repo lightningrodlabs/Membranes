@@ -142,20 +142,4 @@ export class TaskerApp extends HappElement {
       </cell-context>        
     `
   }
-
-  /** */
-  static get scopedElements() {
-    return {
-      "tasker-page": TaskerPage,
-      "membranes-dashboard": MembranesDashboard,
-      "membranes-creator-page": MembranesCreatorPage,
-      "vouch-dashboard": VouchDashboard,
-      "create-vouch-threshold": CreateVouchThreshold,
-      "create-cec-threshold": CreateCecThreshold,
-      "create-entry-dashboard": CreateEntryDashboard,
-      "agent-directory-list": AgentDirectoryList,
-      "view-cell-context": ViewCellContext,
-      "cell-context": CellContext,
-    };
-  }
 }

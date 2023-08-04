@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 zits -i crates/membranes_types -i crates/membranes_integrity -i crates/membranes -o webcomponents/src/bindings/membranes.ts
 
 zits --default-zome-name zThreshold_Vouch -i crates/membranes_types -i crates/threshold_Vouch_types -i crates/threshold_Vouch_integrity -i crates/threshold_Vouch -o webcomponents/src/bindings/vouch.ts
