@@ -8,5 +8,5 @@ roles:
       strategy: create
       deferred: false
     dna:
-      bundled: ../../tasker.dna
+      bundled: ../../artifacts/tasker.dna
       clone_limit: 10

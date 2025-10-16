@@ -11,7 +11,7 @@ import {
   MembraneCrossedClaim,
   MembraneRole,
   MembraneThreshold,
-  RoleClaim, ThresholdType,
+  RoleClaim,
 } from "../bindings/membranes.types";
 import {
   TypedMembrane,
@@ -23,7 +23,7 @@ import {
 
 
 /** Output a human-readable phrase out of a Threshold */
-export function describe_threshold(th: MembraneThreshold, allZomeTypes: [string, boolean][][]): string {
+export function describe_threshold(th: MembraneThreshold, _allZomeTypes: [string, boolean][][]): string {
   return th.typeName;
 }
 
@@ -60,7 +60,7 @@ export function areThresholdEqual(first: MembraneThreshold, second: MembraneThre
 export function areMembraneEqual(first: TypedMembrane, second: TypedMembrane) : boolean {
   if (first.thresholds.length !== second.thresholds.length) return false;
   for(let i = 0; i< first.thresholds.length; i++) {
-    if (!areThresholdEqual(first.thresholds[i], second.thresholds[i])) {
+    if (!areThresholdEqual(first.thresholds[i]!, second.thresholds[i]!)) {
       return false;
     }
   }
@@ -73,7 +73,7 @@ export function areMembraneEqual(first: TypedMembrane, second: TypedMembrane) : 
  */
 export class MembranesZvm extends ZomeViewModel {
 
-  static readonly ZOME_PROXY = MembranesProxy;
+  static override readonly ZOME_PROXY = MembranesProxy;
   get zomeProxy(): MembranesProxy {return this._zomeProxy as MembranesProxy;}
 
 
@@ -85,14 +85,14 @@ export class MembranesZvm extends ZomeViewModel {
   }
 
   /* */
-  protected hasChanged(): boolean {
+  protected override hasChanged(): boolean {
     // TODO
     return true;
   }
 
 
   /** */
-  async probeAll(): Promise<void> {
+  override async probeAllInner(): Promise<void> {
     await this.probeThresholdTypes();
     await this.probeThresholds();
     await this.probeMembranes();

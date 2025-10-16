@@ -1,7 +1,7 @@
-import {ZomeViewModel} from "@ddd-qc/lit-happ";
+import {AgentId, ZomeViewModel} from "@ddd-qc/lit-happ";
 import {CreateEntryCountProxy} from "../bindings/createEntryCount.proxy";
 import {CreateEntryCountThreshold, MyAppEntryType} from "../bindings/createEntryCount.types";
-import {AgentPubKeyB64, decodeHashFromBase64, EntryHash} from "@holochain/client";
+import {EntryHash} from "@holochain/client";
 
 
 /** */
@@ -15,7 +15,7 @@ export interface CreateEntryCountPerspective {
  */
 export class CreateEntryCountZvm extends ZomeViewModel {
 
-    static readonly ZOME_PROXY = CreateEntryCountProxy;
+    static override readonly ZOME_PROXY = CreateEntryCountProxy;
 
     get zomeProxy(): CreateEntryCountProxy {
         return this._zomeProxy as CreateEntryCountProxy;
@@ -34,14 +34,14 @@ export class CreateEntryCountZvm extends ZomeViewModel {
 
 
     /* */
-    protected hasChanged(): boolean {
+    protected override hasChanged(): boolean {
         // TODO
         return true;
     }
 
 
     /** */
-    async probeAll(): Promise<void> {
+    override async probeAllInner(): Promise<void> {
         await this.probeThresholds();
     }
 
@@ -70,8 +70,8 @@ export class CreateEntryCountZvm extends ZomeViewModel {
 
 
     /** */
-    async getCreateCount(agent: AgentPubKeyB64, entryType: MyAppEntryType): Promise<number> {
-        return this.zomeProxy.getCreateCount({subject: decodeHashFromBase64(agent), entryType});
+    async getCreateCount(agent: AgentId, entryType: MyAppEntryType): Promise<number> {
+        return this.zomeProxy.getCreateCount({subject: agent.hash, entryType});
     }
 
 }

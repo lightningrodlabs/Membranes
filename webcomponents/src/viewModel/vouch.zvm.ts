@@ -1,18 +1,14 @@
-import {ZomeViewModel} from "@ddd-qc/lit-happ";
+import {AgentId, ZomeViewModel} from "@ddd-qc/lit-happ";
 import {VouchProxy} from "../bindings/vouch.proxy";
 import {
-    ActionHashB64,
     AgentPubKey,
-    AgentPubKeyB64,
-    decodeHashFromBase64,
-    encodeHashToBase64,
     EntryHash
 } from "@holochain/client";
 import {Vouch, VouchThreshold} from "../bindings/vouch.types";
 
 
 export interface TypedVouch {
-    subject: AgentPubKeyB64,
+    subject: AgentId,
     forRole: string,
 }
 
@@ -20,7 +16,7 @@ export interface TypedVouch {
 export interface VouchPerspective {
     roleNames: string[],
     /** RoleName -> [[emitted],[[received,author]]] */
-    myVouches: Record<string, [TypedVouch[], [TypedVouch, AgentPubKeyB64][]]>,
+    myVouches: Record<string, [TypedVouch[], [TypedVouch, AgentId][]]>,
 
     thresholds: VouchThreshold[],
 }
@@ -31,13 +27,9 @@ export interface VouchPerspective {
  */
 export class VouchZvm extends ZomeViewModel {
 
-    static readonly ZOME_PROXY = VouchProxy;
+    static override readonly ZOME_PROXY = VouchProxy;
     get zomeProxy(): VouchProxy {return this._zomeProxy as VouchProxy;}
 
-
-    // constructor(cellProxy: CellProxy) {
-    //     super(cellProxy, "zThreshold_Vouch")
-    // }
 
     /** -- ViewModel -- */
 
@@ -47,14 +39,14 @@ export class VouchZvm extends ZomeViewModel {
     }
 
     /* */
-    protected hasChanged(): boolean {
+    protected override hasChanged(): boolean {
         // TODO
         return true;
     }
 
 
     /** */
-    async probeAll(): Promise<void> {
+    override async probeAllInner(): Promise<void> {
         await this.probeRoleNames();
         await this.probeMyVouches();
         await this.probeThresholds();
@@ -82,7 +74,7 @@ export class VouchZvm extends ZomeViewModel {
 
     /** */
     private convertVouchEntry(entry: Vouch): TypedVouch {
-        return {subject: encodeHashToBase64(entry.subject), forRole: entry.forRole};
+        return {subject: new AgentId(entry.subject), forRole: entry.forRole};
     }
 
 
@@ -97,18 +89,18 @@ export class VouchZvm extends ZomeViewModel {
     }
 
 
-    async vouchAgent(agent: AgentPubKeyB64, forRole: string): Promise<EntryHash> {
-        const res = await this.zomeProxy.publishVouch({subject: decodeHashFromBase64(agent), forRole});
+    async vouchAgent(agent: AgentId, forRole: string): Promise<EntryHash> {
+        const res = await this.zomeProxy.publishVouch({subject: agent.hash, forRole});
         this.probeAll();
         return res;
     }
 
 
     /* */
-    async getVouchAuthor(vouch: TypedVouch): Promise<AgentPubKeyB64> {
-        let entry: Vouch = {subject: decodeHashFromBase64(vouch.subject), forRole: vouch.forRole};
-    let res = await this.zomeProxy.getVouchAuthor(entry);
-    return encodeHashToBase64(res);
+    async getVouchAuthor(vouch: TypedVouch): Promise<AgentId> {
+        let entry: Vouch = {subject: vouch.subject.hash, forRole: vouch.forRole};
+        let res = await this.zomeProxy.getVouchAuthor(entry);
+        return new AgentId(res);
     }
 
 
@@ -126,11 +118,11 @@ export class VouchZvm extends ZomeViewModel {
                 }
             }
             /* */
-            let received: [TypedVouch, AgentPubKeyB64][] = [];
+            let received: [TypedVouch, AgentId][] = [];
             for (const [eh, author] of receivedPairs) {
                 const vouch = await this.zomeProxy.getVouch(eh);
                 if (vouch) {
-                    const pair: [TypedVouch, AgentPubKeyB64] = [this.convertVouchEntry(vouch), encodeHashToBase64(author)]
+                    const pair: [TypedVouch, AgentId] = [this.convertVouchEntry(vouch), new AgentId(author)]
                     received.push(pair)
                 }
             }
