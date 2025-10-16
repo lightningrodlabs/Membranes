@@ -9,4 +9,6 @@ crate-type = [ "cdylib", "rlib" ]
 [dependencies]
 serde.workspace = true
 hdi.workspace = true
+holochain_serialized_bytes.workspace = true
+
 membranes_types = {path = "../../../crates/membranes_types" }

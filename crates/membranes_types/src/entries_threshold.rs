@@ -1,13 +1,11 @@
 use hdi::prelude::*;
 
-
 #[derive(Clone, PartialEq, Debug, SerializedBytes, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct SignedActionHash {
    pub ah: ActionHash,
    pub signature: Signature,
 }
-
 
 #[hdk_entry_helper]
 #[derive(Clone, PartialEq)]
@@ -16,7 +14,6 @@ pub struct MembraneThreshold {
    pub type_name: String,
    pub data: SerializedBytes,
 }
-
 
 ///
 #[hdk_entry_helper]

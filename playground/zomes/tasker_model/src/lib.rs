@@ -10,16 +10,15 @@ mod validate;
 use hdi::prelude::*;
 
 /// List of all Entry types handled by this Zome
-#[hdk_entry_defs]
+#[hdk_entry_types]
 #[unit_enum(TaskerEntryTypes)]
 #[derive(Clone, PartialEq)]
 pub enum TaskerEntry {
-   #[entry_def(required_validations = 3, visibility = "public")]
+   #[entry_type(required_validations = 3, visibility = "public")]
    TaskList(TaskList),
-   #[entry_def(required_validations = 3, visibility = "public")]
+   #[entry_type(required_validations = 3, visibility = "public")]
    TaskItem(TaskItem),
 }
-
 
 ///
 #[hdk_entry_helper]
@@ -27,7 +26,6 @@ pub enum TaskerEntry {
 pub struct TaskList {
    pub title: String,
 }
-
 
 ///
 #[hdk_entry_helper]
@@ -39,7 +37,6 @@ pub struct TaskItem {
    pub list_eh: EntryHash, // to TaskList
 }
 
-
 /// List of all Link types handled by this Zome
 #[hdk_link_types]
 #[derive(Serialize, Deserialize)]
@@ -47,7 +44,8 @@ pub enum TaskerLinkType {
    Default,
    Path,
    TaskLists,
-   Locked,  /// RoleClaim EntryHash in Tag
+   Locked,
+   /// RoleClaim EntryHash in Tag
    Completed,
    Item,
 }

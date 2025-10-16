@@ -5,20 +5,16 @@
 #![allow(unused_attributes)]
 #![allow(unused_imports)]
 
-
 mod threshold;
-
 
 #[macro_use]
 extern crate zome_utils;
 
-
 use hdk::prelude::*;
-use zome_utils::call_self_cell;
 use membranes_types::*;
-use threshold_Progenitor_types::*;
 use threshold_Progenitor_integrity::*;
-
+use threshold_Progenitor_types::*;
+use zome_utils::call_self_cell;
 
 /// Validate DNA properties
 fn init_properties() -> ExternResult<InitCallbackResult> {
@@ -29,11 +25,8 @@ fn init_properties() -> ExternResult<InitCallbackResult> {
    //if let Ok(props) = &maybe_membrane_zome_properties {
    //let _progenitors = &props.progenitors;
    // FIXME make sure they are valid key hashs.
-
-
-
    let threshold = build_Progenitor_threshold();
-   let eh: EntryHash = call_self_cell("zMembranes","publish_threshold", threshold)?;
+   let eh: EntryHash = call_self_cell("zMembranes", "publish_threshold", threshold)?;
    debug!("*** Progenitor.init_properties() eh = {:?}", eh);
 
    /// Create threshold Entry
@@ -47,7 +40,6 @@ fn init_properties() -> ExternResult<InitCallbackResult> {
    Ok(InitCallbackResult::Pass)
 }
 
-
 /// Zome Callback
 #[hdk_extern]
 fn init(_: ()) -> ExternResult<InitCallbackResult> {
@@ -56,10 +48,16 @@ fn init(_: ()) -> ExternResult<InitCallbackResult> {
    let res: ExternResult<ActionHash> = call_self_cell(
       "zMembranes",
       "register_threshold_type",
-      ThresholdType { name: PROGENITOR_THRESHOLD_NAME.to_string(), zome_name: zome_info()?.name.to_string()},
+      ThresholdType {
+         name: PROGENITOR_THRESHOLD_NAME.to_string(),
+         zome_name: zome_info()?.name.to_string(),
+      },
    );
    if let Err(e) = res {
-      return Ok(InitCallbackResult::Fail(format!("Failed to register threshold type \"{}\": {:?}", PROGENITOR_THRESHOLD_NAME, e)));
+      return Ok(InitCallbackResult::Fail(format!(
+         "Failed to register threshold type \"{}\": {:?}",
+         PROGENITOR_THRESHOLD_NAME, e
+      )));
    }
    /// Done
    debug!("*** Progenitor.init() callback - DONE");

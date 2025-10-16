@@ -1,28 +1,28 @@
+use crate::get_create_entries;
 use hdk::prelude::*;
-use zome_utils::call_self_cell;
 use membranes_types::*;
+use std::collections::BTreeMap;
 use threshold_CreateEntryCount_integrity::*;
 use threshold_CreateEntryCount_types::*;
-use std::collections::BTreeMap;
-use crate::get_create_entries;
-
-
-
+use zome_utils::call_self_cell;
 
 #[hdk_extern]
-pub fn publish_CreateEntryCount_threshold(th: CreateEntryCountThreshold) -> ExternResult<EntryHash> {
+pub fn publish_CreateEntryCount_threshold(
+   th: CreateEntryCountThreshold,
+) -> ExternResult<EntryHash> {
    debug!("publish_CreateEntryCount_threshold() called: {:?}", th);
    let mth = MembraneThreshold {
-      type_name:  CREATE_ENTRY_COUNT_THRESHOLD_NAME.to_string(),
+      type_name: CREATE_ENTRY_COUNT_THRESHOLD_NAME.to_string(),
       data: SerializedBytes::try_from(th).unwrap(),
    };
-   return call_self_cell("zMembranes","publish_threshold", mth);
+   return call_self_cell("zMembranes", "publish_threshold", mth);
 }
-
 
 ///
 #[hdk_extern]
-pub fn get_threshold_CreateEntryCount(eh : EntryHash) -> ExternResult<Option<CreateEntryCountThreshold>> {
+pub fn get_threshold_CreateEntryCount(
+   eh: EntryHash,
+) -> ExternResult<Option<CreateEntryCountThreshold>> {
    let typed = zome_utils::get_typed_from_eh::<MembraneThreshold>(eh)?;
    if typed.type_name != CREATE_ENTRY_COUNT_THRESHOLD_NAME {
       return Ok(None);
@@ -31,31 +31,46 @@ pub fn get_threshold_CreateEntryCount(eh : EntryHash) -> ExternResult<Option<Cre
    Ok(Some(vt))
 }
 
-
 ///
 #[hdk_extern]
-pub fn get_all_thresholds_CreateEntryCount(_ : ()) -> ExternResult<Vec<CreateEntryCountThreshold>> {
-   let thresholds: Vec<MembraneThreshold> = call_self_cell("zMembranes", "get_all_thresholds", Some(CREATE_ENTRY_COUNT_THRESHOLD_NAME))?;
-   debug!("get_all_thresholds_CreateEntryCount() thresholds.len = {}", thresholds.len());
-   let typeds = thresholds.iter().map(|th| {
-      assert!(th.type_name == CREATE_ENTRY_COUNT_THRESHOLD_NAME);
-      CreateEntryCountThreshold::try_from(th.data.clone()).unwrap()
-   }).collect();
+pub fn get_all_thresholds_CreateEntryCount(_: ()) -> ExternResult<Vec<CreateEntryCountThreshold>> {
+   let thresholds: Vec<MembraneThreshold> = call_self_cell(
+      "zMembranes",
+      "get_all_thresholds",
+      Some(CREATE_ENTRY_COUNT_THRESHOLD_NAME),
+   )?;
+   debug!(
+      "get_all_thresholds_CreateEntryCount() thresholds.len = {}",
+      thresholds.len()
+   );
+   let typeds = thresholds
+      .iter()
+      .map(|th| {
+         assert!(th.type_name == CREATE_ENTRY_COUNT_THRESHOLD_NAME);
+         CreateEntryCountThreshold::try_from(th.data.clone()).unwrap()
+      })
+      .collect();
    Ok(typeds)
 }
-
 
 /// Check if subject reached threshold.
 /// Commit ThresholdReachedProof on success
 /// Returns action hash of ThresholdProof on successful claim.
 /// Returns None if claim failed.
 #[hdk_extern]
-fn claim_threshold_CreateEntryCount(input: ClaimThresholdInput) -> ExternResult<Option<ActionHash>> {
+fn claim_threshold_CreateEntryCount(
+   input: ClaimThresholdInput,
+) -> ExternResult<Option<ActionHash>> {
    if input.threshold.type_name != CREATE_ENTRY_COUNT_THRESHOLD_NAME {
-      return zome_error!("Invalid type name. Claiming \"{}\" with input \"{}\"", CREATE_ENTRY_COUNT_THRESHOLD_NAME, input.threshold.type_name);
+      return zome_error!(
+         "Invalid type name. Claiming \"{}\" with input \"{}\"",
+         CREATE_ENTRY_COUNT_THRESHOLD_NAME,
+         input.threshold.type_name
+      );
    }
-   let cec_th: CreateEntryCountThreshold = CreateEntryCountThreshold::try_from(input.threshold.data.clone())
-      .expect("Corrupt threshold data");
+   let cec_th: CreateEntryCountThreshold =
+      CreateEntryCountThreshold::try_from(input.threshold.data.clone())
+         .expect("Corrupt threshold data");
    let actions = get_create_entries(input.subject, cec_th.entry_type)?;
    if actions.len() < cec_th.required_count {
       return Ok(None);
@@ -63,9 +78,12 @@ fn claim_threshold_CreateEntryCount(input: ClaimThresholdInput) -> ExternResult<
    /// Convert actions to signed actions (-_-)
    let mut signed_ahs = Vec::new();
    for (_index, ah) in actions {
-      let record = get(ah, GetOptions::content())?
+      let record = get(ah, GetOptions::network())?
          .expect("Should be able to get the action found in agent activity");
-      signed_ahs.push(SignedActionHash {signature: record.signature().to_owned(), ah: record.action_address().to_owned()});
+      signed_ahs.push(SignedActionHash {
+         signature: record.signature().to_owned(),
+         ah: record.action_address().to_owned(),
+      });
    }
    /// Create ThresholdReachedProof
    let proof = ThresholdReachedProof {

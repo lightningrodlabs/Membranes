@@ -10,10 +10,9 @@ mod validate;
 use hdi::prelude::*;
 use membranes_types::*;
 
-
-#[hdk_entry_defs]
+#[hdk_entry_types]
 #[unit_enum(CreateEntryCountThresholdEntryTypes)]
 pub enum CreateEntryCountThresholdEntry {
-   #[entry_def(required_validations = 3, visibility = "public")]
+   #[entry_type(required_validations = 3, visibility = "public")]
    CreateEntryCountProof(ThresholdReachedProof),
 }

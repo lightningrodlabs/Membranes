@@ -1,15 +1,12 @@
-use hdk::prelude::*;
 use hdk::prelude::holo_hash::{ActionHashB64, AgentPubKeyB64, EntryHashB64};
+use hdk::prelude::*;
 use membranes_integrity::MembranesLinkType;
 use membranes_types::*;
 
-use crate::{
-   constants::*, membrane::*, publish::*,
-};
 use crate::anchors::{get_all_membranes_details, get_all_roles_details, get_role_by_name};
 use crate::claim_membrane::claim_membrane;
 use crate::get::get_my_role_claims_details;
-
+use crate::{constants::*, membrane::*, publish::*};
 
 ///
 #[hdk_extern]
@@ -20,11 +17,18 @@ pub fn claim_role_with_membrane(input: ClaimRoleInput) -> ExternResult<Option<En
    /* Check input */
    let role: MembraneRole = zome_utils::get_typed_from_eh(role_eh.clone())?;
    if input.membrane_index >= role.entering_membrane_ehs.len() {
-      return zome_error!("Invalid membrane index for role {:?}: {}", input.role_eh, input.membrane_index);
+      return zome_error!(
+         "Invalid membrane index for role {:?}: {}",
+         input.role_eh,
+         input.membrane_index
+      );
    }
    /// Check membrane claim
    let membrane_eh = role.entering_membrane_ehs[input.membrane_index].clone();
-   debug!("Claiming role '{}' with membrane {:?}", role.name, membrane_eh);
+   debug!(
+      "Claiming role '{}' with membrane {:?}",
+      role.name, membrane_eh
+   );
    let args = MembraneInput {
       subject: agent_id.clone(),
       membrane_eh: membrane_eh.clone(),
@@ -50,7 +54,6 @@ pub fn claim_role_with_membrane(input: ClaimRoleInput) -> ExternResult<Option<En
    Ok(Some(eh.into()))
 }
 
-
 ///
 #[hdk_extern]
 pub fn claim_role_by_name(role_name: String) -> ExternResult<Option<EntryHashB64>> {
@@ -68,21 +71,26 @@ pub fn claim_role_by_name(role_name: String) -> ExternResult<Option<EntryHashB64
    /// Claim Role
    let mut index = 0;
    for _membrane_eh in role.entering_membrane_ehs {
-      debug!("claim_role_by_name({}) claiming membrane {}", role_name, index);
+      debug!(
+         "claim_role_by_name({}) claiming membrane {}",
+         role_name, index
+      );
       let maybe_claim: Option<EntryHashB64> = claim_role_with_membrane(ClaimRoleInput {
          subject: agent_info()?.agent_initial_pubkey.into(),
          role_eh: role_eh.clone(),
          membrane_index: index,
       })?;
-      debug!("claim_role_by_name({}) maybe_claim[{}]: {:?}", role_name, index, maybe_claim);
+      debug!(
+         "claim_role_by_name({}) maybe_claim[{}]: {:?}",
+         role_name, index, maybe_claim
+      );
       index += 1;
       if let Some(ehb64) = maybe_claim {
-         return Ok(Some(ehb64))
+         return Ok(Some(ehb64));
       }
    }
    Ok(None)
 }
-
 
 ///
 #[hdk_extern]

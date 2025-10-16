@@ -1,10 +1,7 @@
 # Membranes
 
-A holochain zome module that allows groups to define at runtime their Membranes (i.e. processes for joining/leaving a group or gaining/losing privileges within the group)
-
-# Setup
-
-`bash ./scripts/install-hc-tools.sh`
+A holochain zome module that allows groups to define at runtime their Membranes (i.e. processes for joining/leaving a
+group or gaining/losing privileges within the group)
 
 # Experiment
 

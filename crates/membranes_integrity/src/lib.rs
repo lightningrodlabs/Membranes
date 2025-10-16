@@ -10,23 +10,22 @@ pub(crate) mod validate_app_entry;
 use hdi::prelude::*;
 use membranes_types::*;
 
-#[hdk_entry_defs]
+#[hdk_entry_types]
 #[unit_enum(MembranesEntryTypes)]
 pub enum MembranesEntry {
-   #[entry_def(required_validations = 3, visibility = "public")]
+   #[entry_type(required_validations = 3, visibility = "public")]
    Threshold(MembraneThreshold),
-   #[entry_def(required_validations = 3, visibility = "public")]
+   #[entry_type(required_validations = 3, visibility = "public")]
    Membrane(Membrane),
-   #[entry_def(required_validations = 3, visibility = "public")]
+   #[entry_type(required_validations = 3, visibility = "public")]
    Role(MembraneRole),
-   #[entry_def(required_validations = 3, visibility = "public")]
+   #[entry_type(required_validations = 3, visibility = "public")]
    MembraneCrossedClaim(MembraneCrossedClaim),
-   #[entry_def(required_validations = 3, visibility = "public")]
+   #[entry_type(required_validations = 3, visibility = "public")]
    RoleClaim(RoleClaim),
-   #[entry_def(required_validations = 3, visibility = "public")]
+   #[entry_type(required_validations = 3, visibility = "public")]
    ThresholdType(ThresholdType),
 }
-
 
 // /// Get EntryDefIndex from a unit_enum
 // pub fn get_variant_index<T: UnitEnum>(unknown: T::Unit) -> ExternResult<u8> {
@@ -40,7 +39,6 @@ pub enum MembranesEntry {
 //    }
 //    return Err(wasm_error!(WasmErrorInner::Guest("Unknown variant".to_string())));
 // }
-
 
 /// List of all Link kinds handled by this Zome
 #[hdk_link_types]

@@ -1,8 +1,8 @@
+use crate::{anchors, get_all_thresholds_details};
 use hdk::prelude::*;
-use zome_utils::get_all_typed_local;
 use membranes_integrity::MembranesLinkType;
 use membranes_types::*;
-use crate::{anchors, get_all_thresholds_details};
+use zome_utils::get_all_typed_local;
 
 ///
 #[hdk_extern]
@@ -10,13 +10,10 @@ pub fn get_all_thresholds(maybe_type_name: Option<String>) -> ExternResult<Vec<M
    let res = get_all_thresholds_details(())?;
    let mut thresholds: Vec<MembraneThreshold> = res.into_iter().map(|(_eh, th)| th).collect();
    if let Some(type_name) = maybe_type_name {
-      thresholds.retain(|th| {
-         th.type_name == type_name
-      });
+      thresholds.retain(|th| th.type_name == type_name);
    }
    Ok(thresholds)
 }
-
 
 ///
 #[hdk_extern]
@@ -28,10 +25,9 @@ pub fn get_proof(ah: ActionHash) -> ExternResult<Option<ThresholdReachedProof>> 
    }
 }
 
-
 ///
 #[hdk_extern]
-pub fn get_threshold(eh : EntryHash) -> ExternResult<Option<MembraneThreshold>> {
+pub fn get_threshold(eh: EntryHash) -> ExternResult<Option<MembraneThreshold>> {
    let maybe_typed = zome_utils::get_typed_from_eh::<MembraneThreshold>(eh);
    match maybe_typed {
       Ok(typed) => Ok(Some(typed)),
@@ -41,7 +37,7 @@ pub fn get_threshold(eh : EntryHash) -> ExternResult<Option<MembraneThreshold>> 
 
 ///
 #[hdk_extern]
-pub fn get_membrane(eh : EntryHash) -> ExternResult<Option<Membrane>> {
+pub fn get_membrane(eh: EntryHash) -> ExternResult<Option<Membrane>> {
    let maybe_typed = zome_utils::get_typed_from_eh::<Membrane>(eh);
    match maybe_typed {
       Ok(typed) => Ok(Some(typed)),
@@ -49,10 +45,9 @@ pub fn get_membrane(eh : EntryHash) -> ExternResult<Option<Membrane>> {
    }
 }
 
-
 ///
 #[hdk_extern]
-pub fn get_role(eh : EntryHash) -> ExternResult<Option<MembraneRole>> {
+pub fn get_role(eh: EntryHash) -> ExternResult<Option<MembraneRole>> {
    let maybe_typed = zome_utils::get_typed_from_eh::<MembraneRole>(eh);
    match maybe_typed {
       Ok(typed) => Ok(Some(typed)),
@@ -62,7 +57,7 @@ pub fn get_role(eh : EntryHash) -> ExternResult<Option<MembraneRole>> {
 
 ///
 #[hdk_extern]
-pub fn get_membrane_crossed_claim(eh : EntryHash) -> ExternResult<Option<MembraneCrossedClaim>> {
+pub fn get_membrane_crossed_claim(eh: EntryHash) -> ExternResult<Option<MembraneCrossedClaim>> {
    let maybe_typed = zome_utils::get_typed_from_eh::<MembraneCrossedClaim>(eh);
    match maybe_typed {
       Ok(typed) => Ok(Some(typed)),
@@ -70,12 +65,15 @@ pub fn get_membrane_crossed_claim(eh : EntryHash) -> ExternResult<Option<Membran
    }
 }
 
-
 ///
 #[hdk_extern]
-pub fn get_my_role_claims_details(_ : ()) -> ExternResult<Vec<(EntryHash, RoleClaim)>> {
+pub fn get_my_role_claims_details(_: ()) -> ExternResult<Vec<(EntryHash, RoleClaim)>> {
    std::panic::set_hook(Box::new(zome_utils::zome_panic_hook));
-   let result_pairs = zome_utils::get_typed_from_links::<RoleClaim>(agent_info()?.agent_initial_pubkey, MembranesLinkType::RolePassport, None)?;
+   let result_pairs = zome_utils::get_typed_from_links::<RoleClaim>(zome_utils::link_input(
+      agent_info()?.agent_initial_pubkey,
+      MembranesLinkType::RolePassport,
+      None,
+   ))?;
    debug!("myRoleClaims found: {}", result_pairs.len());
    let mut result = Vec::new();
    for (typed, _link) in result_pairs {
@@ -85,12 +83,18 @@ pub fn get_my_role_claims_details(_ : ()) -> ExternResult<Vec<(EntryHash, RoleCl
    Ok(result)
 }
 
-
 ///
 #[hdk_extern]
-pub fn get_my_membrane_claims_details(_ : ()) -> ExternResult<Vec<(EntryHash, MembraneCrossedClaim)>> {
+pub fn get_my_membrane_claims_details(
+   _: (),
+) -> ExternResult<Vec<(EntryHash, MembraneCrossedClaim)>> {
    std::panic::set_hook(Box::new(zome_utils::zome_panic_hook));
-   let result_pairs = zome_utils::get_typed_from_links::<MembraneCrossedClaim>(agent_info()?.agent_initial_pubkey, MembranesLinkType::MembranePassport, None)?;
+   let result_pairs =
+      zome_utils::get_typed_from_links::<MembraneCrossedClaim>(zome_utils::link_input(
+         agent_info()?.agent_initial_pubkey,
+         MembranesLinkType::MembranePassport,
+         None,
+      ))?;
    debug!("myMembraneClaims found: {}", result_pairs.len());
    let mut result = Vec::new();
    for (typed, _link) in result_pairs {

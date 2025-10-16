@@ -5,22 +5,17 @@
 #![allow(unused_attributes)]
 #![allow(unused_imports)]
 
-
 mod threshold;
-
 
 #[macro_use]
 extern crate zome_utils;
 
-
 use hdk::prelude::*;
-use zome_utils::call_self_cell;
-use threshold_CreateEntryCount_types::*;
 use membranes_types::*;
 use threshold_CreateEntryCount_integrity::CreateEntryCountThresholdEntry;
 use threshold_CreateEntryCount_integrity::CreateEntryCountThresholdEntry::CreateEntryCountProof;
-
-
+use threshold_CreateEntryCount_types::*;
+use zome_utils::call_self_cell;
 
 /// Zome Callback
 #[hdk_extern]
@@ -29,16 +24,21 @@ fn init(_: ()) -> ExternResult<InitCallbackResult> {
    let res: ExternResult<ActionHash> = call_self_cell(
       "zMembranes",
       "register_threshold_type",
-      ThresholdType { name: CREATE_ENTRY_COUNT_THRESHOLD_NAME.to_string(), zome_name: zome_info()?.name.to_string()},
+      ThresholdType {
+         name: CREATE_ENTRY_COUNT_THRESHOLD_NAME.to_string(),
+         zome_name: zome_info()?.name.to_string(),
+      },
    );
    if let Err(e) = res {
-      return Ok(InitCallbackResult::Fail(format!("Failed to register threshold type \"{}\": {:?}", CREATE_ENTRY_COUNT_THRESHOLD_NAME, e)));
+      return Ok(InitCallbackResult::Fail(format!(
+         "Failed to register threshold type \"{}\": {:?}",
+         CREATE_ENTRY_COUNT_THRESHOLD_NAME, e
+      )));
    }
    /// Done
    debug!("*** CreateEntryCount.init() callback - DONE");
    Ok(InitCallbackResult::Pass)
 }
-
 
 #[hdk_extern]
 fn get_create_count(input: GetCreateCountInput) -> ExternResult<usize> {
@@ -46,8 +46,10 @@ fn get_create_count(input: GetCreateCountInput) -> ExternResult<usize> {
    Ok(actions.len())
 }
 
-
-fn get_create_entries(subject: AgentPubKey, entry_type: MyAppEntryType) -> ExternResult<Vec<(u32, ActionHash)>> {
+fn get_create_entries(
+   subject: AgentPubKey,
+   entry_type: MyAppEntryType,
+) -> ExternResult<Vec<(u32, ActionHash)>> {
    /// Ask subject directly
    // FIXME
    /// Ask subject's neighbours
@@ -60,4 +62,3 @@ fn get_create_entries(subject: AgentPubKey, entry_type: MyAppEntryType) -> Exter
    //debug!("get_created_entries() valid actions found: {:?}", actions);
    Ok(actions)
 }
-

@@ -5,13 +5,12 @@
 #![allow(unused_attributes)]
 #![allow(unused_imports)]
 
-pub mod privilege;
-pub mod entries_threshold;
 pub mod entries;
+pub mod entries_threshold;
+pub mod privilege;
 pub mod zfn_io;
 
-
-pub use privilege::*;
 pub use entries::*;
 pub use entries_threshold::*;
+pub use privilege::*;
 pub use zfn_io::*;

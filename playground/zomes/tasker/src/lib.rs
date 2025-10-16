@@ -5,8 +5,8 @@
 #![allow(unused_attributes)]
 #![allow(unused_imports)]
 
-mod get;
 mod basic_callbacks;
+mod get;
 mod init_membranes;
 
 #[macro_use]
@@ -18,12 +18,11 @@ mod membraned_functions;
 use hdk::prelude::*;
 use zome_utils::call_self_cell;
 
-
 ///
 pub fn call_membranes_zome<I, O>(fn_name: &str, payload: I) -> ExternResult<O>
 where
    I: serde::Serialize + std::fmt::Debug,
-   O: serde::de::DeserializeOwned + std::fmt::Debug
+   O: serde::de::DeserializeOwned + std::fmt::Debug,
 {
    debug!("call_membranes_zome() - {}()", fn_name);
    let res = call_self_cell("zMembranes", fn_name, payload);

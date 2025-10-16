@@ -4,7 +4,6 @@ use membranes_types::*;
 use threshold_Progenitor_integrity::*;
 use threshold_Progenitor_types::*;
 
-
 // ///
 // #[hdk_extern]
 // pub fn get_threshold_Progenitor(eh : EntryHash) -> ExternResult<Option<CreateEntryCountThreshold>> {
@@ -15,7 +14,6 @@ use threshold_Progenitor_types::*;
 //    let vt = ProgenitorThreshold::try_from(typed.data).unwrap();
 //    Ok(Some(vt))
 // }
-
 
 // ///
 // #[hdk_extern]
@@ -29,7 +27,6 @@ use threshold_Progenitor_types::*;
 //    Ok(typeds)
 // }
 
-
 /// Check if subject reached threshold.
 /// Commit ThresholdReachedProof on success
 /// Returns action hash of ThresholdProof on successful claim.
@@ -38,7 +35,11 @@ use threshold_Progenitor_types::*;
 fn claim_threshold_Progenitor(input: ClaimThresholdInput) -> ExternResult<Option<ActionHash>> {
    debug!("claim_threshold_Progenitor()");
    if input.threshold.type_name != PROGENITOR_THRESHOLD_NAME {
-      return zome_error!("Invalid threshold type name. Claiming \"{}\" with input \"{}\"", PROGENITOR_THRESHOLD_NAME, input.threshold.type_name);
+      return zome_error!(
+         "Invalid threshold type name. Claiming \"{}\" with input \"{}\"",
+         PROGENITOR_THRESHOLD_NAME,
+         input.threshold.type_name
+      );
    }
    let succeeded = is_progenitor(input.subject)?;
    if !succeeded {
@@ -53,4 +54,3 @@ fn claim_threshold_Progenitor(input: ClaimThresholdInput) -> ExternResult<Option
    /// Done
    Ok(Some(ah))
 }
-

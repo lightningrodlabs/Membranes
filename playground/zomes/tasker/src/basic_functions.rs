@@ -1,12 +1,11 @@
+use hdk::prelude::holo_hash::{ActionHashB64, AgentPubKeyB64};
 use hdk::prelude::*;
-use hdk::prelude::holo_hash::{AgentPubKeyB64, ActionHashB64};
 use tasker_model::*;
-
 
 #[hdk_extern]
 pub fn create_task_list(title: String) -> ExternResult<ActionHash> {
    std::panic::set_hook(Box::new(zome_utils::zome_panic_hook));
-   let entry =TaskerEntry::TaskList(TaskList {title});
+   let entry = TaskerEntry::TaskList(TaskList { title });
    let eh = hash_entry(entry.clone())?;
    let ah = create_entry(entry)?;
    let anchor_eh = Path::from("lists")
@@ -22,7 +21,6 @@ pub fn create_task_list(title: String) -> ExternResult<ActionHash> {
    Ok(ah)
 }
 
-
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct CreateTaskItemInput {
@@ -34,7 +32,11 @@ pub struct CreateTaskItemInput {
 #[hdk_extern]
 pub fn create_task_item(input: CreateTaskItemInput) -> ExternResult<ActionHash> {
    std::panic::set_hook(Box::new(zome_utils::zome_panic_hook));
-   let taskItem = TaskItem {title: input.title, assignee: input.assignee, list_eh: input.list_eh.clone() };
+   let taskItem = TaskItem {
+      title: input.title,
+      assignee: input.assignee,
+      list_eh: input.list_eh.clone(),
+   };
    let entry = TaskerEntry::TaskItem(taskItem);
    let eh = hash_entry(entry.clone())?;
    let ah = create_entry(entry)?;
@@ -46,7 +48,6 @@ pub fn create_task_item(input: CreateTaskItemInput) -> ExternResult<ActionHash> 
    )?;
    Ok(ah)
 }
-
 
 // TODO
 //
@@ -66,7 +67,6 @@ pub fn create_task_item(input: CreateTaskItemInput) -> ExternResult<ActionHash> 
 //    Ok(res)
 // }
 
-
 #[hdk_extern]
 pub fn complete_task(task_eh: EntryHash) -> ExternResult<ActionHash> {
    std::panic::set_hook(Box::new(zome_utils::zome_panic_hook));
@@ -81,7 +81,6 @@ pub fn complete_task(task_eh: EntryHash) -> ExternResult<ActionHash> {
    )?;
    Ok(link_ah)
 }
-
 
 // #[hdk_extern]
 // pub fn lock_task_list(list_eh: EntryHash) -> ExternResult<ActionHash> {
@@ -99,10 +98,13 @@ pub fn complete_task(task_eh: EntryHash) -> ExternResult<ActionHash> {
 //    Ok(link_ah)
 // }
 
-
 #[hdk_extern]
 fn is_list_locked(list_eh: EntryHash) -> ExternResult<bool> {
    std::panic::set_hook(Box::new(zome_utils::zome_panic_hook));
-   let locked_links = get_links(list_eh.clone(), TaskerLinkType::Locked, None)?;
+   let locked_links = get_links(zome_utils::link_input(
+      list_eh.clone(),
+      TaskerLinkType::Locked,
+      None,
+   ))?;
    Ok(locked_links.len() > 0)
 }

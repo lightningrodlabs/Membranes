@@ -1,19 +1,17 @@
-use std::collections::BTreeMap;
-use hdk::prelude::*;
 use hdk::prelude::holo_hash::{ActionHashB64, AgentPubKeyB64, EntryHashB64};
-use serde::__private::de::Content::String;
-use zome_utils::{call_self_cell, get_typed_from_eh};
+use hdk::prelude::*;
 #[allow(unused_imports)]
 use membranes_integrity::*;
 use membranes_types::*;
+use serde::__private::de::Content::String;
+use std::collections::BTreeMap;
+use zome_utils::{call_self_cell, get_typed_from_eh};
 
-use crate::{anchors::*, constants::*};
 use crate::anchors::get_role_by_name;
-use crate::publish::{publish_MembraneCrossedClaim};
+use crate::publish::publish_MembraneCrossedClaim;
 use crate::register::get_zome_for_threshold;
-use crate::role::{has_role};
-
-
+use crate::role::has_role;
+use crate::{anchors::*, constants::*};
 
 ///
 #[hdk_extern]
@@ -36,7 +34,6 @@ pub fn claim_all_membranes(_: ()) -> ExternResult<usize> {
    Ok(claim_count)
 }
 
-
 /// Returns a MembraneCrossedClaim EntryHash on success, None if claim failed
 #[hdk_extern]
 pub fn claim_membrane(input: MembraneInput) -> ExternResult<Option<EntryHashB64>> {
@@ -50,7 +47,7 @@ pub fn claim_membrane(input: MembraneInput) -> ExternResult<Option<EntryHashB64>
    for threshold_eh in membrane.threshold_ehs {
       let maybe_threshold_proof = claim_threshold(agent_id.clone(), threshold_eh)?;
       if maybe_threshold_proof.is_none() {
-         return Ok(None)
+         return Ok(None);
       }
       proof_ahs.push(maybe_threshold_proof.unwrap());
    }
@@ -65,16 +62,18 @@ pub fn claim_membrane(input: MembraneInput) -> ExternResult<Option<EntryHashB64>
    Ok(Some(eh.into()))
 }
 
-
 /// Returns ActionHash of ThresholdProof, None if claim failed
-fn claim_threshold(subject: AgentPubKey, threshold_eh: EntryHash) -> ExternResult<Option<ActionHash>> {
+fn claim_threshold(
+   subject: AgentPubKey,
+   threshold_eh: EntryHash,
+) -> ExternResult<Option<ActionHash>> {
    let threshold: MembraneThreshold = get_typed_from_eh(threshold_eh)?;
    /// Call "claim_threshold_<thresholdTypeName>" on threshold's zome
    let zome_name = get_zome_for_threshold(threshold.type_name.clone())?;
    let maybe_ah: Option<ActionHash> = call_self_cell(
       &zome_name,
       &format!("claim_threshold_{}", threshold.type_name),
-      ClaimThresholdInput {subject, threshold},
+      ClaimThresholdInput { subject, threshold },
    )?;
    /// Done
    Ok(maybe_ah)

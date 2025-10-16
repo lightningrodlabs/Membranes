@@ -1,13 +1,10 @@
-use hdk::prelude::*;
 use hdk::prelude::holo_hash::{ActionHashB64, AgentPubKeyB64, EntryHashB64};
+use hdk::prelude::*;
 use membranes_integrity::MembranesLinkType;
 use membranes_types::*;
 
-use crate::{
-   constants::*, membrane::*, publish::*,
-};
 use crate::anchors::{get_all_membranes_details, get_all_roles_details, get_role_by_name};
-
+use crate::{constants::*, membrane::*, publish::*};
 
 ///
 #[hdk_extern]
@@ -15,15 +12,13 @@ pub fn get_role_with_name(name: String) -> ExternResult<Option<(EntryHash, Membr
    std::panic::set_hook(Box::new(zome_utils::zome_panic_hook));
    debug!("get_role_with_name() CALLED");
    /// Get Role
-   let Some(role) = get_role_by_name(name)?
-   else {
+   let Some(role) = get_role_by_name(name)? else {
       return Ok(None);
    };
    let eh = hash_entry(role.clone())?;
    debug!("get_role_with_name() {:?}", eh);
    Ok(Some((eh, role)))
 }
-
 
 /// Returns Signed RoleClaim Create Action for that Role, if exists
 /// Return None if subject does not have any Claim for that Role
@@ -33,21 +28,27 @@ pub fn has_role(input: HasRoleInput) -> ExternResult<Option<SignedActionHashed>>
    debug!("has_role()");
    let agent_id: AgentPubKey = input.subject.into();
    let role_eh: EntryHash = input.role_eh.into();
-   let link_pairs  = zome_utils::get_typed_from_links::<RoleClaim>(agent_id, MembranesLinkType::RolePassport, None)?;
+   let link_pairs = zome_utils::get_typed_from_links::<RoleClaim>(zome_utils::link_input(
+      agent_id,
+      MembranesLinkType::RolePassport,
+      None,
+   ))?;
    for (claim, link) in link_pairs {
       if &claim.role_eh == &role_eh {
          // let eh = hash_entry(claim)?;
          let target: AnyDhtHash = link.target.into_entry_hash().unwrap().into();
-         let claim_record = get(target, GetOptions::content())?
+         let claim_record = get(target, GetOptions::network())?
             .expect("Should be able to 'get' Claim targeted by link");
-         debug!("has_role() DONE signed_action: {:?}", claim_record.signed_action);
-         return Ok(Some(claim_record.signed_action))
+         debug!(
+            "has_role() DONE signed_action: {:?}",
+            claim_record.signed_action
+         );
+         return Ok(Some(claim_record.signed_action));
       }
    }
    debug!("has_role() DONE - None");
    Ok(None)
 }
-
 
 /// Remote call to ask agent if it has a certain role
 /// Returns entry hash of membraneCrossingProof for that Role, if exists

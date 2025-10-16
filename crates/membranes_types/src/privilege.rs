@@ -13,5 +13,5 @@ pub enum CrudType {
 pub struct Privilege {
    pub entry_def: AppEntryDef,
    pub crud: String, // FIXME use bitflags instead
-   //pub condition: String
+                     //pub condition: String
 }

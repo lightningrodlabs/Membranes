@@ -13,10 +13,9 @@ use membranes_types::*;
 
 pub use zome_properties::*;
 
-
-#[hdk_entry_defs]
+#[hdk_entry_types]
 #[unit_enum(ProgenitorThresholdEntryTypes)]
 pub enum ProgenitorThresholdEntry {
-   #[entry_def(required_validations = 3, visibility = "public")]
+   #[entry_type(required_validations = 3, visibility = "public")]
    ProgenitorProof(ThresholdReachedProof),
 }

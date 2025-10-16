@@ -9,7 +9,6 @@ use hdi::prelude::*;
 
 pub const VOUCH_THRESHOLD_NAME: &'static str = "Vouch";
 
-
 #[hdk_entry_helper]
 #[derive(Clone, PartialEq)]
 #[serde(rename_all = "camelCase")]
@@ -18,8 +17,6 @@ pub struct Vouch {
    pub for_role: String,
 }
 
-
-
 #[derive(Clone, PartialEq, Debug, Serialize, Deserialize, SerializedBytes)]
 #[serde(rename_all = "camelCase")]
 pub struct VouchThreshold {
@@ -27,5 +24,3 @@ pub struct VouchThreshold {
    pub by_role: String,
    pub for_role: String,
 }
-
-

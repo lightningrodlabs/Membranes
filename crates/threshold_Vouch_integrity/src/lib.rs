@@ -11,15 +11,14 @@ use hdi::prelude::*;
 use membranes_types::*;
 use threshold_Vouch_types::*;
 
-#[hdk_entry_defs]
+#[hdk_entry_types]
 #[unit_enum(VouchThresholdEntryTypes)]
 pub enum VouchThresholdEntry {
-   #[entry_def(required_validations = 3, visibility = "public")]
+   #[entry_type(required_validations = 3, visibility = "public")]
    VouchProof(ThresholdReachedProof),
-   #[entry_def(required_validations = 3, visibility = "public")]
+   #[entry_type(required_validations = 3, visibility = "public")]
    Vouch(Vouch),
 }
-
 
 /// Get EntryDefIndex from a unit_enum
 pub(crate) fn get_variant_index<T: UnitEnum>(unknown: T::Unit) -> ExternResult<u8> {
@@ -31,7 +30,9 @@ pub(crate) fn get_variant_index<T: UnitEnum>(unknown: T::Unit) -> ExternResult<u
       }
       i += 1;
    }
-   return Err(wasm_error!(WasmErrorInner::Guest("Unknown variant".to_string())));
+   return Err(wasm_error!(WasmErrorInner::Guest(
+      "Unknown variant".to_string()
+   )));
 }
 
 /// List of all Link kinds handled by this Zome

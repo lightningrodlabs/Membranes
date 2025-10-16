@@ -1,9 +1,9 @@
 use hdk::prelude::*;
 //use hdk::hash_path::path::Component;
+use crate::*;
 #[allow(unused_imports)]
 use membranes_integrity::*;
 use membranes_types::MembraneThreshold;
-use crate::*;
 
 /// Zome Callback
 #[hdk_extern]
@@ -20,7 +20,6 @@ fn init(_: ()) -> ExternResult<InitCallbackResult> {
    Ok(InitCallbackResult::Pass)
 }
 
-
 /// Initialize paths
 fn init_anchors() -> ExternResult<InitCallbackResult> {
    let root_path = Path::from(anchors::Roles);
@@ -35,18 +34,15 @@ fn init_anchors() -> ExternResult<InitCallbackResult> {
    Ok(InitCallbackResult::Pass)
 }
 
-
 ///
 fn init_capabilities() -> ExternResult<InitCallbackResult> {
    let mut functions = BTreeSet::new();
    functions.insert((zome_info()?.name, REMOTE_ENDPOINT.into()));
    //functions.insert((zome_info()?.name, "get_enc_key".into()));
-   create_cap_grant(
-      CapGrantEntry {
-         tag: "".into(),
-         access: ().into(), // empty access converts to unrestricted
-         functions: hdk::prelude::GrantedFunctions::Listed(functions),
-      }
-   )?;
+   create_cap_grant(CapGrantEntry {
+      tag: "".into(),
+      access: ().into(), // empty access converts to unrestricted
+      functions: hdk::prelude::GrantedFunctions::Listed(functions),
+   })?;
    Ok(InitCallbackResult::Pass)
 }
