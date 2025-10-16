@@ -24,5 +24,5 @@ pub struct MembraneThreshold {
 #[serde(rename_all = "camelCase")]
 pub struct ThresholdReachedProof {
    pub threshold_eh: EntryHash,
-   pub signed_ahs: Vec<SignedActionHash>, // List of All signed action hashess required for proving a threshold
+   pub signed_ahs: Vec<SignedActionHash>, // List of All signed action hashes required for proving a threshold
 }
