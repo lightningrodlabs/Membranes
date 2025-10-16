@@ -8,9 +8,6 @@ export const taskerFunctionNames: FunctionName[] = [
 	"entry_defs", 
 	"get_zome_info", 
 	"get_dna_info",
-
-
-
 	"create_task_list",
 	"create_task_item",
 	"complete_task",

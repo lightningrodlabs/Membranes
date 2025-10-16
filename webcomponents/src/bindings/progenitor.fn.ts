@@ -8,9 +8,8 @@ export const progenitorFunctionNames: FunctionName[] = [
 	"entry_defs", 
 	"get_zome_info", 
 	"get_dna_info",
-
-
-	"claim_threshold_Progenitor",];
+	"claim_threshold_Progenitor",
+];
 
 
 /** Generate tuple array of function names with given zomeName */

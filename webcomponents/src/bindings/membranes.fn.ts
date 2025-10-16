@@ -8,13 +8,11 @@ export const membranesFunctionNames: FunctionName[] = [
 	"entry_defs", 
 	"get_zome_info", 
 	"get_dna_info",
-
 	"get_all_membranes_details",
 	"get_all_roles",
 	"get_all_roles_details",
 	"get_role_by_name",
 	"get_all_thresholds_details",
-
 	"claim_all_membranes",
 	"claim_membrane",
 	"claim_role_with_membrane",
@@ -41,7 +39,8 @@ export const membranesFunctionNames: FunctionName[] = [
 	"get_zome_for_threshold",
 	"get_role_with_name",
 	"has_role",
-	"do_i_have_role",];
+	"do_i_have_role",
+];
 
 
 /** Generate tuple array of function names with given zomeName */

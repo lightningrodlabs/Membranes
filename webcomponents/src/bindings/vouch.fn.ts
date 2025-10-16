@@ -8,8 +8,6 @@ export const vouchFunctionNames: FunctionName[] = [
 	"entry_defs", 
 	"get_zome_info", 
 	"get_dna_info",
-
-
 	"get_all_role_names",
 	"publish_vouch_threshold",
 	"get_threshold_Vouch",
@@ -19,7 +17,8 @@ export const vouchFunctionNames: FunctionName[] = [
 	"get_vouch",
 	"publish_vouch",
 	"get_my_emitted_vouches",
-	"get_my_received_vouches",];
+	"get_my_received_vouches",
+];
 
 
 /** Generate tuple array of function names with given zomeName */

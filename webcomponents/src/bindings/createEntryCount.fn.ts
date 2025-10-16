@@ -8,13 +8,12 @@ export const createEntryCountFunctionNames: FunctionName[] = [
 	"entry_defs", 
 	"get_zome_info", 
 	"get_dna_info",
-
-
 	"get_create_count",
 	"publish_CreateEntryCount_threshold",
 	"get_threshold_CreateEntryCount",
 	"get_all_thresholds_CreateEntryCount",
-	"claim_threshold_CreateEntryCount",];
+	"claim_threshold_CreateEntryCount",
+];
 
 
 /** Generate tuple array of function names with given zomeName */
