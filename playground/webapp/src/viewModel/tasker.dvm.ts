@@ -2,7 +2,7 @@ import { DnaViewModel, ZvmDef } from "@ddd-qc/lit-happ";
 import { MembranesZvm, VouchZvm, CreateEntryCountZvm } from "@membranes/elements";
 import {TaskerZvm} from "./tasker.zvm"
 import {AgentDirectoryZvm} from "@ddd-qc/agent-directory"
-import {AppSignalCb} from "@holochain/client";
+import {SignalCb} from "@holochain/client";
 
 
 export const MEMBRANES_ZOME_NAME = "zMembranes";
@@ -14,8 +14,8 @@ export const MEMBRANES_ZOME_NAME = "zMembranes";
 
   /** -- DnaViewModel Interface -- */
 
-  static readonly DEFAULT_BASE_ROLE_NAME = "rTasker";
-  static readonly ZVM_DEFS: ZvmDef[] = [
+  static override readonly DEFAULT_BASE_ROLE_NAME = "rTasker";
+  static override readonly ZVM_DEFS: ZvmDef[] = [
    TaskerZvm,
    [MembranesZvm, MEMBRANES_ZOME_NAME],
    [AgentDirectoryZvm, "zAgentDirectory"],
@@ -23,7 +23,7 @@ export const MEMBRANES_ZOME_NAME = "zMembranes";
    VouchZvm,
   ];
 
-  readonly signalHandler?: AppSignalCb;
+  readonly signalHandler?: SignalCb;
 
 
   /** QoL Helpers */
@@ -36,8 +36,8 @@ export const MEMBRANES_ZOME_NAME = "zMembranes";
 
   /** -- ViewModel Interface -- */
 
-  protected hasChanged(): boolean {return true}
+  protected override hasChanged(): boolean {return true}
 
-  get perspective(): void {return}
+  get perspective(): {} {return {}}
 
 }

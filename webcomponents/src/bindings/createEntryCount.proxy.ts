@@ -81,7 +81,8 @@ ValidationStatus, ValidationReceipt,
 
 import {ZomeProxy} from '@ddd-qc/lit-happ';
 import {createEntryCountFunctionNames} from './createEntryCount.fn';
-import {CreateEntryCountUnitEnum, CreateEntryCountLinkType} from './createEntryCount.integrity';
+import {CreateEntryCountUnitEnum} from './createEntryCount.integrity';
+
 
 /**
  *
@@ -90,7 +91,7 @@ export class CreateEntryCountProxy extends ZomeProxy {
   static override readonly DEFAULT_ZOME_NAME = "zThreshold_CreateEntryCount";
   static override readonly FN_NAMES = createEntryCountFunctionNames;
   static override readonly ENTRY_TYPES = Object.values(CreateEntryCountUnitEnum);
-  static override readonly LINK_TYPES = Object.values(CreateEntryCountLinkType);
+  static override readonly LINK_TYPES = [];
  
   async getCreateCount(input: GetCreateCountInput): Promise<number> {
     return this.call('get_create_count', input);

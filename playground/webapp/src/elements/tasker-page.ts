@@ -1,9 +1,8 @@
-import {css, html} from "lit";
+import {html} from "lit";
 import {property, state, customElement} from "lit/decorators.js";
-import { DnaElement } from "@ddd-qc/lit-happ";
+import {AgentId, DnaElement, EntryId} from "@ddd-qc/lit-happ";
 import { TaskerDvm } from "../viewModel/tasker.dvm";
 import {TaskerPerspective, TaskListMaterialized} from "../viewModel/tasker.perspective";
-import {AgentPubKeyB64, encodeHashToBase64, EntryHashB64} from "@holochain/client";
 
 
 /**
@@ -18,7 +17,7 @@ export class TaskerPage extends DnaElement<unknown, TaskerDvm> {
 
   /** -- Fields -- */
   @state() private _initialized = false;
-  @state() private _selectedListEh?: EntryHashB64;
+  @state() private _selectedListEh: EntryId | undefined = undefined;
 
   @property({ type: Boolean, attribute: 'debug' })
   debugMode: boolean = false;
@@ -29,7 +28,7 @@ export class TaskerPage extends DnaElement<unknown, TaskerDvm> {
 
   /** -- Methods -- */
 
-  protected async dvmUpdated(newDvm: TaskerDvm, oldDvm?: TaskerDvm): Promise<void> {
+  protected override async dvmUpdated(newDvm: TaskerDvm, oldDvm?: TaskerDvm): Promise<void> {
     console.log("<tasker-page>.dvmUpdated()");
     if (oldDvm) {
       console.log("\t Unsubscribed to taskerZvm's roleName = ", oldDvm.taskerZvm.cell.name)
@@ -59,16 +58,16 @@ export class TaskerPage extends DnaElement<unknown, TaskerDvm> {
 
 
   /** */
-  async onCreateList(e: any) {
+  async onCreateList(_e: any) {
     const input = this.shadowRoot!.getElementById("listTitleInput") as HTMLInputElement;
     let res = await this._dvm.taskerZvm.createTaskList(input.value);
-    //console.log("onCreateList() res:", res)
+    console.debug("onCreateList() res:", res)
     input.value = "";
   }
 
 
   /** */
-  async onCreateTask(e: any) {
+  async onCreateTask(_e: any) {
     //console.log("onCreateTask() CALLED", e)
     if (!this._selectedListEh) {
       return;
@@ -80,21 +79,21 @@ export class TaskerPage extends DnaElement<unknown, TaskerDvm> {
     /* Title */
     const input = this.shadowRoot!.getElementById("itemTitleInput") as HTMLInputElement;
     //console.log(input)
-    let res = this._dvm.taskerZvm.createTaskItem(input.value, assignee, this._selectedListEh!);
-    //console.log("onCreateList res:", res)
+    let res = this._dvm.taskerZvm.createTaskItem(input.value, new AgentId(assignee), this._selectedListEh!);
+    console.debug("onCreateList res:", res)
     input.value = "";
   }
 
 
   /** */
-  async onLockList(e: any) {
+  async onLockList(_e: any) {
     //console.log("onLockList() CALLED", this.selectedListEh)
     if (!this._selectedListEh) {
       return;
     }
     try {
       let res = await this._dvm.taskerZvm.lockTaskList(this._selectedListEh!);
-      //console.log("onLockList() res =", res)
+      console.debug("onLockList() res =", res)
     } catch (e:any) {
       console.warn(e);
       alert("Must be editor to lock list 😋")
@@ -111,7 +110,7 @@ export class TaskerPage extends DnaElement<unknown, TaskerDvm> {
       return;
     }
     console.log("onListSelect() value", selector.value)
-    this._selectedListEh = selector.value;
+    this._selectedListEh = new EntryId(selector.value);
     this.requestUpdate();
   }
 
@@ -122,11 +121,11 @@ export class TaskerPage extends DnaElement<unknown, TaskerDvm> {
     if (!selectedList) {
       return;
     }
-    for (const [ehb64, taskItem] of selectedList.items) {
+    for (const [ehb64, _taskItem] of selectedList.items) {
       const checkbox = this.shadowRoot!.getElementById(ehb64) as HTMLInputElement;
       //console.log("" + checkbox.checked + ". checkbox " + ehb64)
       if (checkbox.checked) {
-        await this._dvm.taskerZvm.completeTask(ehb64)
+        await this._dvm.taskerZvm.completeTask(new EntryId(ehb64))
       }
     }
 
@@ -136,7 +135,7 @@ export class TaskerPage extends DnaElement<unknown, TaskerDvm> {
 
 
   /** */
-  render() {
+  override render() {
     console.log("<tasker-page.render()> render()", this._initialized, this._selectedListEh);
     if (!this._initialized) {
       return html`<span>Loading...</span>`;
@@ -145,11 +144,11 @@ export class TaskerPage extends DnaElement<unknown, TaskerDvm> {
 
     let taskListEntries = this._dvm.taskerZvm.perspective.taskListEntries;
     console.log("<tasker-page.render()> render() taskListEntries", taskListEntries);
-    let agents: AgentPubKeyB64[] = this._dvm.AgentDirectoryZvm.perspective.agents;
+    let agents: AgentId[] = this._dvm.AgentDirectoryZvm.perspective.agents;
     let myRoles = this._dvm.taskerZvm.perspective.myRoles;
     let maybeSelectedList: TaskListMaterialized | undefined = undefined;
     if (this._selectedListEh !== undefined) {
-      maybeSelectedList = this._dvm.taskerZvm.perspective.taskLists[this._selectedListEh];
+      maybeSelectedList = this._dvm.taskerZvm.perspective.taskLists[this._selectedListEh!.b64];
       if (!maybeSelectedList === undefined) {
          console.warn("No list found for selectedListEh", this._selectedListEh);
       //   //this.refresh();
@@ -174,9 +173,9 @@ export class TaskerPage extends DnaElement<unknown, TaskerDvm> {
     )
 
     const AgentOptions = Object.entries(agents).map(
-        ([index, agentIdB64]) => {
+        ([_index, agentId]) => {
           //console.log("" + index + ". " + agentIdB64)
-          return html `<option value="${agentIdB64}">${agentIdB64.substring(0, 12)}</option>`
+          return html `<option value="${agentId}">${agentId.short}</option>`
         }
     )
 
@@ -185,11 +184,11 @@ export class TaskerPage extends DnaElement<unknown, TaskerDvm> {
     let selectedListHtml = html `<h3>none</h3>`
     if (maybeSelectedList !== undefined) {
       const listItems = Object.entries(maybeSelectedList!.items).map(
-          ([index, [ahB64, taskItem]]) => {
+          ([_index, [ahB64, taskItem]]) => {
             ///console.log("taskItem:", taskItem)
             return html`
               <input type="checkbox" id="${ahB64}" value="${ahB64}" .checked=${taskItem.isCompleted} .disabled=${maybeSelectedList!.isLocked || taskItem.isCompleted}>              
-              <label for="${ahB64}"><b>${taskItem.entry.title}</b></label><span> - <i>${encodeHashToBase64(taskItem.entry.assignee)}</i></span><br>
+              <label for="${ahB64}"><b>${taskItem.entry.title}</b></label><span> - <i>${taskItem.entry.assignee}</i></span><br>
               `
           }
       )

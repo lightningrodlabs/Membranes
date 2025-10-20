@@ -20,7 +20,7 @@ export class MembranesCreatorPage extends ZomeElement<MembranesPerspective, Memb
 
     /** -- Fields -- */
     @state() private _initialized = false;
-    @state() private _selectedZomeName = ""
+    //@state() private _selectedZomeName = ""
     @state() private _membranesForCurrentRole: EntryHashB64[] = [];
     @state() private _thresholdsForCurrentMembrane: EntryHashB64[] = [];
 
@@ -31,7 +31,7 @@ export class MembranesCreatorPage extends ZomeElement<MembranesPerspective, Memb
     /** -- Methods -- */
 
     /** After first render only */
-    async firstUpdated() {
+    override async firstUpdated() {
         //console.log("membranes-creator-page first update done!")
         await this._zvm.probeAll();
         this._initialized = true;
@@ -92,8 +92,8 @@ export class MembranesCreatorPage extends ZomeElement<MembranesPerspective, Memb
     /** */
     onZomeSelect(e: any) {
         console.log("onZomeSelect() CALLED", e)
-        const zomeSelector = this.shadowRoot!.getElementById("selectedZome") as HTMLSelectElement;
-        this._selectedZomeName = zomeSelector.value;
+        //const zomeSelector = this.shadowRoot!.getElementById("selectedZome") as HTMLSelectElement;
+        //this._selectedZomeName = zomeSelector.value;
     }
 
 
@@ -150,7 +150,7 @@ export class MembranesCreatorPage extends ZomeElement<MembranesPerspective, Memb
 
 
     /** */
-    render() {
+    override render() {
         console.log("<membranes-creator-page> render()", this._initialized);
         if (!this._initialized) {
             return html`<span>Loading...</span>`;
@@ -175,7 +175,7 @@ export class MembranesCreatorPage extends ZomeElement<MembranesPerspective, Memb
 
         const thresholdsLi = Object.entries(this._thresholdsForCurrentMembrane).map(
             ([_index, ehB64]) => {
-                return html `<li>${describe_threshold(thresholds[ehB64], allZomeTypes)}: ${ehB64}</li>`
+                return html `<li>${describe_threshold(thresholds[ehB64]!, allZomeTypes)}: ${ehB64}</li>`
             }
         )
 
@@ -235,7 +235,7 @@ export class MembranesCreatorPage extends ZomeElement<MembranesPerspective, Memb
 
 
     /** */
-    static get styles() {
+    static override get styles() {
         return [
             css``,
         ];

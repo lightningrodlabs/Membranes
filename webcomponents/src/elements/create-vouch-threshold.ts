@@ -1,4 +1,4 @@
-import {css, html} from "lit";
+import {html} from "lit";
 import {state, customElement} from "lit/decorators.js";
 import {ZomeElement} from "@ddd-qc/lit-happ";
 import {VouchPerspective, VouchZvm} from "../viewModel/vouch.zvm";
@@ -22,7 +22,7 @@ export class CreateVouchThreshold extends ZomeElement<VouchPerspective, VouchZvm
     /** -- Methods -- */
 
     /** After first render only */
-    async firstUpdated() {
+    override async firstUpdated() {
         await this.refresh();
         this._initialized = true;
     }
@@ -48,12 +48,12 @@ export class CreateVouchThreshold extends ZomeElement<VouchPerspective, VouchZvm
         const forRole = input2.value;
         const input3 = this.shadowRoot!.getElementById("byRoleInput") as HTMLInputElement;
         const byRole = input3.value;
-        let _res = this._zvm.createThreshold(count, byRole, forRole);
+        /*let _res = */ this._zvm.createThreshold(count, byRole, forRole);
     }
 
 
     /** */
-    render() {
+    override render() {
         console.log("<create-vouch-threshold> render()", this._initialized, this.perspective.roleNames);
         if (!this._initialized) {
             return html`<span>Loading...</span>`;

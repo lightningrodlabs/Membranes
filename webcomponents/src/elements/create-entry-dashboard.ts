@@ -1,6 +1,6 @@
-import {css, html} from "lit";
+import {html} from "lit";
 import {property, state, customElement} from "lit/decorators.js";
-import { ZomeElement } from "@ddd-qc/lit-happ";
+import {AgentId, ZomeElement} from "@ddd-qc/lit-happ";
 import {AgentPubKeyB64, CoordinatorZome} from "@holochain/client";
 import {MyAppEntryType} from "../bindings/createEntryCount.types";
 import {CreateEntryCountZvm} from "../viewModel/createEntryCount.zvm";
@@ -34,7 +34,7 @@ export class CreateEntryDashboard extends ZomeElement<void, CreateEntryCountZvm>
 
   getZomeIndex(zomeName: string): number {
     for (let i = 0; i < this.zomeIndexes.length; i += 1) {
-      if (this.zomeIndexes[i][0] == zomeName) {
+      if (this.zomeIndexes[i]![0] == zomeName) {
         return i;
       }
     }
@@ -58,17 +58,17 @@ export class CreateEntryDashboard extends ZomeElement<void, CreateEntryCountZvm>
     const entrySelector = this.shadowRoot!.getElementById("selectedEntryType") as HTMLSelectElement;
     const zomeIndex = this.getZomeIndex(zomeSelector.value);
     const entryType: MyAppEntryType = {entryIndex: entrySelector.selectedIndex, zomeIndex, isPublic: true};  // FIXME
-    this._queryResult = await this._zvm.getCreateCount(agentSelector.value, entryType);
+    this._queryResult = await this._zvm.getCreateCount(new AgentId(agentSelector.value), entryType);
   }
 
 
   /** */
-  render() {
+  override render() {
     console.log("<create-entry-dashboard> render()");
 
     /* Agents */
     const agentOptions = Object.entries(this.knownAgents).map(
-        ([index, agentIdB64]) => {
+        ([_index, agentIdB64]) => {
           //console.log("" + index + ". " + agentIdB64)
           return html `<option value="${agentIdB64}">${agentIdB64.substring(0, 12)}</option>`
         }
@@ -78,14 +78,15 @@ export class CreateEntryDashboard extends ZomeElement<void, CreateEntryCountZvm>
           return html`<option>${zomeName}</option>`
         }
     )
-    let zomeTypes = Object.entries(this.allAppEntryTypes)
+    let zomeTypesList = Object.entries(this.allAppEntryTypes)
         .filter((item) => {return item[0] == this._selectedZomeName;})
         .map((item) => {return item[1]});
-    console.log({zomeTypes})
+    console.log({zomeTypesList})
 
     let entryTypeOptions = null;
-    if (zomeTypes.length > 0) {
-      entryTypeOptions = Object.entries(zomeTypes[0]).map(
+    if (zomeTypesList.length > 0) {
+        let zomeTypes: [string, boolean][] = zomeTypesList[0]!;
+      entryTypeOptions = Object.entries(zomeTypes).map(
           ([_zomeName, pair]) => {
             return html`<option>${pair[0]}</option>`;
           });

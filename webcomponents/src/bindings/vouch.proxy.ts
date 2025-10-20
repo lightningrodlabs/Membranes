@@ -81,7 +81,8 @@ ValidationStatus, ValidationReceipt,
 
 import {ZomeProxy} from '@ddd-qc/lit-happ';
 import {vouchFunctionNames} from './vouch.fn';
-import {VouchUnitEnum, VouchLinkType} from './vouch.integrity';
+import {VouchUnitEnum} from './vouch.integrity';
+import {VouchLinkType} from './vouch.integrity';
 
 /**
  *

@@ -1,32 +1,33 @@
 import { html } from "lit";
-import {property, state} from "lit/decorators.js";
-import {TaskerPage} from "./elements/tasker-page";
-import {
-  VouchDashboard,
-  MembranesDashboard,
-  MembranesCreatorPage,
-  CreateEntryDashboard, CreateVouchThreshold, CreateCecThreshold,
-} from "@membranes/elements";
-import {AgentDirectoryList} from "@ddd-qc/agent-directory";
+import {customElement, state} from "lit/decorators.js";
 import { TaskerDvm } from "./viewModel/tasker.dvm";
 import {
-  HvmDef, HappElement, HCL, ViewCellContext, CellDef, CellContext, delay, Cell
+    HvmDef, HappElement, HCL, CellDef, Cell, AgentId
 } from "@ddd-qc/lit-happ";
-import {AdminWebsocket, AgentPubKeyB64, DnaDefinition, RoleName} from "@holochain/client";
+import {AdminWebsocket, DnaDefinition, RoleName} from "@holochain/client";
 
 
 /**
  *
  */
+@customElement("tasker-app")
 export class TaskerApp extends HappElement {
 
-  /** Ctor */
-  constructor() {
-    super(Number(process.env.HC_PORT));
-  }
+    /** All arguments should be provided when constructed explicity */
+    // @ts-ignore
+    constructor(appWs?: AppWebsocket, private adminWs?: AdminWebsocket, readonly appId?: InstalledAppId, public _appletView?: AppletView) {
+        /** Figure out arguments for super() */
+        const appPort: number = Number(process.env.HC_APP_PORT);
+        const adminUrl = adminWs
+            ? undefined
+            : process.env.HC_ADMIN_PORT
+                ? new URL(`ws://localhost:${process.env.HC_ADMIN_PORT}`)
+                : undefined;
+        super(appWs? appWs : appPort, appId, adminUrl, 10 * 1000);
+    }
 
   /** HvmDef */
-  static readonly HVM_DEF: HvmDef = {
+  static override readonly HVM_DEF: HvmDef = {
     id: "hTasker",
     dvmDefs: [{ctor: TaskerDvm, isClonable: true}],
   };
@@ -51,21 +52,22 @@ export class TaskerApp extends HappElement {
   private _dnaDef?: DnaDefinition;
 
   /** */
-  async hvmConstructed() {
-    console.log("hvmConstructed()")
+  override async hvmConstructed() {
+    console.log("hvmConstructed()");
+      this.appProxy.getCellProxy(this.taskerDvm.taskerZvm.cell.address).setCanThrottle(false);
+
     //new ContextProvider(this, cellContext, this.taskerDvm.cell);
     /** Authorize all zome calls */
-    const adminWs = await AdminWebsocket.connect(`ws://localhost:${process.env.ADMIN_PORT}`);
+    const adminWs = await AdminWebsocket.connect({ url: new URL(`ws://localhost:${process.env.HC_ADMIN_PORT}`)});
     console.log({adminWs});
     await this.hvm.authorizeAllZomeCalls(adminWs);
     console.log("*** Zome call authorization complete");
-    this._dnaDef = await adminWs.getDnaDefinition(this.taskerDvm.cell.id[0]);
+    this._dnaDef = await adminWs.getDnaDefinition(this.taskerDvm.cell.address.dnaId.hash);
     console.log("happInitialized() dnaDef", this._dnaDef);
     /** Probe */    
     this._cell = this.taskerDvm.cell;
     await this.hvm.probeAll();
-    this._allAppEntryTypes = await this.taskerDvm.fetchAllEntryDefs();
-    console.log("happInitialized(), _allAppEntryTypes", this._allAppEntryTypes);
+    console.log("happInitialized(), _allAppEntryTypes", this.taskerDvm.allEntryDefs);
     // TODO: Fix issue: zTasker entry_defs() not found. Maybe confusion with integrity zome name?
     /** Done */
     this._loaded = true;
@@ -85,7 +87,7 @@ export class TaskerApp extends HappElement {
       cloneName: "My Kingdom",
       modifiers: {
         properties: {
-          progenitors: [this.taskerDvm.cell.agentPubKey],
+          progenitors: [this.taskerDvm.cell.address.agentId.b64],
         },
       }
     }
@@ -97,12 +99,12 @@ export class TaskerApp extends HappElement {
 
 
   /** */
-  render() {
+  override render() {
     console.log("*** <tasker-app> render()", this._loaded, this.taskerDvm.membranesZvm.perspective)
     if (!this._loaded) {
       return html`<span>Loading...</span>`;
     }
-    let knownAgents: AgentPubKeyB64[] = this.taskerDvm.AgentDirectoryZvm.perspective.agents;
+    let knownAgents: AgentId[] = this.taskerDvm.AgentDirectoryZvm.perspective.agents;
     //console.log({coordinator_zomes: this._dnaDef?.coordinator_zomes})
     const zomeNames = this._dnaDef?.coordinator_zomes.map((zome) => { return zome[0]; });
     console.log({zomeNames})
@@ -136,7 +138,7 @@ export class TaskerApp extends HappElement {
         </div>
         <input type="button" value="Make me king!" @click=${() => {this.cloneTasker()}}>
         <button type="button" @click=${this.refresh}>Refresh</button>
-        <span><b>Agent:</b> ${this.taskerDvm.cell.agentPubKey}</span>
+        <span><b>Agent:</b> ${this.taskerDvm.cell.address.agentId.short}</span>
         <hr class="solid">      
         ${page}
       </cell-context>        

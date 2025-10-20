@@ -1,4 +1,4 @@
-import {css, html} from "lit";
+import {html} from "lit";
 import {property, state, customElement} from "lit/decorators.js";
 import { ZomeElement } from "@ddd-qc/lit-happ";
 
@@ -27,7 +27,7 @@ export class MembranesDashboard extends ZomeElement<MembranesPerspective, Membra
   /** -- Methods -- */
 
   /** After first render only */
-  async firstUpdated() {
+  override async firstUpdated() {
     await this.refresh();
     this._initialized = true;
   }
@@ -47,7 +47,7 @@ export class MembranesDashboard extends ZomeElement<MembranesPerspective, Membra
 
 
   /** */
-  render() {
+  override render() {
     console.log("<membranes-dashboard> render()", this._initialized);
       if (!this._initialized) {
           return html`<span>Loading...</span>`;
@@ -123,7 +123,7 @@ export class MembranesDashboard extends ZomeElement<MembranesPerspective, Membra
     )
     /* My Membrane Claims */
     const myMembraneClaimsLi = Object.entries(this.perspective.myMembraneClaims).map(
-        ([ehB64, claim]) => {
+        ([_ehB64, claim]) => {
           //console.log("membrane claim:", ehB64, claim)
           return html `<li title="proofs: ${JSON.stringify(claim.proofs)}"><abbr>${this._zvm.findMembrane(claim.membrane)}</abbr></li>`
         }

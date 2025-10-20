@@ -81,7 +81,8 @@ ValidationStatus, ValidationReceipt,
 
 import {ZomeProxy} from '@ddd-qc/lit-happ';
 import {taskerFunctionNames} from './tasker.fn';
-import {TaskerUnitEnum, TaskerLinkType} from './tasker.integrity';
+import {TaskerUnitEnum} from './tasker.integrity';
+import {TaskerLinkType} from './tasker.integrity';
 
 /**
  *

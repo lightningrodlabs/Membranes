@@ -81,7 +81,8 @@ ValidationStatus, ValidationReceipt,
 
 import {ZomeProxy} from '@ddd-qc/lit-happ';
 import {progenitorFunctionNames} from './progenitor.fn';
-import {ProgenitorUnitEnum, ProgenitorLinkType} from './progenitor.integrity';
+import {ProgenitorUnitEnum} from './progenitor.integrity';
+
 
 /**
  *
@@ -90,7 +91,7 @@ export class ProgenitorProxy extends ZomeProxy {
   static override readonly DEFAULT_ZOME_NAME = "zThreshold_Progenitor";
   static override readonly FN_NAMES = progenitorFunctionNames;
   static override readonly ENTRY_TYPES = Object.values(ProgenitorUnitEnum);
-  static override readonly LINK_TYPES = Object.values(ProgenitorLinkType);
+  static override readonly LINK_TYPES = [];
  
   async claimThresholdProgenitor(input: ClaimThresholdInput): Promise<ActionArray | null> {
     return this.call('claim_threshold_Progenitor', input);

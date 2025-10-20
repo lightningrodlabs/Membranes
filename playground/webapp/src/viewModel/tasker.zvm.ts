@@ -1,15 +1,10 @@
 import {
-  ActionHashB64,
-  AgentPubKeyB64,
-  decodeHashFromBase64,
-  encodeHashToBase64,
-  EntryHash,
-  EntryHashB64,
-  ZomeName
+    EntryHash, EntryHashB64,
+    ZomeName
 } from "@holochain/client";
 import {TaskerProxy} from '../bindings/tasker.proxy';
 import {TaskItem} from '../bindings/tasker.types';
-import {ZomeViewModel, CellProxy, DnaViewModel} from "@ddd-qc/lit-happ";
+import {ZomeViewModel, CellProxy, DnaViewModel, EntryId, AgentId, ActionId} from "@ddd-qc/lit-happ";
 import {MembranesProxy} from "@membranes/elements";
 import {MEMBRANES_ZOME_NAME} from "./tasker.dvm";
 import {TaskerPerspective, TaskItemMaterialized, TaskListMaterialized} from "./tasker.perspective";
@@ -21,16 +16,15 @@ import {TaskerPerspective, TaskItemMaterialized, TaskListMaterialized} from "./t
  */
 export class TaskerZvm extends ZomeViewModel {
 
-  static readonly ZOME_PROXY = TaskerProxy;
+  static override readonly ZOME_PROXY = TaskerProxy;
   get zomeProxy(): TaskerProxy {return this._zomeProxy as TaskerProxy;}
 
 
   /** Hack to call Membranes zome from tasker zvm */
   private _membranesProxy: MembranesProxy;
 
-
-  constructor(cellProxy: CellProxy, dvmParent: DnaViewModel, zomeName?: ZomeName) {
-    super(cellProxy, dvmParent, zomeName);
+  constructor(cellProxy: CellProxy, dvmParent: DnaViewModel, isMainView: boolean, zomeName?: ZomeName) {
+    super(cellProxy, dvmParent, isMainView, zomeName);
     this._membranesProxy = new MembranesProxy(cellProxy, MEMBRANES_ZOME_NAME);
   }
 
@@ -42,11 +36,6 @@ export class TaskerZvm extends ZomeViewModel {
   /* */
   get perspective(): TaskerPerspective {return this._perspective}
 
-  /* */
-  protected hasChanged(): boolean {
-    // TODO
-    return true;
-  }
 
 
   /** -- Methods -- */
@@ -57,19 +46,19 @@ export class TaskerZvm extends ZomeViewModel {
     console.log("pullAllLists() lists:", lists);
     //console.log("pullAllLists() taskListEntryStore:", this.taskListEntryStore);
     for (const pair of lists) {
-      const ehB64 = encodeHashToBase64(pair[0])
-      this._perspective.taskListEntries[ehB64] = pair[1];
+      const eh = new EntryId(pair[0]);
+      this._perspective.taskListEntries[eh.b64] = pair[1];
     }
 
     const listEntries = this._perspective.taskListEntries;
     //console.log({listEntries})
     let pr = Object.entries(listEntries).map(async ([listEhB64, listEntry]) => {
-      const listEh: EntryHash = decodeHashFromBase64(listEhB64);
+      const listEh: EntryHash = new EntryId(listEhB64).hash;
       const triples: [EntryHash, TaskItem, boolean][] = await this.zomeProxy.getListItems(listEh);
       //console.log({listEhB64, triples})
       const isLocked = await this.zomeProxy.isListLocked(listEh);
       const items: [EntryHashB64, TaskItemMaterialized][]= triples.map(([eh, entry, isCompleted]) => {
-        return [encodeHashToBase64(eh), {entry, isCompleted}];
+        return [new EntryId(eh).b64, {entry, isCompleted}];
       });
       const list: TaskListMaterialized = {
         title: listEntry.title,
@@ -91,7 +80,7 @@ export class TaskerZvm extends ZomeViewModel {
 
 
   /** */
-  async probeAll() {
+  override async probeAllInner() {
     console.log("taskerViewModel.probeAll() called");
     /** Reset perspective */
     this._perspective.taskListEntries = {};
@@ -119,33 +108,32 @@ export class TaskerZvm extends ZomeViewModel {
   /** Perform methods */
 
   /** */
-  async createTaskItem(title: string, assignee: AgentPubKeyB64, listEh: EntryHashB64): Promise<ActionHashB64> {
+  async createTaskItem(title: string, assignee: AgentId, listEh: EntryId): Promise<ActionId> {
     let res = await this.zomeProxy.createTaskItem({
       title,
-      assignee: decodeHashFromBase64(assignee),
-      listEh: decodeHashFromBase64(listEh),
+      assignee: assignee.hash,
+      listEh: listEh.hash,
     });
-    let resb64 = encodeHashToBase64(res);
     this.probeAll();
-    return resb64;
+    return new ActionId(res);
   }
 
   /** */
-  async createTaskList(title: string): Promise<ActionHashB64> {
-    let newList = encodeHashToBase64(await this.zomeProxy.createTaskList(title));
+  async createTaskList(title: string): Promise<ActionId> {
+    let newList = await this.zomeProxy.createTaskList(title);
     this.pullAllLists();
-    return newList;
+    return new ActionId(newList);
   }
 
-  async lockTaskList(eh: EntryHashB64): Promise<ActionHashB64> {
-    let res = encodeHashToBase64(await this.zomeProxy.membranedLockTaskList(decodeHashFromBase64(eh)));
+  async lockTaskList(eh: EntryId): Promise<ActionId> {
+    let res = await this.zomeProxy.membranedLockTaskList(eh.hash);
     this.probeAll();
-    return res;
+    return new ActionId(res);
   }
 
-  async completeTask(eh: EntryHashB64): Promise<ActionHashB64> {
-    let res = encodeHashToBase64(await this.zomeProxy.completeTask(decodeHashFromBase64(eh)));
+  async completeTask(eh: EntryId): Promise<ActionId> {
+    let res = await this.zomeProxy.completeTask(eh.hash);
     //this.pullAllFromDht();
-    return res;
+    return new ActionId(res);
   }
 }

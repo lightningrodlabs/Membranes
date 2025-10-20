@@ -81,7 +81,8 @@ ValidationStatus, ValidationReceipt,
 
 import {ZomeProxy} from '@ddd-qc/lit-happ';
 import {membranesFunctionNames} from './membranes.fn';
-import {MembranesUnitEnum, MembranesLinkType} from './membranes.integrity';
+import {MembranesUnitEnum} from './membranes.integrity';
+import {MembranesLinkType} from './membranes.integrity';
 
 /**
  *

@@ -1,9 +1,8 @@
-import {css, html} from "lit";
+import {html} from "lit";
 import {state, property, customElement} from "lit/decorators.js";
 import {ZomeElement} from "@ddd-qc/lit-happ";
 import {CreateEntryCountPerspective, CreateEntryCountZvm} from "../viewModel/createEntryCount.zvm";
 import {CreateEntryCountThreshold, MyAppEntryType} from "../bindings/createEntryCount.types";
-import {CoordinatorZome} from "@holochain/client";
 
 
 /**
@@ -32,7 +31,7 @@ export class CreateCecThreshold extends ZomeElement<CreateEntryCountPerspective,
     /** -- Methods -- */
 
     /** After first render only */
-    async firstUpdated() {
+    override async firstUpdated() {
         console.log("<create-cec-threshold>.firstUpdated()")
         await this.refresh();
         this._initialized = true;
@@ -49,9 +48,9 @@ export class CreateCecThreshold extends ZomeElement<CreateEntryCountPerspective,
     /** */
     describeThreshold(typed: CreateEntryCountThreshold): string {
         console.log("describeThreshold()", typed, this.allAppEntryTypes);
-        const zomeName = this.zomeNames[typed.entryType.zomeIndex];
+        const zomeName = this.zomeNames[typed.entryType.zomeIndex]!;
         console.log({zomeName})
-        const zomeTypes = this.allAppEntryTypes[zomeName];
+        const zomeTypes = this.allAppEntryTypes[zomeName]!;
         console.log({zomeTypes})
         const entryType = zomeTypes[typed.entryType.entryIndex];
         if (!entryType) {
@@ -81,7 +80,7 @@ export class CreateCecThreshold extends ZomeElement<CreateEntryCountPerspective,
         const entryType: MyAppEntryType = {entryIndex: entrySelector.selectedIndex, zomeIndex, isPublic: true};
         const input = this.shadowRoot!.getElementById("createEntryCountNumber") as HTMLInputElement;
         const count = Number(input.value);
-        const _res = this._zvm.createThreshold(entryType, count);
+        /*const _res =*/ this._zvm.createThreshold(entryType, count);
     }
 
 
@@ -94,7 +93,7 @@ export class CreateCecThreshold extends ZomeElement<CreateEntryCountPerspective,
 
 
     /** */
-    render() {
+    override render() {
         console.log("<create-cec-threshold> render()", this._initialized);
         if (!this._initialized) {
             return html`<span>Loading...</span>`;
@@ -109,13 +108,14 @@ export class CreateCecThreshold extends ZomeElement<CreateEntryCountPerspective,
             (zomeName) => {return html`<option>${zomeName}</option>`}
         )
 
-        let zomeTypes = Object.entries(this.allAppEntryTypes)
+        let zomeTypesList: [string, boolean][][]  = Object.entries(this.allAppEntryTypes)
             .filter((item) => {return item[0] == this._selectedZomeName;})
             .map((item) => {return item[1]});
-        console.log({zomeTypes})
+        console.log({zomeTypesList})
         let entryTypeOptions = null;
-        if (zomeTypes.length > 0) {
-            entryTypeOptions = Object.values(zomeTypes[0]).map(
+        if (zomeTypesList.length > 0) {
+            let zomeTypes: [string, boolean][] = zomeTypesList[0]!;
+            entryTypeOptions = Object.values(zomeTypes).map(
                 ([entryName, _isPublic]) => {
                     return html`<option>${entryName}</option>`;
                 });
