@@ -317,7 +317,8 @@ export class MembranesZvm extends ZomeViewModel {
 
   /** */
   async claimAll() {
-    await this.zomeProxy.claimAllRoles();
+    let res = await this.zomeProxy.claimAllRoles();
+    console.debug("claimAll() res:", res)
     await this.probeMyClaims();
   }
 
@@ -332,22 +333,20 @@ export class MembranesZvm extends ZomeViewModel {
     let store: Record<string, TypedRoleClaim> = {}
     for (const [eh, entry] of myRoleClaims) {
       const b64 = encodeHashToBase64(eh);
-      const claim = await this.convertRoleClaimEntry(entry);
-      store[b64] = claim
+      store[b64] = await this.convertRoleClaimEntry(entry);
     }
     this._perspective.myRoleClaims = store;
-    //console.log("pullMyClaims() myRoleClaims:", store)
+    console.debug("pullMyClaims() myRoleClaims:", store)
     /** Membrane Claims */
     const myMembraneClaims = await this.zomeProxy.getMyMembraneClaimsDetails();
     let membraneClaimStore: Record<string, TypedMembraneCrossedClaim> = {}
     for (const [eh, entry] of myMembraneClaims) {
       const b64 = encodeHashToBase64(eh);
-      const claim = await this.convertMembraneCrossedClaimEntry(entry);
-      membraneClaimStore[b64] = claim
+      membraneClaimStore[b64] = await this.convertMembraneCrossedClaimEntry(entry);
     }
     this._perspective.myMembraneClaims = membraneClaimStore;
     this.notifySubscribers();
-    //console.log("pullMyClaims() myMembraneClaims:", membraneClaimStore)
+    console.debug("pullMyClaims() myMembraneClaims:", membraneClaimStore)
   }
 
 
