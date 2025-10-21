@@ -144,9 +144,11 @@ export class TaskerPage extends DnaElement<unknown, TaskerDvm> {
 
     let taskListEntries = this._dvm.taskerZvm.perspective.taskListEntries;
     console.log("<tasker-page.render()> render() taskListEntries", taskListEntries);
+
     let agents: AgentId[] = this._dvm.AgentDirectoryZvm.perspective.agents;
     let myRoles = this._dvm.taskerZvm.perspective.myRoles;
     let maybeSelectedList: TaskListMaterialized | undefined = undefined;
+
     if (this._selectedListEh !== undefined) {
       maybeSelectedList = this._dvm.taskerZvm.perspective.taskLists[this._selectedListEh!.b64];
       if (!maybeSelectedList === undefined) {
@@ -172,10 +174,10 @@ export class TaskerPage extends DnaElement<unknown, TaskerDvm> {
       }
     )
 
-    const AgentOptions = Object.entries(agents).map(
-        ([_index, agentId]) => {
+    const AgentOptions = agents.map(
+        (agentId) => {
           //console.log("" + index + ". " + agentIdB64)
-          return html `<option value="${agentId}">${agentId.short}</option>`
+          return html `<option value="${agentId.b64}">${agentId.short}</option>`
         }
     )
 
@@ -183,12 +185,12 @@ export class TaskerPage extends DnaElement<unknown, TaskerDvm> {
     /** Display selected list */
     let selectedListHtml = html `<h3>none</h3>`
     if (maybeSelectedList !== undefined) {
-      const listItems = Object.entries(maybeSelectedList!.items).map(
-          ([_index, [ahB64, taskItem]]) => {
+      const listItems = maybeSelectedList!.items.map(
+          ([ehB64, taskItem]) => {
             ///console.log("taskItem:", taskItem)
             return html`
-              <input type="checkbox" id="${ahB64}" value="${ahB64}" .checked=${taskItem.isCompleted} .disabled=${maybeSelectedList!.isLocked || taskItem.isCompleted}>              
-              <label for="${ahB64}"><b>${taskItem.entry.title}</b></label><span> - <i>${taskItem.entry.assignee}</i></span><br>
+              <input type="checkbox" id="${ehB64}" value="${ehB64}" .checked=${taskItem.isCompleted} .disabled=${maybeSelectedList!.isLocked || taskItem.isCompleted}>              
+              <label for="${ehB64}"><b>${taskItem.entry.title}</b></label><span> - <i>${new AgentId(taskItem.entry.assignee).short}</i></span><br>
               `
           }
       )

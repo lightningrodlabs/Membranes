@@ -104,7 +104,6 @@ export class TaskerZvm extends ZomeViewModel {
     this.notifySubscribers()
   }
 
-
   /** Perform methods */
 
   /** */

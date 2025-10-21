@@ -1,4 +1,4 @@
-import { html } from "lit";
+import {css, html} from "lit";
 import {customElement, state} from "lit/decorators.js";
 import { TaskerDvm } from "./viewModel/tasker.dvm";
 import {
@@ -13,6 +13,12 @@ import {AdminWebsocket, DnaDefinition, RoleName} from "@holochain/client";
 @customElement("tasker-app")
 export class TaskerApp extends HappElement {
 
+    /** HvmDef */
+    static override readonly HVM_DEF: HvmDef = {
+        id: "hTasker",
+        dvmDefs: [{ctor: TaskerDvm, isClonable: true}],
+    };
+
     /** All arguments should be provided when constructed explicity */
     // @ts-ignore
     constructor(appWs?: AppWebsocket, private adminWs?: AdminWebsocket, readonly appId?: InstalledAppId, public _appletView?: AppletView) {
@@ -26,25 +32,17 @@ export class TaskerApp extends HappElement {
         super(appWs? appWs : appPort, appId, adminUrl, 10 * 1000);
     }
 
-  /** HvmDef */
-  static override readonly HVM_DEF: HvmDef = {
-    id: "hTasker",
-    dvmDefs: [{ctor: TaskerDvm, isClonable: true}],
-  };
-
   /** QoL */
   get taskerDvm(): TaskerDvm { return this.hvm.getDvm(TaskerDvm.DEFAULT_BASE_ROLE_NAME)! as TaskerDvm }
   get taskerDvmClones(): TaskerDvm[] {return this.hvm.getClones(TaskerDvm.DEFAULT_BASE_ROLE_NAME)! as TaskerDvm[]}
   taskerDvmClone(cloneId: RoleName): TaskerDvm { return this.hvm.getDvm(new HCL(this.hvm.appId, TaskerDvm.DEFAULT_BASE_ROLE_NAME, cloneId))! as TaskerDvm }
+
 
   /** -- Fields -- */
 
   @state() private _loaded = false;
 
   private _pageDisplayIndex: number = 0;
-  /** ZomeName -> (AppEntryDefName, isPublic) */
-  private _allAppEntryTypes: Record<string, [string, boolean][]> = {};
-
 
   @state() private _cell?: Cell;
 
@@ -54,7 +52,8 @@ export class TaskerApp extends HappElement {
   /** */
   override async hvmConstructed() {
     console.log("hvmConstructed()");
-      this.appProxy.getCellProxy(this.taskerDvm.taskerZvm.cell.address).setCanThrottle(false);
+    this.appProxy.getCellProxy(this.taskerDvm.taskerZvm.cell.address).setCanThrottle(false);
+    this.appProxy.getCellProxy(this.taskerDvm.membranesZvm.cell.address).setCanThrottle(false);
 
     //new ContextProvider(this, cellContext, this.taskerDvm.cell);
     /** Authorize all zome calls */
@@ -66,8 +65,8 @@ export class TaskerApp extends HappElement {
     console.log("happInitialized() dnaDef", this._dnaDef);
     /** Probe */    
     this._cell = this.taskerDvm.cell;
-    await this.hvm.probeAll();
-    console.log("happInitialized(), _allAppEntryTypes", this.taskerDvm.allEntryDefs);
+    this.hvm.probeAll();
+    console.log("happInitialized() allEntryDefs", this.taskerDvm.allEntryDefs);
     // TODO: Fix issue: zTasker entry_defs() not found. Maybe confusion with integrity zome name?
     /** Done */
     this._loaded = true;
@@ -111,16 +110,16 @@ export class TaskerApp extends HappElement {
     let page;
     switch (this._pageDisplayIndex) {
       case 0: page = html`<tasker-page style="flex: 1;"></tasker-page>` ; break;
-      case 1: page = html`<membranes-dashboard .allAppEntryTypes=${this._allAppEntryTypes} style="flex: 1;"></membranes-dashboard>`; break;
-      case 2: page = html`<membranes-creator-page .allAppEntryTypes=${this._allAppEntryTypes} style="flex: 1;"></membranes-creator-page>`; break;
+      case 1: page = html`<membranes-dashboard style="flex: 1;"></membranes-dashboard>`; break;
+      case 2: page = html`<membranes-creator-page style="flex: 1;"></membranes-creator-page>`; break;
       case 3: page = html`<vouch-dashboard .knownAgents=${knownAgents} style="flex: 1;"></vouch-dashboard>`; break;
-      case 4: page = html`<create-entry-dashboard .knownAgents=${knownAgents} .zomeIndexes="${this._dnaDef?.coordinator_zomes}" .allAppEntryTypes=${this._allAppEntryTypes} style="flex: 1;"></create-entry-dashboard>`; break;
+      case 4: page = html`<create-entry-dashboard .knownAgents=${knownAgents} .zomeIndexes="${this._dnaDef?.coordinator_zomes}" style="flex: 1;"></create-entry-dashboard>`; break;
       case 5: page = html`<create-vouch-threshold style="flex: 1;"></create-vouch-threshold>`; break;
-      case 6: page = html`<create-cec-threshold .allAppEntryTypes=${this._allAppEntryTypes} .zomeNames=${zomeNames} style="flex: 1;"></create-cec-threshold>`; break;
+      case 6: page = html`<create-cec-threshold .zomeNames=${zomeNames} style="flex: 1;"></create-cec-threshold>`; break;
       case 7: page = html`<agent-directory-list style="flex: 1;"></agent-directory-list>`; break;
 
       default: page = html`unknown page index`;
-    };
+    }
 
     /* render all */
     return html`
@@ -135,6 +134,23 @@ export class TaskerApp extends HappElement {
           <input type="button" value="Create Vouch Threshold" @click=${() => {this._pageDisplayIndex = 5; this.requestUpdate()}} >
           <input type="button" value="Create CEC Threshold" @click=${() => {this._pageDisplayIndex = 6; this.requestUpdate()}} >
           <input type="button" value="Agent Directory" @click=${() => {this._pageDisplayIndex = 7; this.requestUpdate()}} >
+            <button type="button" @click=${async () => {
+                this.taskerDvm.dumpCallLogs();
+                this.taskerDvm.dumpSignalLogs();
+                this.networkCaller?.dumpNetworkMetricsLogs();
+            }}>dump</button>
+            <input type="button" value="Loop networkInfos" @click=${async (_e:any) => {
+                console.log("networkInfos:", this.networkCaller?.isLooping(), this.networkCaller, this.taskerDvm.cell.address)
+                this.networkCaller?.setCellAddr(this.taskerDvm.cell.address)
+                if (!this.networkCaller?.isLooping()) {
+                    console.log("Start loop");
+                    //this.networkCaller?.addCallback((info: NetworkMetrics) => {console.log(info)})
+                    await this.networkCaller?.startCallLoop(1000);
+                } else {
+                    this.networkCaller?.stopCallLoop();
+                    this.networkCaller?.clearAllCallbacks();
+                }
+            }}>
         </div>
         <input type="button" value="Make me king!" @click=${() => {this.cloneTasker()}}>
         <button type="button" @click=${this.refresh}>Refresh</button>
@@ -144,4 +160,15 @@ export class TaskerApp extends HappElement {
       </cell-context>        
     `
   }
+
+    /** */
+    static override get styles() {
+        return [
+          css`
+                //:host {
+                //  margin-bottom: 50px;
+                //}
+            `
+        ]
+    }
 }

@@ -84,7 +84,7 @@ export class VouchZvm extends ZomeViewModel {
         requiredCount, byRole, forRole
     };
       let res = await this.zomeProxy.publishVouchThreshold(typed);
-      this.probeThresholds();
+      await this.probeThresholds();
       return res;
     }
 

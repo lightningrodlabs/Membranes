@@ -10,9 +10,7 @@ export interface CreateEntryCountPerspective {
 }
 
 
-/**
- *
- */
+/** */
 export class CreateEntryCountZvm extends ZomeViewModel {
 
     static override readonly ZOME_PROXY = CreateEntryCountProxy;
@@ -64,7 +62,7 @@ export class CreateEntryCountZvm extends ZomeViewModel {
             requiredCount: requiredCount,
         };
         let res = await this.zomeProxy.publishCreateEntryCountThreshold(typed);
-        this.probeThresholds();
+        await this.probeThresholds();
         return res;
     }
 

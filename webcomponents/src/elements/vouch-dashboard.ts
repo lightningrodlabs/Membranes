@@ -1,7 +1,5 @@
-import {css, html} from "lit";
+import {html} from "lit";
 import {property, state, customElement} from "lit/decorators.js";
-import {AgentPubKeyB64} from "@holochain/client";
-
 import {AgentId, ZomeElement} from "@ddd-qc/lit-happ";
 import {VouchPerspective, VouchZvm} from "../viewModel/vouch.zvm";
 
@@ -23,7 +21,7 @@ export class VouchDashboard extends ZomeElement<VouchPerspective, VouchZvm> {
   @state() private _initialized = false;
 
   @property()
-  knownAgents: AgentPubKeyB64[] = []
+  knownAgents: AgentId[] = []
 
 
   /** -- Methods -- */
@@ -59,14 +57,14 @@ export class VouchDashboard extends ZomeElement<VouchPerspective, VouchZvm> {
     }
 
     /* Agents */
-    const agentOptions = Object.values(this.knownAgents).map(
-        (agentIdB64) => {
+    const agentOptions = this.knownAgents.map(
+        (agentId) => {
           //console.log("" + index + ". " + agentIdB64)
-          return html `<option value="${agentIdB64}">${agentIdB64.substring(0, 12)}</option>`
+          return html `<option value="${agentId.b64}">${agentId.short}</option>`
         }
     )
     /* Roles */
-    const roleOptions = Object.values(this.perspective.roleNames).map(
+    const roleOptions = this.perspective.roleNames.map(
         (roleName) => {
           //console.log("" + index + ". " + agentIdB64)
           return html `<option value="${roleName}">${roleName}</option>`
@@ -75,15 +73,15 @@ export class VouchDashboard extends ZomeElement<VouchPerspective, VouchZvm> {
     /* My Emitted Vouches */
     const myEmittedLi = Object.entries(this.perspective.myVouches).map(
         ([roleName, [emitted, _received]]) => {
-          const emittedLi = Object.values(emitted).map((vouch) => { return html`<li>${vouch.subject}</li>`})
+          const emittedLi = emitted.map((vouch) => { return html`<li>${vouch.subject.b64}</li>`})
           return html `<li>${roleName}<ul>${emittedLi}</ul></li>`
         }
     )
     /* My Emitted Vouches */
     const myReceivedLi = Object.entries(this.perspective.myVouches).map(
         ([roleName, [_emitted, received]]) => {
-          const lis = Object.values(received).map(([_vouch, author]) => {
-            return html`<li>${author}</li>`;
+          const lis = received.map(([_vouch, author]) => {
+            return html`<li>${author.short}</li>`;
           })
           return html `<li>${roleName}<ul>${lis}</ul></li>`
         }
@@ -114,13 +112,5 @@ export class VouchDashboard extends ZomeElement<VouchPerspective, VouchZvm> {
         </ul>
       </div>
     `;
-  }
-
-
-  /** */
-  static override get styles() {
-    return [
-      css``,
-    ];
   }
 }

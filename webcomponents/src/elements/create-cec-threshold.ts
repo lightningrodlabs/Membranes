@@ -22,9 +22,6 @@ export class CreateCecThreshold extends ZomeElement<CreateEntryCountPerspective,
     @state() private _selectedZomeName = ""
 
     @property()
-    allAppEntryTypes: Record<string, [string, boolean][]> = {};
-
-    @property()
     zomeNames: string[] = [];
 
 
@@ -41,23 +38,27 @@ export class CreateCecThreshold extends ZomeElement<CreateEntryCountPerspective,
     /** */
     async refresh(_e?: any) {
         console.log("refresh(): Pulling data from DHT")
-        await this._zvm.probeAll();
+        this._zvm.probeAll();
     }
 
 
     /** */
     describeThreshold(typed: CreateEntryCountThreshold): string {
-        console.log("describeThreshold()", typed, this.allAppEntryTypes);
+        console.log("describeThreshold()", typed, this._zvm.allEntryDefs, this.zomeNames);
         const zomeName = this.zomeNames[typed.entryType.zomeIndex]!;
         console.log({zomeName})
-        const zomeTypes = this.allAppEntryTypes[zomeName]!;
+        const zomeTypes = this._zvm.allEntryDefs[zomeName]!;
         console.log({zomeTypes})
-        const entryType = zomeTypes[typed.entryType.entryIndex];
+        const entryType = Object.values(zomeTypes)[typed.entryType.entryIndex];
         if (!entryType) {
             console.warn("EntryType not found.")
             return `Create ${typed.requiredCount} entries of type "${zomeName}::${typed.entryType.entryIndex}"`;
         }
-        return `Create ${typed.requiredCount} entries of type "${zomeName}::${entryType[0]}"`;
+        let entryTypeName = "(Cap)";
+        if ("App" in entryType.id) {
+            entryTypeName = entryType.id.App;
+        }
+        return `Create ${typed.requiredCount} entries of type "${zomeName}::${entryTypeName}"`;
     }
 
 
@@ -94,30 +95,37 @@ export class CreateCecThreshold extends ZomeElement<CreateEntryCountPerspective,
 
     /** */
     override render() {
-        console.log("<create-cec-threshold> render()", this._initialized);
+        console.log("<create-cec-threshold> render()", this._initialized, this._selectedZomeName, this._zvm.allEntryDefs);
         if (!this._initialized) {
             return html`<span>Loading...</span>`;
         }
 
+        // let zomeTypesList = Object.entries(this._zvm.allEntryDefs)
+        //     .filter((item) => {return item[0] != this._selectedZomeName;})
+        //     .map((item) => {return item[1]});
+
+        let entryDefs = this._zvm.allEntryDefs[this._selectedZomeName];
+        console.log({entryDefs})
+
         const thresholdsLi = Object.values(this.perspective.thresholds).map(
             (vt) => {
-                return html `<li>${this.describeThreshold(vt)}</li>`
+                return html`<li>${this.describeThreshold(vt)}</li>`
             });
 
-        const zomeOptions = Object.keys(this.allAppEntryTypes).map(
+        const zomeOptions = Object.keys(this._zvm.allEntryDefs).map(
             (zomeName) => {return html`<option>${zomeName}</option>`}
         )
 
-        let zomeTypesList: [string, boolean][][]  = Object.entries(this.allAppEntryTypes)
-            .filter((item) => {return item[0] == this._selectedZomeName;})
-            .map((item) => {return item[1]});
-        console.log({zomeTypesList})
+
         let entryTypeOptions = null;
-        if (zomeTypesList.length > 0) {
-            let zomeTypes: [string, boolean][] = zomeTypesList[0]!;
-            entryTypeOptions = Object.values(zomeTypes).map(
-                ([entryName, _isPublic]) => {
-                    return html`<option>${entryName}</option>`;
+        if (entryDefs && Object.values(entryDefs).length > 0) {
+            entryTypeOptions = Object.values(entryDefs).map(
+                (entryDef) => {
+                    if ("App" in entryDef.id) {
+                        return html`<option>${entryDef.id.App}</option>`;
+                    } else {
+                        return html`<option>(Cap)</option>`;
+                    }
                 });
         }
 

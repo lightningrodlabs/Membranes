@@ -4,12 +4,15 @@
   "main": "./dist/index.js",
   "module": "./dist/index.js",
   "typings": "./dist/index.d.ts",
+  "type": "module",
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "tsc",
     "build:watch": "tsc --watch --preserveWatchOutput",
     "analyze": "lit-analyzer src --failFast"
   },
-  "type": "module",
   "devDependencies": {
     "@types/ws": "^8.5.3",
     "lit-analyzer": "^1.2.1",

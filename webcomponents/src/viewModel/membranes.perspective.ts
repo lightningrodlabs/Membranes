@@ -1,5 +1,5 @@
 import {MembraneThreshold, Privilege, ThresholdReachedProof} from "../bindings/membranes.types";
-import {AgentPubKeyB64} from "@holochain/client";
+import {AgentId} from "@ddd-qc/lit-happ";
 
 
 /** */
@@ -41,11 +41,11 @@ export interface TypedMembraneRole {
 export interface TypedMembraneCrossedClaim {
     proofs: ThresholdReachedProof[], // TODO a B64 type of SignedActionHashed
     membrane: TypedMembrane,
-    subject: AgentPubKeyB64,
+    subject: AgentId,
 }
 
 export interface TypedRoleClaim {
-    subject: AgentPubKeyB64,
+    subject: AgentId,
     membraneIndex: number,
     role: TypedMembraneRole,
     membraneClaim: TypedMembraneCrossedClaim,

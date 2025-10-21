@@ -1,7 +1,7 @@
 import {html} from "lit";
 import {property, state, customElement} from "lit/decorators.js";
 import {AgentId, ZomeElement} from "@ddd-qc/lit-happ";
-import {AgentPubKeyB64, CoordinatorZome} from "@holochain/client";
+import {CoordinatorZome} from "@holochain/client";
 import {MyAppEntryType} from "../bindings/createEntryCount.types";
 import {CreateEntryCountZvm} from "../viewModel/createEntryCount.zvm";
 
@@ -23,10 +23,7 @@ export class CreateEntryDashboard extends ZomeElement<void, CreateEntryCountZvm>
   @state() private _queryResult = 0
 
   @property()
-  knownAgents: AgentPubKeyB64[] = []
-  @property()
-  allAppEntryTypes: Record<string, [string, boolean][]> = {};
-
+  knownAgents: AgentId[] = []
 
   @property()
   zomeIndexes: CoordinatorZome[] = [];
@@ -68,27 +65,31 @@ export class CreateEntryDashboard extends ZomeElement<void, CreateEntryCountZvm>
 
     /* Agents */
     const agentOptions = Object.entries(this.knownAgents).map(
-        ([_index, agentIdB64]) => {
+        ([_index, agentId]) => {
           //console.log("" + index + ". " + agentIdB64)
-          return html `<option value="${agentIdB64}">${agentIdB64.substring(0, 12)}</option>`
+          return html `<option value="${agentId.b64}">${agentId.short}</option>`
         }
     )
-    const zomeOptions = Object.entries(this.allAppEntryTypes).map(
+    const zomeOptions = Object.entries(this._zvm.allEntryDefs).map(
         ([zomeName, _entryDef]) => {
           return html`<option>${zomeName}</option>`
         }
     )
-    let zomeTypesList = Object.entries(this.allAppEntryTypes)
+    let zomeTypesList = Object.entries(this._zvm.allEntryDefs)
         .filter((item) => {return item[0] == this._selectedZomeName;})
         .map((item) => {return item[1]});
     console.log({zomeTypesList})
 
     let entryTypeOptions = null;
     if (zomeTypesList.length > 0) {
-        let zomeTypes: [string, boolean][] = zomeTypesList[0]!;
-      entryTypeOptions = Object.entries(zomeTypes).map(
-          ([_zomeName, pair]) => {
-            return html`<option>${pair[0]}</option>`;
+        let zomeTypes = zomeTypesList[0]!;
+      entryTypeOptions = Object.values(zomeTypes).map(
+          (entryDef) => {
+              if ("App" in entryDef.id) {
+                  return html`<option>${entryDef.id.App}</option>`;
+              } else {
+                  return html`<option>(Cap)</option>`;
+              }
           });
     }
     console.log({entryTypeOptions})

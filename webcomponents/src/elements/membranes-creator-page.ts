@@ -1,9 +1,8 @@
 import {css, html} from "lit";
-import {property, state, customElement} from "lit/decorators.js";
-import {EntryHashB64} from "@holochain/client";
+import {state, customElement} from "lit/decorators.js";
 
-import { ZomeElement } from "@ddd-qc/lit-happ";
-import {describe_threshold, MembranesZvm} from "../viewModel/membranes.zvm";
+import {EntryId, ZomeElement} from "@ddd-qc/lit-happ";
+import {MembranesZvm} from "../viewModel/membranes.zvm";
 import {MembranesPerspective} from "../viewModel/membranes.perspective";
 
 
@@ -21,28 +20,25 @@ export class MembranesCreatorPage extends ZomeElement<MembranesPerspective, Memb
     /** -- Fields -- */
     @state() private _initialized = false;
     //@state() private _selectedZomeName = ""
-    @state() private _membranesForCurrentRole: EntryHashB64[] = [];
-    @state() private _thresholdsForCurrentMembrane: EntryHashB64[] = [];
-
-    @property()
-    allAppEntryTypes: Record<string, [string, boolean][]> = {};
+    @state() private _membranesForCurrentRole: EntryId[] = [];
+    @state() private _thresholdsForCurrentMembrane: EntryId[] = [];
 
 
     /** -- Methods -- */
 
     /** After first render only */
-    override async firstUpdated() {
+    override firstUpdated() {
         //console.log("membranes-creator-page first update done!")
-        await this._zvm.probeAll();
+        this._zvm.probeAll();
         this._initialized = true;
         //console.log("membranes-creator-page.init() - DONE");
     }
 
 
     /** */
-    async refresh(_e?: any) {
+    refresh(_e?: any) {
         //console.log("membranes-creator-page.refresh(): Pulling data from DHT")
-        await this._zvm.probeAll();
+        this._zvm.probeAll();
     }
 
 
@@ -61,8 +57,8 @@ export class MembranesCreatorPage extends ZomeElement<MembranesPerspective, Memb
     onAddMembrane(e: any) {
         console.log("onAddMembrane() CALLED", e)
         const membraneSelect = this.shadowRoot!.getElementById("membraneSelectedList") as HTMLSelectElement;
-        const membraneEh = membraneSelect.value;
-        console.log("membrane eh:", membraneEh);
+        const membraneEh = new EntryId(membraneSelect.value);
+        console.log("membrane eh:", membraneEh.b64);
         this._membranesForCurrentRole.push(membraneEh);
         this.requestUpdate();
     }
@@ -82,8 +78,8 @@ export class MembranesCreatorPage extends ZomeElement<MembranesPerspective, Memb
     onAddThreshold(e: any) {
         console.log("onAddThreshold() CALLED", e)
         const thresholdSelect = this.shadowRoot!.getElementById("thresholdSelectedList") as HTMLSelectElement;
-        const eh = thresholdSelect.value;
-        console.log("thresholdSelect eh:", eh);
+        const eh = new EntryId(thresholdSelect.value);
+        console.log("thresholdSelect eh:", eh.b64);
         this._thresholdsForCurrentMembrane.push(eh);
         this.requestUpdate();
     }
@@ -158,13 +154,13 @@ export class MembranesCreatorPage extends ZomeElement<MembranesPerspective, Memb
         /* grab data */
         const thresholds = this.perspective.thresholds;
         const membranes = this.perspective.membranes;
-        const allZomeTypes: [string, boolean][][] = Object.entries(this.allAppEntryTypes)
-            .map(([_name, types]) => {return types;})
+        // const allZomeTypes = Object.entries(this._zvm.allEntryDefs)
+        //     .map(([_name, types]) => {return types;})
 
         /* Elements */
         const membranesForRoleLi = Object.entries(this._membranesForCurrentRole).map(
-            ([_index, ehB64]) => {
-                return html `<li>${ehB64}</li>`
+            ([_index, eh]) => {
+                return html `<li>${eh.b64}</li>`
             }
         )
         const membraneOptions = Object.entries(membranes).map(
@@ -174,14 +170,14 @@ export class MembranesCreatorPage extends ZomeElement<MembranesPerspective, Memb
         )
 
         const thresholdsLi = Object.entries(this._thresholdsForCurrentMembrane).map(
-            ([_index, ehB64]) => {
-                return html `<li>${describe_threshold(thresholds[ehB64]!, allZomeTypes)}: ${ehB64}</li>`
+            ([_index, eh]) => {
+                return html `<li>${thresholds[eh.b64]!.typeName}: ${eh.b64}</li>`
             }
         )
 
         const thresholdOptions = Object.entries(thresholds).map(
             ([ehB64, th]) => {
-                return html `<option value="${ehB64}">${describe_threshold(th, allZomeTypes)}: ${ehB64}</option>`
+                return html `<option value="${ehB64}">${th.typeName}: ${ehB64}</option>`
             }
         )
 

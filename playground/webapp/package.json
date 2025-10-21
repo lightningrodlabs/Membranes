@@ -5,10 +5,7 @@
     "lint": "eslint --ext .ts .",
     "tsc": "tsc",
     "build": "rm -rf dist && vite build",
-
-    "start:ui": "vite dev --port $UI_PORT --clearScreen false",
-    "package": "rm -rf ui.zip && cd dist && bestzip ../ui.zip * && cd .. && hc web-app pack ./webhapp.workdir",
-    "clean:hc": "rm -rf .hc*"
+    "start": "vite --port $UI_PORT --clearScreen false"
   },
   "devDependencies": {
     "vite": "=4.5.2",

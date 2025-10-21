@@ -1,5 +1,5 @@
 import {html} from "lit";
-import {property, state, customElement} from "lit/decorators.js";
+import {state, customElement} from "lit/decorators.js";
 import { ZomeElement } from "@ddd-qc/lit-happ";
 
 import {describe_threshold, MembranesZvm} from "../viewModel/membranes.zvm";
@@ -20,23 +20,20 @@ export class MembranesDashboard extends ZomeElement<MembranesPerspective, Membra
   /** -- Fields -- */
   @state() private _initialized = false;
 
-  @property()
-  allAppEntryTypes: Record<string, [string, boolean][]> = {};
-
 
   /** -- Methods -- */
 
   /** After first render only */
-  override async firstUpdated() {
-    await this.refresh();
+  override firstUpdated() {
+    this.refresh();
     this._initialized = true;
   }
 
 
   /** */
-  async refresh(_e?: any) {
+  refresh(_e?: any) {
     console.log("membranes-dashboard.refresh(): Pulling data from DHT")
-    await this._zvm.probeAll();
+    this._zvm.probeAll();
   }
 
 
@@ -53,8 +50,8 @@ export class MembranesDashboard extends ZomeElement<MembranesPerspective, Membra
           return html`<span>Loading...</span>`;
       }
     /* Grab data */
-    const allZomeEntryTypes: [string, boolean][][] = Object.entries(this.allAppEntryTypes)
-        .map(([_name, types]) => {return types;})
+    // const allZomeEntryTypes = Object.entries(this._zvm.allEntryDefs)
+    //     .map(([_name, types]) => {return types;})
     //console.log(roles)
       /* Roles Li */
       const typesLi = Object.entries(this.perspective.thresholdTypes).map(
@@ -70,7 +67,7 @@ export class MembranesDashboard extends ZomeElement<MembranesPerspective, Membra
     const rolesLi = Object.entries(this.perspective.roles).map(
         ([ehB64, role]) => {
           //console.log("Role", role)
-          const MembraneLi = Object.values(role.enteringMembranes).map(
+          const MembraneLi = role.enteringMembranes.map(
               (membrane) => {
                 return html `<li>${this._zvm.findMembrane(membrane)}</li>`
               }
@@ -90,9 +87,9 @@ export class MembranesDashboard extends ZomeElement<MembranesPerspective, Membra
     const membranesLi = Object.entries(this.perspective.membranes).map(
         ([ehB64, membrane]) => {
           //console.log("membrane:", membrane)
-          const thresholdLi = Object.entries(membrane.thresholds).map(
-              ([index, th]) => {
-                return html `<li>${describe_threshold(th, allZomeEntryTypes)}: ${index}</li>`
+          const thresholdLi = membrane.thresholds.map(
+              (th) => {
+                return html `<li>${describe_threshold(th, this._zvm.allEntryDefs)}</li>`
               }
           )
           return html `
@@ -100,9 +97,9 @@ export class MembranesDashboard extends ZomeElement<MembranesPerspective, Membra
               <i>${ehB64}</i>
               <br/>
               &nbsp;&nbsp;&nbsp;Thresholds:
-            <ul>
+            <ol>
               ${thresholdLi}
-            </ul>
+            </ol>
           </li>`
         }
     )
@@ -110,7 +107,7 @@ export class MembranesDashboard extends ZomeElement<MembranesPerspective, Membra
     const thresholdsLi = Object.entries(this.perspective.thresholds).map(
         ([ehB64, threshold]) => {
           //console.log({threshold})
-          let desc = describe_threshold(threshold, allZomeEntryTypes) + ": " + ehB64;
+          let desc = threshold.typeName + ": " + ehB64;
           return html `<li title=${ehB64}><abbr>${desc}</abbr></li>`
         }
     )
@@ -128,9 +125,10 @@ export class MembranesDashboard extends ZomeElement<MembranesPerspective, Membra
           return html `<li title="proofs: ${JSON.stringify(claim.proofs)}"><abbr>${this._zvm.findMembrane(claim.membrane)}</abbr></li>`
         }
     )
+
     /** render all */
     return html`
-      <div>
+      <div style="padding-bottom:30px">
         <h1>Membranes Dashboard</h1>
         <h2>Registered threshold types</h2>
         <ul>${typesLi}</ul>
