@@ -23,14 +23,9 @@ import {CreateEntryCountThreshold} from "../bindings/createEntryCount.types";
 import { decode } from '@msgpack/msgpack';
 import {VouchThreshold} from "../bindings/vouch.types";
 
-// /** Output a human-readable phrase out of a Threshold */
-// export function describe_threshold(th: MembraneThreshold, _allZomeTypes: [string, boolean][][]): string {
-//   return th.typeName;
-// }
-
 
 /** Output a human-readable phrase out of a Threshold */
-export function describe_threshold(th: MembraneThreshold, entryDefs: MyDictionary<MyDictionary<EntryDef>>): string {
+export function describeThreshold(th: MembraneThreshold, entryDefs: MyDictionary<MyDictionary<EntryDef>>): string {
   if (th.typeName == 'Vouch') {
     let typed = decode(th.data) as any as VouchThreshold;
     return "Get " + typed.requiredCount + " vouch(s) by \"" + typed.byRole + "\" for \"" + typed.forRole + "\"";

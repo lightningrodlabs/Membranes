@@ -1,8 +1,8 @@
 import {html} from "lit";
 import {state, customElement} from "lit/decorators.js";
-import { ZomeElement } from "@ddd-qc/lit-happ";
+import {EntryId, ZomeElement} from "@ddd-qc/lit-happ";
 
-import {describe_threshold, MembranesZvm} from "../viewModel/membranes.zvm";
+import {describeThreshold, MembranesZvm} from "../viewModel/membranes.zvm";
 import {MembranesPerspective} from "../viewModel/membranes.perspective";
 
 
@@ -59,7 +59,7 @@ export class MembranesDashboard extends ZomeElement<MembranesPerspective, Membra
               //console.log("MembraneLi", MembraneLi)
               return html `
               <li style="margin-top:10px;" title=${typeName}>
-                  <b>${typeName}</b> from zome <i>${zomeName}</i>
+                  <b>${typeName}</b> - <i>${zomeName}</i>
               </li>`
           }
       )
@@ -69,7 +69,9 @@ export class MembranesDashboard extends ZomeElement<MembranesPerspective, Membra
           //console.log("Role", role)
           const MembraneLi = role.enteringMembranes.map(
               (membrane) => {
-                return html `<li>${this._zvm.findMembrane(membrane)}</li>`
+                  const memEhB64 = this._zvm.findMembrane(membrane);
+                  const m = memEhB64? new EntryId(memEhB64).short :"";
+                return html `<li>${m}</li>`
               }
           )
           //console.log("MembraneLi", MembraneLi)
@@ -89,14 +91,13 @@ export class MembranesDashboard extends ZomeElement<MembranesPerspective, Membra
           //console.log("membrane:", membrane)
           const thresholdLi = membrane.thresholds.map(
               (th) => {
-                return html `<li>${describe_threshold(th, this._zvm.allEntryDefs)}</li>`
+                return html `<li>${describeThreshold(th, this._zvm.allEntryDefs)}</li>`
               }
           )
           return html `
           <li style="margin-top:10px;">
-              <i>${ehB64}</i>
+              <b>${new EntryId(ehB64).short}</b>
               <br/>
-              &nbsp;&nbsp;&nbsp;Thresholds:
             <ol>
               ${thresholdLi}
             </ol>
@@ -106,29 +107,15 @@ export class MembranesDashboard extends ZomeElement<MembranesPerspective, Membra
     /* Thresholds */
     const thresholdsLi = Object.entries(this.perspective.thresholds).map(
         ([ehB64, threshold]) => {
+          //const eh = new EntryId(ehB64);
           //console.log({threshold})
-          let desc = threshold.typeName + ": " + ehB64;
-          return html `<li title=${ehB64}><abbr>${desc}</abbr></li>`
+          //let desc =  + ": " + eh.short;
+          return html `<li title=${ehB64}><abbr>${threshold.typeName}</abbr>: ${describeThreshold(threshold, this._zvm.allEntryDefs)}</li>`
         }
     )
-    /* My Role Claims */
-    const myRoleClaimsLi = Object.entries(this.perspective.myRoleClaims).map(
-        ([ehB64, claim]) => {
-          //console.log("membrane:", ehB64)
-          return html `<li title=${ehB64}><abbr>${claim.role.name} - (crossed membrane index:${claim.membraneIndex})</abbr></li>`
-        }
-    )
-    /* My Membrane Claims */
-    const myMembraneClaimsLi = Object.entries(this.perspective.myMembraneClaims).map(
-        ([_ehB64, claim]) => {
-          //console.log("membrane claim:", ehB64, claim)
-          return html `<li title="proofs: ${JSON.stringify(claim.proofs)}"><abbr>${this._zvm.findMembrane(claim.membrane)}</abbr></li>`
-        }
-    )
-
     /** render all */
     return html`
-      <div style="padding-bottom:30px">
+        <div>
         <h1>Membranes Dashboard</h1>
         <h2>Registered threshold types</h2>
         <ul>${typesLi}</ul>
@@ -138,12 +125,6 @@ export class MembranesDashboard extends ZomeElement<MembranesPerspective, Membra
         <ul>${membranesLi}</ul>
         <h2 style="margin-top:30px;margin-bottom:0px;">Thresholds</h2>
         <ul>${thresholdsLi}</ul>
-        <hr class="solid">        
-        <h2>My Passport <button type="button" @click=${this.claimAll}>Claim all</button></h2>
-        <h3>Roles</h3>
-        <ul>${myRoleClaimsLi}</ul>
-        <h3>Membranes</h3>
-        <ul>${myMembraneClaimsLi}</ul>
       </div>
     `;
   }

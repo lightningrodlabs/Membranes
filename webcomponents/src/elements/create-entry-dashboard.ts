@@ -97,7 +97,7 @@ export class CreateEntryDashboard extends ZomeElement<void, CreateEntryCountZvm>
     /** render all */
     return html`
       <div>
-        <h1>CreateEntry Dashboard</h1>
+        <h1>CreateEntry</h1>
         <span>Agent</span>
         <select id="agentSelector">
           ${agentOptions}

@@ -67,12 +67,12 @@ export class CreateVouchThreshold extends ZomeElement<VouchPerspective, VouchZvm
         /** render all */
         return html`
         <div>
-          <h1>Vouch Threshold</h1>
-          <h2>Existing</h2>
+          <h2>Vouch Thresholds</h2>
+          <h3>Existing thresholds</h3>
             <ul>
               ${thresholdsLi}
             </ul>            
-          <h2>New Vouch Threshold</h2>
+          <h3>Create New Vouch Threshold</h3>
           <form>
               <label for="requiredVouchCount">Receive</label>
               <input type="number" id="requiredVouchCount" style="width: 40px;">

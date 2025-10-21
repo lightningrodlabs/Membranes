@@ -132,12 +132,12 @@ export class CreateCecThreshold extends ZomeElement<CreateEntryCountPerspective,
         /** render all */
         return html`
         <div>
-          <h1>CreateEntryCount Threshold</h1>
-          <h2>Existing thresholds</h2>
+          <h2>CreateEntry Threshold</h2>
+          <h3>Existing thresholds</h3>
             <ul>
               ${thresholdsLi}
             </ul>            
-          <h2>New threshold</h2>
+          <h3>Create new threshold</h3>
           <form>
               <label for="createEntryCountNumber">Create</label>
               <input type="number" id="createEntryCountNumber" style="width: 40px;">

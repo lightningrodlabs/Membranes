@@ -2,7 +2,7 @@ import {css, html} from "lit";
 import {state, customElement} from "lit/decorators.js";
 
 import {EntryId, ZomeElement} from "@ddd-qc/lit-happ";
-import {MembranesZvm} from "../viewModel/membranes.zvm";
+import {describeThreshold, MembranesZvm} from "../viewModel/membranes.zvm";
 import {MembranesPerspective} from "../viewModel/membranes.perspective";
 
 
@@ -160,24 +160,26 @@ export class MembranesCreatorPage extends ZomeElement<MembranesPerspective, Memb
         /* Elements */
         const membranesForRoleLi = Object.entries(this._membranesForCurrentRole).map(
             ([_index, eh]) => {
-                return html `<li>${eh.b64}</li>`
+                return html `<li>${eh.short}</li>`
             }
         )
-        const membraneOptions = Object.entries(membranes).map(
-            ([ehB64, _membrane]) => {
-                return html `<option value="${ehB64}">${ehB64.substring(0, 12)}</option>`
+        const membraneOptions = Object.keys(membranes).map(
+            (ehB64) => {
+                const eh = new EntryId(ehB64);
+                return html `<option value="${ehB64}">${eh.short}</option>`
             }
         )
 
-        const thresholdsLi = Object.entries(this._thresholdsForCurrentMembrane).map(
-            ([_index, eh]) => {
-                return html `<li>${thresholds[eh.b64]!.typeName}: ${eh.b64}</li>`
+        const thresholdsLi = Object.values(this._thresholdsForCurrentMembrane).map(
+            (eh) => {
+                const th = thresholds[eh.b64]!;
+                return html `<li>${th.typeName}: ${describeThreshold(th, this._zvm.allEntryDefs)}</li>`
             }
         )
 
         const thresholdOptions = Object.entries(thresholds).map(
             ([ehB64, th]) => {
-                return html `<option value="${ehB64}">${th.typeName}: ${ehB64}</option>`
+                return html `<option value="${ehB64}">${th.typeName}: ${describeThreshold(th, this._zvm.allEntryDefs)}</option>`
             }
         )
 
@@ -186,7 +188,7 @@ export class MembranesCreatorPage extends ZomeElement<MembranesPerspective, Memb
         <div>
             <h1>Membrane Creator</h1>
             <!-- NEW ROLE -->
-            <h2>New Role</h2>
+            <h2 style="margin-top:40px;">Role</h2>
               <form>
                   <label for="roleNameInput">Name:</label>
                   <input type="text" id="roleNameInput" name="name">
@@ -201,9 +203,8 @@ export class MembranesCreatorPage extends ZomeElement<MembranesPerspective, Memb
                       <input type="button" value="create" @click=${this.onCreateRole}>                      
                   </div>
               </form>
-            <hr class="solid">
             <!-- NEW Membrane -->
-            <h2>New Membrane</h2>
+            <h2 style="margin-top:40px;">Membrane</h2>
             <form>
                 Thresholds:
                 <ul id="thresholdsList">${thresholdsLi}</ul>
@@ -216,14 +217,10 @@ export class MembranesCreatorPage extends ZomeElement<MembranesPerspective, Memb
                 </div>
             </form>            
             <!-- NEW Threshold -->
-            <hr class="solid">
-            <h2>
-                New Threshold
-            </h2>
+            <h2 style="margin-top:60px;">Threshold</h2>
             <span>New thresholds can only be created in threshold-plugin UI</span>
             <!-- NEW Privilege -->
-            <hr class="solid">
-            <h2>New Privilege</h2>
+            <h2>Privilege</h2>
             <span>FIXME</span>
         </div>
     `;

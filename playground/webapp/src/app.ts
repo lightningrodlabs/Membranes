@@ -109,50 +109,68 @@ export class TaskerApp extends HappElement {
     console.log({zomeNames})
     let page;
     switch (this._pageDisplayIndex) {
-      case 0: page = html`<tasker-page style="flex: 1;"></tasker-page>` ; break;
-      case 1: page = html`<membranes-dashboard style="flex: 1;"></membranes-dashboard>`; break;
-      case 2: page = html`<membranes-creator-page style="flex: 1;"></membranes-creator-page>`; break;
-      case 3: page = html`<vouch-dashboard .knownAgents=${knownAgents} style="flex: 1;"></vouch-dashboard>`; break;
-      case 4: page = html`<create-entry-dashboard .knownAgents=${knownAgents} .zomeIndexes="${this._dnaDef?.coordinator_zomes}" style="flex: 1;"></create-entry-dashboard>`; break;
-      case 5: page = html`<create-vouch-threshold style="flex: 1;"></create-vouch-threshold>`; break;
-      case 6: page = html`<create-cec-threshold .zomeNames=${zomeNames} style="flex: 1;"></create-cec-threshold>`; break;
-      case 7: page = html`<agent-directory-list style="flex: 1;"></agent-directory-list>`; break;
-
+      case 0: page = html`
+          <div style="display: flex; gap:20px;">
+              <tasker-page style="flex:1;"></tasker-page>
+              <div style="display: flex; flex-direction: column; flex:1;">
+                  <h2 style="margin-bottom: 0px;">Agents</h2>
+                  <agent-directory-list></agent-directory-list>
+              <passport-view></passport-view>
+              </div>                  
+          </div>`;
+      break;
+      case 1: page = html`
+          <div style="display: flex;">
+            <membranes-dashboard style="flex: 1;"></membranes-dashboard>
+              <membranes-creator-page style="flex: 1;"></membranes-creator-page>
+          </div>`;
+      break;
+      case 2: page = html`
+          <div style="display: flex;">
+              <vouch-dashboard .knownAgents=${knownAgents} style="flex: 1;"></vouch-dashboard>
+              <create-vouch-threshold style="flex: 1;"></create-vouch-threshold>
+          </div>`;
+      break;
+      case 3: page = html`
+          <div style="display: flex;">
+            <create-entry-dashboard style="flex: 1;" .knownAgents=${knownAgents} .zomeIndexes="${this._dnaDef?.coordinator_zomes}" style="flex: 1;"></create-entry-dashboard>
+            <create-cec-threshold style="flex: 1;" .zomeNames=${zomeNames} style="flex: 1;"></create-cec-threshold>
+          </div>`;
+      break;
       default: page = html`unknown page index`;
     }
 
     /* render all */
     return html`
       <cell-context .cell="${this._cell}">
-        <div>
+        <div style="margin: 3px;">
           <view-cell-context></view-cell-context>
           <input type="button" value="Tasker" @click=${() => {this._pageDisplayIndex = 0; this.requestUpdate()}} >
-          <input type="button" value="Membranes Dashboard" @click=${() => {this._pageDisplayIndex = 1; this.requestUpdate()}} >
-          <input type="button" value="Membranes Creator" @click=${() => {this._pageDisplayIndex = 2; this.requestUpdate()}} >
-          <input type="button" value="Vouch Dashboard" @click=${() => {this._pageDisplayIndex = 3; this.requestUpdate()}} >
-          <input type="button" value="CreateEntry Dashboard" @click=${() => {this._pageDisplayIndex = 4; this.requestUpdate()}} >
-          <input type="button" value="Create Vouch Threshold" @click=${() => {this._pageDisplayIndex = 5; this.requestUpdate()}} >
-          <input type="button" value="Create CEC Threshold" @click=${() => {this._pageDisplayIndex = 6; this.requestUpdate()}} >
-          <input type="button" value="Agent Directory" @click=${() => {this._pageDisplayIndex = 7; this.requestUpdate()}} >
-            <button type="button" @click=${async () => {
-                this.taskerDvm.dumpCallLogs();
-                this.taskerDvm.dumpSignalLogs();
-                this.networkCaller?.dumpNetworkMetricsLogs();
-            }}>dump</button>
-            <input type="button" value="Loop networkInfos" @click=${async (_e:any) => {
-                console.log("networkInfos:", this.networkCaller?.isLooping(), this.networkCaller, this.taskerDvm.cell.address)
-                this.networkCaller?.setCellAddr(this.taskerDvm.cell.address)
-                if (!this.networkCaller?.isLooping()) {
-                    console.log("Start loop");
-                    //this.networkCaller?.addCallback((info: NetworkMetrics) => {console.log(info)})
-                    await this.networkCaller?.startCallLoop(1000);
-                } else {
-                    this.networkCaller?.stopCallLoop();
-                    this.networkCaller?.clearAllCallbacks();
-                }
-            }}>
+          <input type="button" value="Membranes" @click=${() => {this._pageDisplayIndex = 1; this.requestUpdate()}} >
+          <input type="button" value="Vouch" @click=${() => {this._pageDisplayIndex = 2; this.requestUpdate()}} >
+          <input type="button" value="CreateEntry" @click=${() => {this._pageDisplayIndex = 3; this.requestUpdate()}} >
         </div>
-        <input type="button" value="Make me king!" @click=${() => {this.cloneTasker()}}>
+          <input type="button" value="Make me king!" @click=${() => {this.cloneTasker()}}>
+
+          <input type="button" value="Loop networkInfos" @click=${async (_e:any) => {
+              console.log("networkInfos:", this.networkCaller?.isLooping(), this.networkCaller, this.taskerDvm.cell.address)
+              this.networkCaller?.setCellAddr(this.taskerDvm.cell.address)
+              if (!this.networkCaller?.isLooping()) {
+                  console.log("Start loop");
+                  //this.networkCaller?.addCallback((info: NetworkMetrics) => {console.log(info)})
+                  await this.networkCaller?.startCallLoop(1000);
+              } else {
+                  this.networkCaller?.stopCallLoop();
+                  this.networkCaller?.clearAllCallbacks();
+              }
+          }}>
+          
+          <button type="button" @click=${async () => {
+              this.taskerDvm.dumpCallLogs();
+              this.taskerDvm.dumpSignalLogs();
+              this.networkCaller?.dumpNetworkMetricsLogs();
+          }}>dump</button>
+          
         <button type="button" @click=${this.refresh}>Refresh</button>
         <span><b>Agent:</b> ${this.taskerDvm.cell.address.agentId.short}</span>
         <hr class="solid">      

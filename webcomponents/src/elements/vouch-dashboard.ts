@@ -73,7 +73,7 @@ export class VouchDashboard extends ZomeElement<VouchPerspective, VouchZvm> {
     /* My Emitted Vouches */
     const myEmittedLi = Object.entries(this.perspective.myVouches).map(
         ([roleName, [emitted, _received]]) => {
-          const emittedLi = emitted.map((vouch) => { return html`<li>${vouch.subject.b64}</li>`})
+          const emittedLi = emitted.map((vouch) => { return html`<li>${vouch.subject.short}</li>`})
           return html `<li>${roleName}<ul>${emittedLi}</ul></li>`
         }
     )
@@ -90,7 +90,7 @@ export class VouchDashboard extends ZomeElement<VouchPerspective, VouchZvm> {
     /** render all */
     return html`
       <div>
-        <h1>Vouch Dashboard</h1>
+        <h1>Vouch</h1>
         <span>Vouch</span>
         <select id="agentSelector">
           ${agentOptions}
@@ -100,13 +100,11 @@ export class VouchDashboard extends ZomeElement<VouchPerspective, VouchZvm> {
           ${roleOptions}
         </select>        
         <input type="button" value="Submit" @click=${this.onVouch}>
-        <hr class="solid">        
-        <h2>Vouches Emitted</h2>
+        <h2>Emitted</h2>
         <ul>
           ${myEmittedLi}
         </ul>
-        <hr class="solid">
-        <h2>Received Vouches</h2>
+        <h2>Received</h2>
         <ul>
           ${myReceivedLi}
         </ul>
