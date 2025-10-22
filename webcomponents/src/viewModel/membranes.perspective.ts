@@ -8,6 +8,7 @@ export interface MembranesPerspective {
     thresholdTypes: Record<string, string>,
     /** EntryHashB64 -> <typed> */
     thresholds: Record<string, MembraneThreshold>,
+    thresholdProof: ThresholdReachedProof[],
     membranes: Record<string, TypedMembrane>,
     roles: Record<string, TypedMembraneRole>,
     myRoleClaims: Record<string, TypedRoleClaim>,
@@ -19,6 +20,7 @@ export function defaultPerspective(): MembranesPerspective {
     return {
         thresholdTypes: {},
         thresholds: {},
+        thresholdProof: [],
         membranes: {},
         roles: {},
         myRoleClaims: {},

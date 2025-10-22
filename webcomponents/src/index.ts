@@ -17,3 +17,5 @@ export * from './viewModel/vouch.zvm';
 export * from './elements/create-vouch-threshold';
 export * from './elements/create-cec-threshold';
 export * from './viewModel/createEntryCount.zvm';
+
+export * from './viewModel/progenitor.zvm';

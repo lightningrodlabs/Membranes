@@ -50,20 +50,34 @@ fn get_create_entries(
    subject: AgentPubKey,
    entry_type: MyAppEntryType,
 ) -> ExternResult<Vec<(u32, ActionHash)>> {
+   let entry_type = EntryType::App(entry_type.into_typed());
    /// Ask subject directly
    // FIXME
-   /// Ask subject's neighbours
-   let query = ChainQueryFilter::default()
-      .include_entries(false)
-      .action_type(ActionType::Create)
-      .entry_type(EntryType::App(entry_type.into_typed()));
-   let activity = get_agent_activity(subject, query, ActivityRequest::Full)?;
-   let actions = activity.valid_activity;
-   //debug!("get_created_entries() valid actions found: {:?}", actions);
+   /// Ask subject's neighbors
+   /// FIXME: get_agent_activity doesnt work
+   // let query = ChainQueryFilter::default()
+   //    .include_entries(false)
+   //    .action_type(ActionType::Create)
+   //    .entry_type(entry_type);
+   //let activity = get_agent_activity(subject, query, ActivityRequest::Full)?;
+   //let actions = activity.valid_activity.clone();
+   /// With must_get_agent_activity
+   let filter: ChainFilter<ActionHash> = ChainFilter {
+      chain_top: call_info()?.as_at.0,
+      include_cached_entries: true,
+      filters: ChainFilters::ToGenesis,
+   };
+   let actions = must_get_agent_activity(subject, filter)?;
+   let actions: Vec<(u32, ActionHash)> = actions.into_iter().filter_map(|activity| {
+      let Action::Create(create) = activity.action.action().clone() else { return None };
+      if create.entry_type != entry_type {return None};
+      Some((create.action_seq, activity.action.action_address().clone()))
+   }).collect();
+   debug!("get_created_entries() valid actions found: {} | {:?}", actions.len(), actions);
    Ok(actions)
 }
 
-//----------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------
 
 use hdk::prelude::*;
 
@@ -79,4 +93,4 @@ fn get_dna_info(_:()) -> ExternResult<DnaInfo> {
    return dna_info();
 }
 
-//----------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------

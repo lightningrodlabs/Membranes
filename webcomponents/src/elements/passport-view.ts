@@ -1,6 +1,6 @@
 import {html} from "lit";
 import {state, customElement} from "lit/decorators.js";
-import { ZomeElement } from "@ddd-qc/lit-happ";
+import {EntryId, ZomeElement} from "@ddd-qc/lit-happ";
 
 import {MembranesZvm} from "../viewModel/membranes.zvm";
 import {MembranesPerspective} from "../viewModel/membranes.perspective";
@@ -42,24 +42,29 @@ export class PassportView extends ZomeElement<MembranesPerspective, MembranesZvm
           return html`<span>Loading...</span>`;
       }
     /* My Role Claims */
-    const myRoleClaimsLi = Object.entries(this.perspective.myRoleClaims).map(
+    let myRoleClaimsLi = Object.entries(this.perspective.myRoleClaims).map(
         ([ehB64, claim]) => {
           //console.log("membrane:", ehB64)
           return html `<li title=${ehB64}><abbr>${claim.role.name} - (crossed membrane index:${claim.membraneIndex})</abbr></li>`
         }
     )
-    /* My Membrane Claims */
-    const myMembraneClaimsLi = Object.entries(this.perspective.myMembraneClaims).map(
+      myRoleClaimsLi = myRoleClaimsLi.length > 0? myRoleClaimsLi : [html`none`];
+
+      /* My Membrane Claims */
+    let myMembraneClaimsLi = Object.entries(this.perspective.myMembraneClaims).map(
         ([_ehB64, claim]) => {
           //console.log("membrane claim:", ehB64, claim)
-          return html `<li title="proofs: ${JSON.stringify(claim.proofs)}"><abbr>${this._zvm.findMembrane(claim.membrane)}</abbr></li>`
+            const memEh = new EntryId(this._zvm.findMembrane(claim.membrane)!);
+          return html `<li title="proofs: ${JSON.stringify(claim.proofs)}"><abbr>${memEh.short}</abbr></li>`
         }
     )
+    myMembraneClaimsLi = myMembraneClaimsLi.length > 0? myMembraneClaimsLi : [html`none`];
 
     /* render all */
     return html`
       <div>     
-        <h2>My Passport <button type="button" @click=${this.claimAll}>Claim all</button></h2>
+        <h2>
+            <abbr title="There are no threshold cross claims in this design. Thresholds are checked during membrane checks">My Passport</abbr> <button type="button" style="margin-left:10px;" @click=${this.claimAll}>Claim all</button></h2>
         <h3>Roles</h3>
         <ul>${myRoleClaimsLi}</ul>
         <h3>Membranes</h3>

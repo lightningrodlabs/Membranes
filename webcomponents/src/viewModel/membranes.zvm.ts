@@ -3,7 +3,7 @@ import {
   EntryHash,
   EntryHashB64
 } from "@holochain/client";
-import {AgentId, EntryDef, EntryId, MyDictionary, ZomeViewModel} from "@ddd-qc/lit-happ";
+import {AgentId, EntryId, ZomeViewModel} from "@ddd-qc/lit-happ";
 import {MembranesProxy} from "../bindings/membranes.proxy";
 import {
   Membrane,
@@ -25,7 +25,7 @@ import {VouchThreshold} from "../bindings/vouch.types";
 
 
 /** Output a human-readable phrase out of a Threshold */
-export function describeThreshold(th: MembraneThreshold, entryDefs: MyDictionary<MyDictionary<EntryDef>>): string {
+export function describeThreshold(th: MembraneThreshold, zvm: ZomeViewModel): string {
   if (th.typeName == 'Vouch') {
     let typed = decode(th.data) as any as VouchThreshold;
     return "Get " + typed.requiredCount + " vouch(s) by \"" + typed.byRole + "\" for \"" + typed.forRole + "\"";
@@ -33,12 +33,21 @@ export function describeThreshold(th: MembraneThreshold, entryDefs: MyDictionary
   }
   if (th.typeName == 'CreateEntryCount') {
     let typed = decode(th.data) as any as CreateEntryCountThreshold;
-    const zomeTypes = Object.values(entryDefs)[typed.entryType.zomeIndex]!;
-    //console.log({zomeTypes})
-    const entryType = Object.values(zomeTypes)[typed.entryType.entryIndex]!;
+    console.log("CreateEntryCountThreshold", typed, zvm.allZomeInfo, zvm.dnaInfo.zome_names, zvm.zomeNames);
+
+    // Better but not working way
+    //const zomeName = zvm.dnaInfo.zome_names[typed.entryType.zomeIndex]!;
+    //const zomeInfo: ZomeInfo = zvm.allZomeInfo[zomeName]!;
+    //const entryDef =  zomeInfo.entry_defs[typed.entryType.entryIndex]!;
+
+    // Brittle way
+    const coordinatorZomeName = zvm.zomeNames[typed.entryType.zomeIndex]!;
+    const zomeEntryDefs = zvm.allEntryDefs[coordinatorZomeName]!;
+    const entryDef = Object.values(zomeEntryDefs)[typed.entryType.entryIndex]!;
+
     let entryName = "(cap)";
-    if ("App" in entryType.id) {
-        entryName = entryType.id.App;
+    if ("App" in entryDef.id) {
+        entryName = entryDef.id.App;
     }
 
       //console.log({entryType})

@@ -91,7 +91,7 @@ export class MembranesDashboard extends ZomeElement<MembranesPerspective, Membra
           //console.log("membrane:", membrane)
           const thresholdLi = membrane.thresholds.map(
               (th) => {
-                return html `<li>${describeThreshold(th, this._zvm.allEntryDefs)}</li>`
+                return html `<li>${describeThreshold(th, this._zvm)}</li>`
               }
           )
           return html `
@@ -110,7 +110,7 @@ export class MembranesDashboard extends ZomeElement<MembranesPerspective, Membra
           //const eh = new EntryId(ehB64);
           //console.log({threshold})
           //let desc =  + ": " + eh.short;
-          return html `<li title=${ehB64}><abbr>${threshold.typeName}</abbr>: ${describeThreshold(threshold, this._zvm.allEntryDefs)}</li>`
+          return html `<li title=${ehB64}><abbr>${threshold.typeName}</abbr>: ${describeThreshold(threshold, this._zvm)}</li>`
         }
     )
     /** render all */

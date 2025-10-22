@@ -56,6 +56,7 @@ export class CreateEntryDashboard extends ZomeElement<void, CreateEntryCountZvm>
     const zomeIndex = this.getZomeIndex(zomeSelector.value);
     const entryType: MyAppEntryType = {entryIndex: entrySelector.selectedIndex, zomeIndex, isPublic: true};  // FIXME
     this._queryResult = await this._zvm.getCreateCount(new AgentId(agentSelector.value), entryType);
+      console.log("onQuery() RESULT", this._queryResult, entryType);
   }
 
 

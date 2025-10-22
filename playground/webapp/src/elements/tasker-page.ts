@@ -160,12 +160,12 @@ export class TaskerPage extends DnaElement<unknown, TaskerDvm> {
 
     //console.log("tasker-page.render() selectedList", selectedList);
 
-    const listEntryLi = Object.entries(taskListEntries).map(
-        ([_ehB64, taskList]) => {
-          //console.log("localTaskList.item:", ahB64)
-          return html `<li>${taskList.title}</li>`
-        }
-    )
+    // const listEntryLi = Object.entries(taskListEntries).map(
+    //     ([_ehB64, taskList]) => {
+    //       //console.log("localTaskList.item:", ahB64)
+    //       return html `<li>${taskList.title}</li>`
+    //     }
+    // )
 
     const listEntryOption = Object.entries(taskListEntries).map(
       ([ehB64, taskList]) => {
@@ -195,19 +195,19 @@ export class TaskerPage extends DnaElement<unknown, TaskerDvm> {
           }
       )
       selectedListHtml = html `
-        <h2>${maybeSelectedList.title}</h2>
+        <h2><u>${maybeSelectedList.title}</u></h2>
             <!-- <span>Locked: ${maybeSelectedList.isLocked}</span> -->
-          <input type="button" value="Lock" @click=${this.onLockList} .disabled=${maybeSelectedList.isLocked}>
+          <input style="margin-bottom: 10px;" type="button" value="Lock" @click=${this.onLockList} .disabled=${maybeSelectedList.isLocked}>
           <br/>
           <label for="itemTitleInput">Add task:</label>
           <input type="text" id="itemTitleInput" name="title" .disabled=${maybeSelectedList.isLocked}>
-          <select name="selectedAgent" id="selectedAgent" .disabled=${maybeSelectedList.isLocked}>
+          <select style="min-width: 90px;" name="selectedAgent" id="selectedAgent" .disabled=${maybeSelectedList.isLocked}>
             ${AgentOptions}
           </select>
         <input type="button" value="Add" @click=${this.onCreateTask} .disabled=${maybeSelectedList.isLocked}>
-          <form id="listForm">
+          <form id="listForm" style="margin:10px;">
               ${listItems}
-          <input type="button" value="submit" @click=${() => this.onSubmitCompletion(maybeSelectedList!)} .disabled=${maybeSelectedList.isLocked}>
+          <input style="margin-top: 10px;" type="button" value="submit" @click=${() => this.onSubmitCompletion(maybeSelectedList!)} .disabled=${maybeSelectedList.isLocked}>
           </form>
       `
     }
@@ -221,21 +221,20 @@ export class TaskerPage extends DnaElement<unknown, TaskerDvm> {
       }
     }
     return html`
-      <div>
-        <h1>Tasker: Membranes playground</h1>
-        <span id="responseSpan"><b>My Roles:</b> ${myRolesStr}</span>
-        <ul>${listEntryLi}</ul>
-          <label for="listTitleInput">New list:</label>
-          <input type="text" id="listTitleInput" name="title">
-          <input type="button" value="create" @click=${this.onCreateList}>
-        <h2>
-          Selected List:
-          <select name="listSelector" id="listSelector" @click=${this.onListSelect}>
-            ${listEntryOption}
-          </select>
-        </h2>
-        ${selectedListHtml}
-      </div>
+        <div style="background-color: #fbf8f6; padding: 10px;">
+            <h1>Tasker: Membranes playground</h1>
+            <div style="padding-bottom: 40px;"><b>My Roles:</b> ${myRolesStr}</div>
+            <label for="listTitleInput">Create new list:</label>
+            <input type="text" id="listTitleInput" name="title">
+            <input type="button" value="create" @click=${this.onCreateList}>
+            <h2 style="margin-top: 20px;">
+                Task lists:
+                <select name="listSelector" id="listSelector" @click=${this.onListSelect}>
+                    ${listEntryOption}
+                </select>
+            </h2>
+            ${selectedListHtml}
+        </div>
     `;
   }
 

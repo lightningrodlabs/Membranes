@@ -1,5 +1,5 @@
 import { DnaViewModel, ZvmDef } from "@ddd-qc/lit-happ";
-import { MembranesZvm, VouchZvm, CreateEntryCountZvm } from "@membranes/elements";
+import {MembranesZvm, VouchZvm, CreateEntryCountZvm, ProgenitorZvm} from "@membranes/elements";
 import {TaskerZvm} from "./tasker.zvm"
 import {AgentDirectoryZvm} from "@ddd-qc/agent-directory"
 import {SignalCb} from "@holochain/client";
@@ -15,12 +15,14 @@ export const MEMBRANES_ZOME_NAME = "zMembranes";
   /** -- DnaViewModel Interface -- */
 
   static override readonly DEFAULT_BASE_ROLE_NAME = "rTasker";
+  /// WARN MUST BE IN SAME ORDER AS DNA.YAML (Missing api from Holochain to correlate integrity & coordinator)
   static override readonly ZVM_DEFS: ZvmDef[] = [
-   TaskerZvm,
    [MembranesZvm, MEMBRANES_ZOME_NAME],
-   [AgentDirectoryZvm, "zAgentDirectory"],
    CreateEntryCountZvm,
    VouchZvm,
+   ProgenitorZvm,
+   TaskerZvm,
+   [AgentDirectoryZvm, "zAgentDirectory"],
   ];
 
   readonly signalHandler?: SignalCb;

@@ -16,7 +16,7 @@ mod anchors;
 mod claim_membrane;
 mod claim_role;
 mod get;
-mod misc;
+mod debug;
 mod register;
 
 #[macro_use]

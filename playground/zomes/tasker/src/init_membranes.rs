@@ -44,13 +44,14 @@ pub fn publish_createEntryCountThreshold(
    entry_type: MyAppEntryType,
    required_count: usize,
 ) -> ExternResult<EntryHash> {
-   let vouch_th = CreateEntryCountThreshold {
+   debug!("publish_createEntryCountThreshold() CALLED {:?}", entry_type);
+   let th = CreateEntryCountThreshold {
       required_count,
       entry_type,
    };
    let mth = MembraneThreshold {
       type_name: CREATE_ENTRY_COUNT_THRESHOLD_NAME.to_string(),
-      data: SerializedBytes::try_from(vouch_th).unwrap(),
+      data: SerializedBytes::try_from(th).unwrap(),
    };
    return call_membranes_zome("publish_threshold", mth);
 }

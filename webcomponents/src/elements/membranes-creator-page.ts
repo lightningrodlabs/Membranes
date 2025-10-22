@@ -173,13 +173,13 @@ export class MembranesCreatorPage extends ZomeElement<MembranesPerspective, Memb
         const thresholdsLi = Object.values(this._thresholdsForCurrentMembrane).map(
             (eh) => {
                 const th = thresholds[eh.b64]!;
-                return html `<li>${th.typeName}: ${describeThreshold(th, this._zvm.allEntryDefs)}</li>`
+                return html `<li>${th.typeName}: ${describeThreshold(th, this._zvm)}</li>`
             }
         )
 
         const thresholdOptions = Object.entries(thresholds).map(
             ([ehB64, th]) => {
-                return html `<option value="${ehB64}">${th.typeName}: ${describeThreshold(th, this._zvm.allEntryDefs)}</option>`
+                return html `<option value="${ehB64}">${th.typeName}: ${describeThreshold(th, this._zvm)}</option>`
             }
         )
 

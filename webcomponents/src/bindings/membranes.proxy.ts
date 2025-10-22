@@ -133,6 +133,10 @@ export class MembranesProxy extends ZomeProxy {
     return this.call('claim_all_roles', null);
   }
 
+  async echoAppEntryDef(entryType: AppEntryDef): Promise<void> {
+    return this.call('echo_app_entry_def', entryType);
+  }
+
   async getAllThresholds(maybeTypeName: string): Promise<MembraneThreshold[]> {
     return this.call('get_all_thresholds', maybeTypeName);
   }
@@ -167,14 +171,6 @@ export class MembranesProxy extends ZomeProxy {
 
   async hasCrossedMembrane(input: MembraneInput): Promise<EntryHashB64 | null> {
     return this.call('has_crossed_membrane', input);
-  }
-
-  async dnaInfoHack(): Promise<ZomeName[]> {
-    return this.call('dna_info_hack', null);
-  }
-
-  async echoAppEntryDef(entryType: AppEntryDef): Promise<void> {
-    return this.call('echo_app_entry_def', entryType);
   }
 
   async publishThreshold(threshold: MembraneThreshold): Promise<EntryArray> {

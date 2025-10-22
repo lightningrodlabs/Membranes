@@ -113,9 +113,9 @@ export class TaskerApp extends HappElement {
           <div style="display: flex; gap:20px;">
               <tasker-page style="flex:1;"></tasker-page>
               <div style="display: flex; flex-direction: column; flex:1;">
-                  <h2 style="margin-bottom: 0px;">Agents</h2>
-                  <agent-directory-list></agent-directory-list>
-              <passport-view></passport-view>
+                <h2 style="margin-bottom: 0px;">Agents</h2>
+                <agent-directory-list></agent-directory-list>
+                <passport-view style="padding-top:40px;"></passport-view>
               </div>                  
           </div>`;
       break;
@@ -172,7 +172,7 @@ export class TaskerApp extends HappElement {
           }}>dump</button>
           
         <button type="button" @click=${this.refresh}>Refresh</button>
-        <span><b>Agent:</b> ${this.taskerDvm.cell.address.agentId.short}</span>
+        <span style="margin-left:20px;"><b>Agent:</b> ${this.taskerDvm.cell.address.agentId.short}</span>
         <hr class="solid">      
         ${page}
       </cell-context>        
