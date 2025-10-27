@@ -142,17 +142,22 @@ export class TaskerApp extends HappElement {
 
     /* render all */
     return html`
-      <cell-context .cell="${this._cell}">
-        <div style="margin: 3px;">
-          <view-cell-context></view-cell-context>
-          <input type="button" value="Tasker" @click=${() => {this._pageDisplayIndex = 0; this.requestUpdate()}} >
-          <input type="button" value="Membranes" @click=${() => {this._pageDisplayIndex = 1; this.requestUpdate()}} >
-          <input type="button" value="Vouch" @click=${() => {this._pageDisplayIndex = 2; this.requestUpdate()}} >
-          <input type="button" value="CreateEntry" @click=${() => {this._pageDisplayIndex = 3; this.requestUpdate()}} >
-        </div>
-          <input type="button" value="Make me king!" @click=${() => {this.cloneTasker()}}>
-
-          <input type="button" value="Loop networkInfos" @click=${async (_e:any) => {
+        <cell-context .cell="${this._cell}">
+          <div style=" display: flex; flex-direction: row; gap:5px;">
+            <view-cell-context></view-cell-context>
+            <span style=""> - <b>Agent:</b> ${this.taskerDvm.cell.address.agentId.short}</span>
+          </div>
+          <div style="display: flex; flex-direction: row">
+            <div style="margin: 3px;">
+              <input type="button" value="Tasker" @click=${() => {this._pageDisplayIndex = 0; this.requestUpdate()}} >
+              <input type="button" value="Membranes" @click=${() => {this._pageDisplayIndex = 1; this.requestUpdate()}} >
+              <input type="button" value="Vouch" @click=${() => {this._pageDisplayIndex = 2; this.requestUpdate()}} >
+              <input type="button" value="CreateEntry" @click=${() => {this._pageDisplayIndex = 3; this.requestUpdate()}} >
+            </div>
+              <div style="flex:1;"></div>
+            <div style="margin: 3px;">
+              <input type="button" value="Make me king!" @click=${() => {this.cloneTasker()}}>
+              <input type="button" value="Loop networkInfos" @click=${async (_e:any) => {
               console.log("networkInfos:", this.networkCaller?.isLooping(), this.networkCaller, this.taskerDvm.cell.address)
               this.networkCaller?.setCellAddr(this.taskerDvm.cell.address)
               if (!this.networkCaller?.isLooping()) {
@@ -164,15 +169,14 @@ export class TaskerApp extends HappElement {
                   this.networkCaller?.clearAllCallbacks();
               }
           }}>
-          
-          <button type="button" @click=${async () => {
+            <button type="button" @click=${async () => {
               this.taskerDvm.dumpCallLogs();
               this.taskerDvm.dumpSignalLogs();
               this.networkCaller?.dumpNetworkMetricsLogs();
           }}>dump</button>
-          
-        <button type="button" @click=${this.refresh}>Refresh</button>
-        <span style="margin-left:20px;"><b>Agent:</b> ${this.taskerDvm.cell.address.agentId.short}</span>
+            <button type="button" @click=${this.refresh}>Refresh</button>
+          </div>
+        </div>
         <hr class="solid">      
         ${page}
       </cell-context>        
