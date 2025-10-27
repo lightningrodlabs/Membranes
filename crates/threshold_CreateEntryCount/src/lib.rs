@@ -65,7 +65,7 @@ fn get_create_entries(
    let filter: ChainFilter<ActionHash> = ChainFilter {
       chain_top: call_info()?.as_at.0,
       include_cached_entries: true,
-      filters: ChainFilters::ToGenesis,
+      limit_conditions: LimitConditions::ToGenesis,
    };
    let actions = must_get_agent_activity(subject, filter)?;
    let actions: Vec<(u32, ActionHash)> = actions.into_iter().filter_map(|activity| {

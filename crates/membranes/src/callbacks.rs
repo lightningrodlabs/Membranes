@@ -36,7 +36,7 @@ fn init_anchors() -> ExternResult<InitCallbackResult> {
 
 ///
 fn init_capabilities() -> ExternResult<InitCallbackResult> {
-   let mut functions = BTreeSet::new();
+   let mut functions = HashSet::new();
    functions.insert((zome_info()?.name, REMOTE_ENDPOINT.into()));
    //functions.insert((zome_info()?.name, "get_enc_key".into()));
    create_cap_grant(CapGrantEntry {

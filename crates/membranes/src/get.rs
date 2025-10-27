@@ -72,7 +72,7 @@ pub fn get_my_role_claims_details(_: ()) -> ExternResult<Vec<(EntryHash, RoleCla
    std::panic::set_hook(Box::new(zome_utils::zome_panic_hook));
    let result_pairs = zome_utils::get_typed_from_links::<RoleClaim>(zome_utils::link_input(
       agent_info()?.agent_initial_pubkey,
-      MembranesLinkType::RolePassport,
+      MembranesLinkType::RolePassport.try_into_filter().unwrap(),
       None,
    ))?;
    debug!("myRoleClaims found: {}", result_pairs.len());
@@ -93,7 +93,7 @@ pub fn get_my_membrane_claims_details(
    let result_pairs =
       zome_utils::get_typed_from_links::<MembraneCrossedClaim>(zome_utils::link_input(
          agent_info()?.agent_initial_pubkey,
-         MembranesLinkType::MembranePassport,
+         MembranesLinkType::MembranePassport.try_into_filter().unwrap(),
          None,
       ))?;
    debug!("myMembraneClaims found: {}", result_pairs.len());

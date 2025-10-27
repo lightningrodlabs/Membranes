@@ -13,7 +13,7 @@ fn init_caps(_: ()) -> ExternResult<()> {
    create_cap_grant(CapGrantEntry {
       tag: "".into(),
       access: ().into(), // empty access converts to unrestricted
-      functions: hdk::prelude::GrantedFunctions::Listed(BTreeSet::new()),
+      functions: hdk::prelude::GrantedFunctions::Listed(HashSet::new()),
       //functions,
    })?;
    Ok(())

@@ -119,9 +119,9 @@ export class MembranesDashboard extends ZomeElement<MembranesPerspective, Membra
         <h1>Membranes Dashboard</h1>
         <h2>Registered threshold types</h2>
         <ul>${typesLi}</ul>
-        <h2>Roles</h2>
+        <h2>Roles <span style="font-size:16px;color:grey">(or)</span></h2>
         <ul>${rolesLi}</ul>        
-        <h2>Membranes</h2>
+        <h2>Membranes <span style="font-size:16px; color:grey">(and)</span></h2>
         <ul>${membranesLi}</ul>
         <h2 style="margin-top:30px;margin-bottom:0px;">Thresholds</h2>
         <ul>${thresholdsLi}</ul>

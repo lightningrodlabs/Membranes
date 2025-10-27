@@ -15,7 +15,7 @@ pub fn get_all_membranes_details(_: ()) -> ExternResult<Vec<(EntryHash, Membrane
    let root_path = Path::from(anchors::Membranes).path_entry_hash()?;
    let result_pairs = zome_utils::get_typed_from_links::<Membrane>(zome_utils::link_input(
       root_path,
-      MembranesLinkType::Membrane,
+      MembranesLinkType::Membrane.try_into_filter().unwrap(),
       None,
    ))?;
    debug!("Membranes found: {}", result_pairs.len());
@@ -40,7 +40,7 @@ pub fn get_all_roles_details(_: ()) -> ExternResult<Vec<(EntryHash, MembraneRole
    let root_path = Path::from(anchors::Roles).path_entry_hash()?;
    let result_pairs = zome_utils::get_typed_from_links::<MembraneRole>(zome_utils::link_input(
       root_path,
-      MembranesLinkType::Role,
+      MembranesLinkType::Role.try_into_filter().unwrap(),
       None,
    ))?;
    debug!("roles found: {}", result_pairs.len());
@@ -71,7 +71,7 @@ pub fn get_role_by_name(requested_name: String) -> ExternResult<Option<MembraneR
 pub fn get_all_thresholds_details(_: ()) -> ExternResult<Vec<(EntryHash, MembraneThreshold)>> {
    let root_path = Path::from(anchors::Thresholds).path_entry_hash()?;
    let result_pairs = zome_utils::get_typed_from_links::<MembraneThreshold>(
-      zome_utils::link_input(root_path, MembranesLinkType::Threshold, None),
+      zome_utils::link_input(root_path, MembranesLinkType::Threshold.try_into_filter().unwrap(), None),
    )?;
    debug!("Thresholds found: {}", result_pairs.len());
    let mut result = Vec::new();

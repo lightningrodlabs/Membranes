@@ -101,10 +101,9 @@ pub fn complete_task(task_eh: EntryHash) -> ExternResult<ActionHash> {
 #[hdk_extern]
 fn is_list_locked(list_eh: EntryHash) -> ExternResult<bool> {
    std::panic::set_hook(Box::new(zome_utils::zome_panic_hook));
-   let locked_links = get_links(zome_utils::link_input(
+   let locked_links = get_links(LinkQuery::new(
       list_eh.clone(),
-      TaskerLinkType::Locked,
-      None,
-   ))?;
+      TaskerLinkType::Locked.try_into_filter().unwrap(),
+   ), GetStrategy::Network)?;
    Ok(locked_links.len() > 0)
 }

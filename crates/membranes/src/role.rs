@@ -30,7 +30,7 @@ pub fn has_role(input: HasRoleInput) -> ExternResult<Option<SignedActionHashed>>
    let role_eh: EntryHash = input.role_eh.into();
    let link_pairs = zome_utils::get_typed_from_links::<RoleClaim>(zome_utils::link_input(
       agent_id,
-      MembranesLinkType::RolePassport,
+      MembranesLinkType::RolePassport.try_into_filter().unwrap(),
       None,
    ))?;
    for (claim, link) in link_pairs {

@@ -17,7 +17,7 @@ pub fn has_crossed_membrane(input: MembraneInput) -> ExternResult<Option<EntryHa
    let agent_id: AgentPubKey = input.subject.into();
    let membrane_eh: EntryHash = input.membrane_eh.into();
    let link_pairs = zome_utils::get_typed_from_links::<MembraneCrossedClaim>(
-      zome_utils::link_input(agent_id, MembranesLinkType::MembranePassport, None),
+      zome_utils::link_input(agent_id, MembranesLinkType::MembranePassport.try_into_filter().unwrap(), None),
    )?;
    for (claim, _link) in link_pairs {
       if &claim.membrane_eh == &membrane_eh {

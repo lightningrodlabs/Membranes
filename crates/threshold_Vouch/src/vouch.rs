@@ -70,9 +70,9 @@ pub fn get_my_emitted_vouches(maybe_role: Option<String>) -> ExternResult<Vec<En
    };
    let result = get_links(zome_utils::link_input(
       author,
-      VouchThresholdLinkType::VouchEmitted,
+      VouchThresholdLinkType::VouchEmitted.try_into_filter().unwrap(),
       maybe_tag,
-   ))?;
+   ), GetStrategy::Network)?;
    let res = result
       .iter()
       .map(|link| {
@@ -95,9 +95,9 @@ pub fn get_my_received_vouches(
    };
    let result = get_links(zome_utils::link_input(
       author,
-      VouchThresholdLinkType::VouchReceived,
+      VouchThresholdLinkType::VouchReceived.try_into_filter().unwrap(),
       maybe_tag,
-   ))?;
+   ), GetStrategy::Network)?;
    let res = result
       .iter()
       .map(|link| {

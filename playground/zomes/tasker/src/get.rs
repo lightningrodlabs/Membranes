@@ -14,7 +14,7 @@ pub fn get_task_item(eh: EntryHash) -> ExternResult<Option<(TaskItem, bool)>> {
       return Ok(None);
    };
    /// Lookup "Completed" link
-   let links = get_links(zome_utils::link_input(eh, TaskerLinkType::Completed, None))?;
+   let links = get_links(LinkQuery::new(eh, TaskerLinkType::Completed.try_into_filter().unwrap()), GetStrategy::Network)?;
    //debug!("get_task_item() Completed.links.len = {}", links.len());
    /// Done
    Ok(Some((task_item, links.len() > 0)))
@@ -26,11 +26,10 @@ pub fn get_list_items(list_eh: EntryHash) -> ExternResult<Vec<(EntryHash, TaskIt
    std::panic::set_hook(Box::new(zome_utils::zome_panic_hook));
    //debug!("get_list_items() called !");
    //let list: TaskList = zome_utils::get_typed_from_eh(list_eh)?;
-   let item_links = get_links(zome_utils::link_input(
+   let item_links = get_links(LinkQuery::new(
       list_eh.clone(),
-      TaskerLinkType::Item,
-      None,
-   ))?;
+      TaskerLinkType::Item.try_into_filter().unwrap(),
+   ), GetStrategy::Network)?;
    //debug!("item_links() item_links.len = {}", item_links.len());
    let mut result = Vec::new();
    for link in item_links.into_iter() {
@@ -51,16 +50,14 @@ pub fn get_all_lists(_: ()) -> ExternResult<Vec<(EntryHash, TaskList)>> {
    debug!("get_all_lists() called !");
    /// Get all TaskLists links
    let anchor = Path::from("lists").path_entry_hash()?;
-   let links = get_links(zome_utils::link_input(
+   let links = get_links(LinkQuery::new(
       anchor.clone(),
-      TaskerLinkType::TaskLists,
-      None,
-   ));
+      TaskerLinkType::TaskLists.try_into_filter().unwrap(),
+   ), GetStrategy::Network);
    debug!("get_all_lists() {:?}", links);
-   let link_pairs = zome_utils::get_typed_from_links::<TaskList>(zome_utils::link_input(
+   let link_pairs = zome_utils::get_typed_from_links::<TaskList>(LinkQuery::new(
       anchor,
-      TaskerLinkType::TaskLists,
-      None,
+      TaskerLinkType::TaskLists.try_into_filter().unwrap(),
    ))?;
    debug!("get_all_lists() link_pairs.len() = {:?}", link_pairs.len());
    let list_pairs: Vec<(EntryHash, TaskList)> = link_pairs

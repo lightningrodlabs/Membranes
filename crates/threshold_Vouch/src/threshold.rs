@@ -75,10 +75,9 @@ fn claim_threshold_Vouch(input: ClaimThresholdInput) -> ExternResult<Option<Acti
    }
    let by_role_eh = hash_entry(maybe_th_by_role.unwrap())?;
    ///  FIXME filter by role name
-   let link_pairs = zome_utils::get_typed_from_links::<Vouch>(zome_utils::link_input(
+   let link_pairs = zome_utils::get_typed_from_links::<Vouch>(LinkQuery::new(
       input.subject.clone(),
-      VouchThresholdLinkType::VouchReceived,
-      None,
+      VouchThresholdLinkType::VouchReceived.try_into_filter().unwrap(),
    ))?;
    /// First pass: Get vouches from unique authors
    let mut author_map: BTreeMap<AgentPubKey, (Vouch, Link)> = BTreeMap::new();

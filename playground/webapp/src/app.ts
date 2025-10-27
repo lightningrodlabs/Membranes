@@ -61,7 +61,7 @@ export class TaskerApp extends HappElement {
     console.log({adminWs});
     await this.hvm.authorizeAllZomeCalls(adminWs);
     console.log("*** Zome call authorization complete");
-    this._dnaDef = await adminWs.getDnaDefinition(this.taskerDvm.cell.address.dnaId.hash);
+    this._dnaDef = await adminWs.getDnaDefinition(this.taskerDvm.cell.address.intoId());
     console.log("happInitialized() dnaDef", this._dnaDef);
     /** Probe */    
     this._cell = this.taskerDvm.cell;

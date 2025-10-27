@@ -1,43 +1,43 @@
 ---
-manifest_version: "1"
+manifest_version: "0"
 name: dTasker
 integrity:
   zomes:
     - name: membranes_integrity
-      bundled: ../../target/wasm32-unknown-unknown/release/membranes_integrity.wasm
+      path: ../../target/wasm32-unknown-unknown/release/membranes_integrity.wasm
     - name: threshold_CreateEntryCount_integrity
-      bundled: ../../target/wasm32-unknown-unknown/release/threshold_CreateEntryCount_integrity.wasm
+      path: ../../target/wasm32-unknown-unknown/release/threshold_CreateEntryCount_integrity.wasm
     - name: threshold_Vouch_integrity
-      bundled: ../../target/wasm32-unknown-unknown/release/threshold_Vouch_integrity.wasm
+      path: ../../target/wasm32-unknown-unknown/release/threshold_Vouch_integrity.wasm
     - name: threshold_Progenitor_integrity
-      bundled: ../../target/wasm32-unknown-unknown/release/threshold_Progenitor_integrity.wasm
+      path: ../../target/wasm32-unknown-unknown/release/threshold_Progenitor_integrity.wasm
     - name: tasker_model
-      bundled: ../../target/wasm32-unknown-unknown/release/tasker_model.wasm
+      path: ../../target/wasm32-unknown-unknown/release/tasker_model.wasm
     - name: agent_directory_integrity
-      bundled: ../../target/wasm32-unknown-unknown/release/agent_directory_integrity.wasm
+      path: ../../target/wasm32-unknown-unknown/release/agent_directory_integrity.wasm
 coordinator:
   zomes:
     - name: zMembranes
-      bundled: ../../target/wasm32-unknown-unknown/release/membranes.wasm
+      path: ../../target/wasm32-unknown-unknown/release/membranes.wasm
       dependencies:
         - name: membranes_integrity
     - name: zThreshold_CreateEntryCount
-      bundled: ../../target/wasm32-unknown-unknown/release/threshold_CreateEntryCount.wasm
+      path: ../../target/wasm32-unknown-unknown/release/threshold_CreateEntryCount.wasm
       dependencies:
         - name: threshold_CreateEntryCount_integrity
     - name: zThreshold_Vouch
-      bundled: ../../target/wasm32-unknown-unknown/release/threshold_Vouch.wasm
+      path: ../../target/wasm32-unknown-unknown/release/threshold_Vouch.wasm
       dependencies:
         - name: threshold_Vouch_integrity
     - name: zThreshold_Progenitor
-      bundled: ../../target/wasm32-unknown-unknown/release/threshold_Progenitor.wasm
+      path: ../../target/wasm32-unknown-unknown/release/threshold_Progenitor.wasm
       dependencies:
         - name: threshold_Progenitor_integrity
     - name: zTasker
-      bundled: ../../target/wasm32-unknown-unknown/release/tasker.wasm
+      path: ../../target/wasm32-unknown-unknown/release/tasker.wasm
       dependencies:
         - name: tasker_model
     - name: zAgentDirectory
-      bundled: ../../target/wasm32-unknown-unknown/release/agent_directory.wasm
+      path: ../../target/wasm32-unknown-unknown/release/agent_directory.wasm
       dependencies:
         - name: agent_directory_integrity
